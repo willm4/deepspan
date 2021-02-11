@@ -1,0 +1,7 @@
+{
+  "name": "LifeBubbles",
+  "integrations": {
+    "cordova": {}
+  },
+  "type": "angular"
+}

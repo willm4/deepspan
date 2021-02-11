@@ -1,0 +1,23 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>EDIT BUBBLES</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div style="padding-bottom: 15px;"  *ngFor="let bub of bubbles">
+    <bubble-edit [bubble]="bub"></bubble-edit>
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-padding">
+  <ion-button fill="outline" color="secondary" expand="block" (click)="saveBubbles()">
+    SAVE
+  </ion-button>
+</ion-footer>
