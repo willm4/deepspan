@@ -37,3 +37,7 @@ ion-toolbar{
 ion-card{
     margin:10px 10px 0px 10px
 }
+
+.f-center{
+    width: 100%; height: 100%; display: flex; flex-direction:row; justify-content: center; align-items: center;
+}

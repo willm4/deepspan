@@ -1,0 +1,47 @@
+<ion-header>
+  <ion-toolbar color="secondary">
+    <ion-title>{{currentPage == 'login' ? 'LOGIN' : 'SIGN UP'}}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="f-center">
+    <div style="width:100%; flex-direction:row; text-align: center;" *ngIf="currentPage == 'login'">
+      <ion-item>
+        <ion-label position="floating">EMAIL</ion-label>
+        <ion-input color="secondary"[(ngModel)]="email"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">PASSWORD</ion-label>
+        <ion-input color="secondary" type="password" [(ngModel)]="password"></ion-input>
+      </ion-item>
+      <div style="padding-top: 50px;">
+        <ion-text size="small" color="medium">Don't have an account? </ion-text>
+      </div>
+      <ion-button fill="clear" size="small" (click)="switchPage('signup')">SIGN UP</ion-button>
+    </div>
+    <div style="width:100%; flex-direction:row; text-align: center;" *ngIf="currentPage == 'signup'">
+      <ion-item>
+        <ion-label position="floating">NAME</ion-label>
+        <ion-input color="secondary"[(ngModel)]="name"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">EMAIL</ion-label>
+        <ion-input color="secondary"[(ngModel)]="email"></ion-input>
+      </ion-item>
+      <ion-item>
+        <ion-label position="floating">PASSWORD</ion-label>
+        <ion-input color="secondary" type="password" [(ngModel)]="password"></ion-input>
+      </ion-item>
+      <div style="padding-top: 50px;">
+        <ion-text size="small" color="medium">Already have an account? </ion-text>
+      </div>
+      <ion-button fill="clear" size="small" (click)="switchPage('login')">LOGIN</ion-button>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer class="ion-padding">
+  <ion-button *ngIf="currentPage == 'login'" expand="block" fill="clear" color="secondary" (click)="login()">LOGIN</ion-button>
+  <ion-button *ngIf="currentPage == 'signup'" expand="block" fill="clear" color="secondary" (click)="signup()">SIGN UP</ion-button>
+</ion-footer>

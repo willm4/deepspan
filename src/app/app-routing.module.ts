@@ -9,6 +9,14 @@ const routes: Routes = [
   {
     path: 'add-bubble',
     loadChildren: () => import('./popovers/add-bubble/add-bubble.module').then( m => m.AddBubblePageModule)
+  },
+  {
+    path: 'login',
+    loadChildren: () => import('./popovers/login/login.module').then( m => m.LoginPageModule)
+  },
+  {
+    path: 'document',
+    loadChildren: () => import('./popovers/document/document.module').then( m => m.DocumentPageModule)
   }
 ];
 @NgModule({

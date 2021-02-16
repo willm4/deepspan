@@ -5,5 +5,58 @@
 </ion-header>
 
 <ion-content>
-
+  <ion-list lines="none">
+    <ion-list-header color="light">
+      PROFILE
+    </ion-list-header>
+    <ion-item *ngIf="user.name">
+      <ion-label>NAME</ion-label>
+      <ion-note slot="end" color="medium">{{user.name}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>EMAIL</ion-label>
+      <ion-note slot="end" color="medium">{{user.email}}</ion-note>
+    </ion-item>
+    <ion-list-header color="light">
+      TERMS
+    </ion-list-header>
+    <ion-item>
+      <ion-label>TERMS AND CONDITIONS</ion-label>
+      <ion-button slot="end" size="small" fill="clear" color="medium" (click)="viewDoc('terms')">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-item>
+      <ion-label>PRIVACY POLICY</ion-label>
+      <ion-button slot="end" size="small" fill="clear" color="medium" (click)="viewDoc('privacy')">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-item>
+      <ion-label>LICENSES</ion-label>
+      <ion-button slot="end" size="small" fill="clear" color="medium" (click)="viewDoc('eula')">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-list-header color="light">
+      APP INFO
+    </ion-list-header>
+    <ion-item>
+      <ion-label>VERSION</ion-label>
+      <ion-note slot="end" color="medium">1.0</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label>ABOUT</ion-label>
+      <ion-button slot="end" size="small" fill="clear" color="medium" (click)="viewDoc('about')">
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+    <ion-list-header color="light">
+      STATUS
+    </ion-list-header>
+    <ion-item>
+      <ion-label>LOGGED IN AS</ion-label>
+      <ion-note slot="end" color="medium">{{user.email}}</ion-note>
+    </ion-item>
+  </ion-list>
 </ion-content>

@@ -47,14 +47,25 @@ export class Bubble {
    }
 
    updateBubbles(){
-     for(var i = 0; i < this.bubbles.length; i++){
-       if(this.bubbles[i].delete){
-         this.bubbles.splice(i,1);
-       }
-       else{
-         this.bubbles[i].updateBubbles();
-       }
-     }
+
+    console.log('updating');
+    this.bubbles.forEach((b, index, arr)=>{
+      if(this.bubbles[index].delete){
+        this.bubbles.splice(index,1);
+      }
+      else{
+        this.bubbles[index].updateBubbles();
+      }
+    });
+
+    //  for(var i = 0; i < this.bubbles.length; i++){
+    //    if(this.bubbles[i].delete){
+    //      this.bubbles.splice(i,1);
+    //    }
+    //    else{
+    //      this.bubbles[i].updateBubbles();
+    //    }
+    //  }
    }
 
    removeAdded(){
