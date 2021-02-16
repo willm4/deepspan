@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RestService } from 'src/app/services/rest.service';
 
 @Component({
   selector: 'app-scenarios',
@@ -10,6 +11,7 @@ export class ScenariosPage implements OnInit {
   constructor() { }
 
   ngOnInit() {
+
   }
 
 }

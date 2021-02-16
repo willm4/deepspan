@@ -21,12 +21,16 @@
     "@angular/platform-browser-dynamic": "~11.0.5",
     "@angular/router": "~11.0.5",
     "@ionic-native/core": "^5.31.1",
+    "@ionic-native/geolocation": "^5.31.1",
     "@ionic-native/http": "^5.31.1",
     "@ionic-native/in-app-browser": "^5.31.1",
+    "@ionic-native/native-geocoder": "^5.31.1",
     "@ionic-native/native-storage": "^5.31.1",
     "@ionic/angular": "^5.5.2",
     "cordova-plugin-advanced-http": "^3.1.0",
+    "cordova-plugin-geolocation": "^4.1.0",
     "cordova-plugin-inappbrowser": "^4.1.0",
+    "cordova-plugin-nativegeocoder": "^3.4.1",
     "cordova-plugin-nativestorage": "^2.3.2",
     "firebase-tools": "^9.3.0",
     "rxjs": "~6.6.0",
@@ -63,7 +67,9 @@
     "plugins": {
       "cordova-plugin-nativestorage": {},
       "cordova-plugin-advanced-http": {},
-      "cordova-plugin-inappbrowser": {}
+      "cordova-plugin-inappbrowser": {},
+      "cordova-plugin-geolocation": {},
+      "cordova-plugin-nativegeocoder": {}
     }
   }
 }

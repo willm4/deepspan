@@ -11,6 +11,9 @@ import { HttpClient } from  '@angular/common/http';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { HttpClientModule } from '@angular/common/http';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
+
 
 @NgModule({
   declarations: [AppComponent],
@@ -20,7 +23,9 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
   , HTTP
   , HttpClient
   , NativeStorage
-  , InAppBrowser],
+  , InAppBrowser
+  , Geolocation
+  , NativeGeocoder],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

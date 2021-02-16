@@ -23,7 +23,9 @@ export class BubblesPage implements AfterViewInit, OnDestroy {
   chart: am4plugins_forceDirected.ForceDirectedTree;
   bubblesCtrl: BubblesService = new BubblesService();
 
-  constructor(public zone:NgZone, public modalCtrl: ModalController) { }
+  constructor(public zone:NgZone, public modalCtrl: ModalController) { 
+
+  }
 
   ngAfterViewInit() {
 

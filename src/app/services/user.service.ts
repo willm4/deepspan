@@ -6,7 +6,7 @@ import { RestService } from './rest.service';
 })
 export class UserService {
 
-  private isTest: boolean = true;
+  private isTest: boolean = false;
   public email: string = !this.isTest ? "" : "will@silvernovus.com";
   public password: string = !this.isTest ? "" : "Covid123";
   public name: string = !this.isTest ? "" : "Will";

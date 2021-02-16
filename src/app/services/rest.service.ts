@@ -11,6 +11,59 @@ export class RestService {
 
   constructor(private api: ApiService, private nativeStorage: NativeStorage) { }
 
+
+  public getIPC(region: string, state: string, lat: any = null, lon: any = null){
+    return new Promise((resolve,reject)=>{
+      this.nativeStorage.getItem('ipc').then((response:any)=>{
+        let data = JSON.parse(response);
+        if(new Date(data['updated']).toLocaleDateString() == new Date().toLocaleDateString()){
+          resolve(data['data']);
+        }
+        else{
+          this.getIPCFromServer(region,state,lat,lon).then(response=>{
+            let nativeData = {updated: new Date(), data: response};
+            this.nativeStorage.setItem('ipc', JSON.stringify(nativeData));
+            resolve(response);
+          },err=>{
+            reject(err);
+          })
+        }
+      }, err=>{
+        this.getIPCFromServer(region,state,lat,lon).then(response=>{
+          let nativeData = {updated: new Date(), data: response};
+          this.nativeStorage.setItem('ipc', JSON.stringify(nativeData));
+          resolve(response);
+        },err=>{
+          reject(err);
+        })
+      })
+    })
+  }
+
+  private getIPCFromServer(region: string = null, state: string = null, lat: any = null, lon: any = null){
+    return new Promise((resolve,reject)=>{
+      if(!(region && state) && !(lat && lon)){
+        reject();
+      }
+      else{
+        let body = {
+          countryregion: region || 'US', // COUNTRY
+          provincestate: state || 'Washington', // STATE
+          admin2: 'King', //TODO  
+          lat: lat || '',
+          lon: lon || ''
+        };
+        console.log(body)
+        this.api.post(this.api.ipc, body).then(response=>{
+          resolve(response);
+        }, err=>{
+          reject(err);
+        })
+      }
+    })
+  }
+
+
   public login(email: string, password: string){
     return new Promise((resolve,reject)=>{
       this.getNativeStorageItem('user').then(response=>{

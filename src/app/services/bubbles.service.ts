@@ -15,8 +15,11 @@ export class BubblesService {
   }
 
   removeBubble(name: string){
-    this.bubbles = this.bubbles.filter(b=>{
-      b.name !== name;
+    this.bubbles.forEach((b,index)=>{
+      if(b.name == name){
+        console.log(b);
+        this.bubbles.splice(index, 1);
+      }
     })
   }
 

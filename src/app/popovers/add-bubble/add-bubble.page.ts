@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { PopoverController, NavParams, ModalController } from '@ionic/angular';
 import { Bubble } from 'src/app/classes/bubble';
+import { Router } from '@angular/router';
+import { BubblesService } from 'src/app/services/bubbles.service';
 
 @Component({
   selector: 'app-add-bubble',
@@ -10,14 +12,11 @@ import { Bubble } from 'src/app/classes/bubble';
 export class AddBubblePage implements OnInit {
 
   bubbles: Array<Bubble> = new Array<Bubble>();
-  constructor(public modal: ModalController, private navParams: NavParams) { 
+  constructor(public modal: ModalController, private navParams: NavParams, private router: Router, private bubblesCtrl: BubblesService) { 
     let bubbles = this.navParams.get('bubbles');
     this.bubbles = bubbles;
   }
 
-  ionViewDidEnter(){
-    this.bubbles = this.navParams.get('bubbles');
-  }
 
   ngOnInit() {
   }
@@ -31,6 +30,7 @@ export class AddBubblePage implements OnInit {
   }
 
   saveBubbles(){
+    this.bubblesCtrl.bubbles = this.bubbles;
     this.modal.dismiss(this.bubbles)
   }
 
