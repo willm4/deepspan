@@ -13,6 +13,7 @@ import { AlertController } from '@ionic/angular';
 export class BubbleEditComponent implements OnInit {
   
   @Input() bubble: Bubble;
+  @Input() index: number;
 
   constructor(private alertCtrl: AlertController) { 
     
@@ -20,15 +21,15 @@ export class BubbleEditComponent implements OnInit {
 
 
 
-  removeBubble(){
-    this.bubble.delete = true;
+  removeBubble(index){
+    this.removeBubble(index);
   }
 
   async addBubble(){
     const alert = await this.alertCtrl.create({
       cssClass: 'my-custom-class',
       header: 'ADD BUBBLE',
-      message: 'ADD CONNECTION TO ' + this.bubble.name.toUpperCase(),
+      message: 'ADD CONNECTION TO ',
       inputs:[        {
         name: 'bubblename',
         type: 'text',
@@ -42,9 +43,7 @@ export class BubbleEditComponent implements OnInit {
         cssClass: 'secondary',
         handler: (alertData) => {
           if(alertData.bubblename){
-            let newBub = new Bubble(alertData.bubblename.toUpperCase(), 40);
-            newBub.added = true;
-            this.bubble.bubbles.push(newBub)
+
           }
         }
       }]

@@ -1,9 +1,9 @@
 <div style="padding-left: 15px;" *ngIf="!bubble.delete">
   {{bubble.name}} 
-  <div (click)="removeBubble()" style="display: inline;"><ion-icon color="danger" name="trash-outline"></ion-icon></div>
   <div (click)="addBubble()" style="display: inline; margin-left: 10px;"><ion-icon color="success" name="add-circle-outline"></ion-icon></div>
 
-  <div style="padding-top:5px" *ngFor="let bub of bubble.bubbles">
-    <bubble-edit [bubble]="bub"></bubble-edit>
+  <div style="padding-top:5px" *ngFor="let bub of bubble.bubbles; let i = index" style="display: flex; flex-direction:row;">
+    <div (click)="removeBubble(i)" style="display: inline;"><ion-icon color="danger" name="trash-outline"></ion-icon></div>
+    <bubble-edit [bubble]="bub" [index]="i"></bubble-edit>
   </div>
 </div>

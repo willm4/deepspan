@@ -1,0 +1,9 @@
+
+
+  {
+    "/lifebubbles": {
+      "target": "https://bubblenet.appspot.com/api/",
+      "secure": false,
+      "pathRewrite": {"^/lifebubbles" : ""}
+    }
+  }

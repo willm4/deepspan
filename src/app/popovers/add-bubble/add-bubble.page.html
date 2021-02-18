@@ -9,11 +9,18 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div style="padding-bottom: 15px;"  *ngFor="let bub of bubbles">
-    <bubble-edit [bubble]="bub"></bubble-edit>
+<ion-content class="ion-padding" scroll="false">
+  <div class="full-content-flex">
+    <div style="flex:1;">
+      <div *ngFor="let bub of app.bubbleCtrl.bubbles; let i = index" style="display: flex; flex-direction:row;">
+        <div (click)="removeBubble(i)" style="display: inline;"><ion-icon color="danger" name="trash-outline"></ion-icon></div>
+        <bubble-edit [bubble]="bub" [index]="i"></bubble-edit> 
+      </div>
+    </div>
   </div>
-
+  <div>
+    <ion-button (click)="addBubble()" color="secondary" fill="none" style="display: inline; margin-left: 10px;"><ion-icon color="success" name="add-circle-outline"></ion-icon>ADD BUBBLE</ion-button>
+  </div>
 </ion-content>
 
 <ion-footer class="ion-padding">

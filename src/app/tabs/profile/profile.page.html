@@ -58,5 +58,8 @@
       <ion-label>LOGGED IN AS</ion-label>
       <ion-note slot="end" color="medium">{{user.email}}</ion-note>
     </ion-item>
+    <ion-item style="text-align: center;">
+      <ion-button color="danger" expand="block" style="width:100%;" fill="clear" size="large" (click)="logout()">LOGOUT</ion-button>
+    </ion-item>
   </ion-list>
 </ion-content>

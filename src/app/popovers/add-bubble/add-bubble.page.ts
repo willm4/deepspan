@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { PopoverController, NavParams, ModalController } from '@ionic/angular';
+import { PopoverController, NavParams, ModalController, AlertController } from '@ionic/angular';
 import { Bubble } from 'src/app/classes/bubble';
 import { Router } from '@angular/router';
 import { BubblesService } from 'src/app/services/bubbles.service';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-add-bubble',
@@ -11,11 +12,8 @@ import { BubblesService } from 'src/app/services/bubbles.service';
 })
 export class AddBubblePage implements OnInit {
 
-  bubbles: Array<Bubble> = new Array<Bubble>();
-  constructor(public modal: ModalController, private navParams: NavParams, private router: Router, private bubblesCtrl: BubblesService) { 
-    let bubbles = this.navParams.get('bubbles');
-    this.bubbles = bubbles;
-  }
+
+  constructor(public modal: ModalController, private navParams: NavParams, private router: Router, private app: AppService, private alertCtrl: AlertController) {  }
 
 
   ngOnInit() {
@@ -25,13 +23,40 @@ export class AddBubblePage implements OnInit {
     this.modal.dismiss();
   }
 
-  removeBubble(bub){
-    console.log(bub);
+  saveBubbles(){
+    this.modal.dismiss(true)
   }
 
-  saveBubbles(){
-    this.bubblesCtrl.bubbles = this.bubbles;
-    this.modal.dismiss(this.bubbles)
+  removeBubble(index){
+    this.app.bubbleCtrl.bubbles.splice(index, 1);
+  }
+
+  async addBubble(){
+    const alert = await this.alertCtrl.create({
+      cssClass: 'my-custom-class',
+      header: 'ADD BUBBLE',
+      message: 'CREATE NEW BUBBLE',
+      inputs:[        {
+        name: 'bubblename',
+        type: 'text',
+        id: 'bubblename',
+        value: '',
+        placeholder: 'Enter Name'
+      }],
+      buttons: ['CANCEL',
+      {
+        text: 'ADD',
+        cssClass: 'secondary',
+        handler: (alertData) => {
+          if(alertData.bubblename){
+            // let newBub = new Bubble(alertData.bubblename.toUpperCase(), 60);
+            // this.app.bubbleCtrl.bubbles.push(newBub)
+          }
+        }
+      }]
+    });
+
+    await alert.present();
   }
 
 }

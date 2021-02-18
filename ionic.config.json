@@ -3,5 +3,9 @@
   "integrations": {
     "cordova": {}
   },
-  "type": "angular"
+  "type": "angular",
+  "proxies": [{
+    "path": "/lifebubbles/*",
+    "proxyUrl": "https://bubblenet.appspot.com/api/"
+}]
 }

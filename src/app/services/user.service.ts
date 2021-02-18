@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RestService } from './rest.service';
+import { Platform } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -10,16 +11,26 @@ export class UserService {
   public email: string = !this.isTest ? "" : "will@silvernovus.com";
   public password: string = !this.isTest ? "" : "Covid123";
   public name: string = !this.isTest ? "" : "Will";
-  private servicetoken: string = !this.isTest ? "" : "b9b0e491-d741-4986-64ae-dc873cd89360";
+  private servicetoken: string = !this.isTest ? "" : "9298b1f2-b952-4c37-70ba-427513dfecf8";
 
-  constructor(private rest: RestService) { }
+  constructor(private rest: RestService, private platform: Platform) { }
 
   public isValid(){
-    let isValid = this.email && this.password && this.servicetoken;
+    let isValid = this.email && this.servicetoken;
     if(isValid){
-      this.rest.setServiceToken(this.servicetoken);
+      this.rest.setUserData(this.servicetoken, this.email);
     }
     return isValid;
+  }
+
+  public logout(){
+    return new Promise((resolve,reject)=>{
+      this.rest.logout().then(()=>{
+        resolve();
+      }, err=>{
+        reject();
+      })
+    })
   }
 
   public login(username: string, password: string){
@@ -28,9 +39,8 @@ export class UserService {
       .then((response:any)=>{
         if(response.result == "success"){
           this.email = username;
-          this.password = password;
           this.servicetoken = response.session;
-          this.rest.setServiceToken(this.servicetoken);
+          this.rest.setUserData(this.servicetoken, this.email);
           resolve();
         }
         else{
@@ -47,10 +57,9 @@ export class UserService {
       this.rest.signup(username, password, name)
       .then((response:any)=>{
         this.email = username;
-        this.password = password;
         this.name = name;
         this.servicetoken = response.uuid;
-        this.rest.setServiceToken(this.servicetoken);
+        this.rest.setUserData(this.servicetoken, this.email);
         resolve();
       }, (err: any)=>{
         reject(err.error.message);
@@ -61,9 +70,12 @@ export class UserService {
   private setUserData(data: any){
     let userData = JSON.parse(data);
     this.email        = userData.username;
-    this.password     = userData.password;
     this.servicetoken = userData.servicetoken;
-    this.rest.setServiceToken(this.servicetoken);
+    this.rest.setUserData(this.servicetoken, this.email);
+  }
+
+  private isPWA(){
+    return !this.platform.is('cordova');
   }
 
   public checkUser(){

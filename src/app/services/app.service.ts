@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { RestService } from './rest.service';
 import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
+import { BubblesService } from './bubbles.service';
+import { Bubble } from '../classes/bubble';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +16,46 @@ export class AppService {
   lat: number;
   lon: number;
 
-  constructor(private rest: RestService, private geolocation: Geolocation, private geocoder: NativeGeocoder ) {
+  constructor(private rest: RestService, private geolocation: Geolocation, private geocoder: NativeGeocoder, public bubbleCtrl: BubblesService ) {
 
+   }
+
+   public getChartData(){
+     return this.bubbleCtrl.getChartData(this.rest.email)
+   }
+   
+   public getBubbles(){
+     return new Promise((resolve,reject)=>{
+       this.rest.getBubbles().then(bubbles=>{
+         if(bubbles){
+           this.bubbleCtrl.refresh(bubbles);
+         }
+         resolve();
+       }, err=>{
+         reject(err);
+       })
+     })
+   }
+
+   public removeBubble(id: number){
+     return new Promise((resolve,reject)=>{
+       this.rest.removeBubble(id).then(response=>{
+         this.bubbleCtrl.removeBubble(id);
+         resolve();
+       },err=>{
+         reject(err);
+       })
+     })
+   }
+
+   public addBubble(email: string){
+     return new Promise((resolve,reject)=>{
+       this.rest.addBubble(email).then(response=>{
+       resolve();
+       }, err=>{
+         reject(err);
+       })
+     })
    }
 
    public setIPC(){

@@ -10,56 +10,49 @@ export class BubblesService {
 
   constructor() { }
 
-  addBubble(name: string, val: number = null){
-    this.bubbles.push(new Bubble(name, val));
+  addBubble(bubble: Bubble){
+    this.bubbles.push(bubble);
   }
 
-  removeBubble(name: string){
-    this.bubbles.forEach((b,index)=>{
-      if(b.name == name){
-        console.log(b);
-        this.bubbles.splice(index, 1);
-      }
-    })
+  removeBubble(id: number){
+    this.bubbles.splice(this.bubbles.map(function(x) {return x.id; }).indexOf(id), 1);
   }
 
-  updateBubbles(){
-    for(var i = 0; i < this.bubbles.length; i++){
-      if(this.bubbles[i].delete){
-        this.bubbles.splice(i, 1);
-      }
-      else{
-        this.bubbles[i].updateBubbles();
-      }
+  refresh(bubs: any){
+    let bubbles = new Array<Bubble>();
+    if(bubs){
+      bubs.forEach(bubble => {
+        bubbles.push(new Bubble(bubble))
+      });
     }
+    this.bubbles = bubbles;
   }
 
-  removeAdded(){
-    for(var i = 0; i < this.bubbles.length; i++){
-      if(this.bubbles[i].added){
-        this.bubbles.splice(i, 1);
+  getChartData(email: string){
+    let userData =    {  
+      "name": email,
+      "value":100,
+      "children":[  
+    
+      ]
+    };
+    this.bubbles.forEach(d=>{
+      userData.children.push(
+        {  
+          "name":d.email,
+          "value":50,
+          "linkWith":[ ]
       }
-      else{
-        this.bubbles[i].removeAdded();
-      }
-    }
-  }
-
-
-  resetDeleted(){
-    this.bubbles.forEach(b=>{
-      b.resetDeleted()
-      
+      );
     });
-  }
-
-  getChartData(){
-    let result = [];
-    this.bubbles.forEach(b=>{
-      result.push(b.getChartData());
+    userData.children.forEach(d=>{
+      let links = [];
+      userData.children.filter(c=>{ return c.name != d.name }).map(c=>{
+        links.push(c.name);
+      });
+      d.linkWith = links
     });
-
-    return result;
+    return [userData];
   }
 
 }

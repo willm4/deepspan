@@ -7,8 +7,13 @@
 <ion-content scroll-x="false" scroll-y="false">
   <div class="bubbles-content-container">
     <div id="bubbles-chart"></div>
-    <div class="full-width ion-padding">
-      <ion-button (click)="addBubble()" expand="block" fill="clear" color="secondary"><ion-icon name="create-outline" style="padding-right: 5px;"></ion-icon> EDIT BUBBLES</ion-button>
+    <div class="full-width ion-padding" style="display: flex; flex-direction:row;"> 
+      <div style="flex:1">
+        <ion-button (click)="addBubble()" expand="block" fill="clear" color="success"><ion-icon name="add-circle-outline" style="padding-right: 5px;"></ion-icon></ion-button>
+      </div>
+      <div style="flex:1">
+        <ion-button (click)="removeBubble()" expand="block" fill="clear" color="danger"><ion-icon name="trash-outline" style="padding-right: 5px;"></ion-icon></ion-button>
+      </div>
     </div>
   </div>
 </ion-content>

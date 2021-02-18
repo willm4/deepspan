@@ -11,5 +11,11 @@
   ],
   "include": [
     "src/**/*.d.ts"
+  ],
+  "proxies": [
+    {
+      "path": "/lifebubbles/*",
+      "proxyUrl": "https://bubblenet.appspot.com/api/"
+    }
   ]
 }

@@ -1,94 +1,27 @@
 
 export class Bubble {
 
-  public name: string = '';
-  public bubbles: Array<Bubble>  = new Array<Bubble>();
-  public value: number = null;
-  public delete: boolean = false;
-  public added: boolean = false;
 
-  constructor(name: string, value: number = null) {
-    this.name     = name;
-    this.value    = value;
-   }
+  // id             integer generated always as identity primary key,
+  // user1_id       integer not null references users(id),
+  // user2_id       integer not null references users(id),
+  // edge_status    integer not null
 
-   public remove(name:string){
-    this.bubbles.forEach((b,index)=>{
-      if(b.name == name){
-        console.log(b);
-        this.bubbles.splice(index, 1);
-      }
-    })
-   }
 
-   public add(name:string){
-     this.bubbles.push(new Bubble(name));
-   }
+  public id: number;
+  public user1_id: number;
+  public user2_id: number;
+  public edge_status: number;
+  public email: string;
+  public depth: number;
 
-   addFromData(bubblesData: any){
-     if(bubblesData.children){
-       bubblesData.children.forEach(bubbleData => {
-        let val = bubbleData.value ? bubbleData.value: null;
-        this.bubbles.push(new Bubble(bubbleData.name, val));
-         this.bubbles[this.bubbles.length -1].addFromData(bubbleData);
-       });
-     }
-   }
-
-   public getChartData(){
-     let result = {
-       name: this.name,
-       children:[]
-     };
-     if(this.value && this.bubbles.length == 0){
-       result['value'] = this.value;
-     }
-
-     this.bubbles.forEach(b=>{
-       result.children.push(b.getChartData());
-     });
-
-     return result;
-   }
-
-   updateBubbles(){
-
-    console.log('updating');
-    this.bubbles.forEach((b, index, arr)=>{
-      if(this.bubbles[index].delete){
-        this.bubbles.splice(index,1);
-      }
-      else{
-        this.bubbles[index].updateBubbles();
-      }
-    });
-
-    //  for(var i = 0; i < this.bubbles.length; i++){
-    //    if(this.bubbles[i].delete){
-    //      this.bubbles.splice(i,1);
-    //    }
-    //    else{
-    //      this.bubbles[i].updateBubbles();
-    //    }
-    //  }
-   }
-
-   removeAdded(){
-    for(var i = 0; i < this.bubbles.length; i++){
-      if(this.bubbles[i].added){
-        this.bubbles.splice(i,1);
-      }
-      else{
-        this.bubbles[i].removeAdded();
-      }
-    }
-   }
-
-   resetDeleted(){
-     this.delete = false;
-     this.bubbles.forEach(b=>{
-       b.resetDeleted();
-     })
+  constructor(data: any) {
+    this.id             = data.id;
+    this.email         = data.email;
+    this.user1_id      = data.user1_id;
+    this.user2_id      = data.user2_id;
+    this.edge_status   = data.edge_status;
+    this.depth         = data.depth;
    }
 
 

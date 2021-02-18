@@ -18,4 +18,12 @@ export class ProfilePage implements OnInit {
     this.router.navigate(['/document', {type:type }])
   }
 
+  logout(){
+    this.user.logout().then(()=>{
+      this.router.navigateByUrl('/login')
+    }, err=>{
+      alert('err signing out ' + err);
+    })
+  }
+
 }

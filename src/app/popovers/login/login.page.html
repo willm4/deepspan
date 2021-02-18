@@ -18,7 +18,7 @@
       <div style="padding-top: 50px;">
         <ion-text size="small" color="medium">Don't have an account? </ion-text>
       </div>
-      <ion-button fill="clear" size="small" (click)="switchPage('signup')">SIGN UP</ion-button>
+      <ion-button color="secondary" fill="clear" size="small" (click)="switchPage('signup')">SIGN UP</ion-button>
     </div>
     <div style="width:100%; flex-direction:row; text-align: center;" *ngIf="currentPage == 'signup'">
       <ion-item>
@@ -36,7 +36,7 @@
       <div style="padding-top: 50px;">
         <ion-text size="small" color="medium">Already have an account? </ion-text>
       </div>
-      <ion-button fill="clear" size="small" (click)="switchPage('login')">LOGIN</ion-button>
+      <ion-button color="secondary" fill="clear" size="small" (click)="switchPage('login')">LOGIN</ion-button>
     </div>
   </div>
 </ion-content>
