@@ -133,53 +133,50 @@ export class RestService {
 
   public login(email: string, password: string){
     return new Promise((resolve,reject)=>{
-      this.getNativeStorageItem('user').then(response=>{
+      let params = {
+        email: email,
+        password: password
+      };
+      this.api.post(this.api.login, params).then((response:any)=>{
+        console.log(response);
+        let storageItem = JSON.stringify( {
+          username: email,
+          servicetoken:  response.session
+        });
+        console.log('setting local storage item' + 'user');
+        localStorage.setItem('user', storageItem);
+        if(!this.api.isPWA()){
+          this.nativeStorage.setItem('user',storageItem);
+        }
         resolve(response);
       }, err=>{
-        let params = {
-          email: email,
-          password: password
-        };
-        this.api.post(this.api.login, params).then((response:any)=>{
-          console.log(response);
-          let storageItem = JSON.stringify( {
-            username: email,
-            servicetoken:  response.session
-          });
-          this.nativeStorage.setItem('user',storageItem);
-          localStorage.setItem('user', storageItem);
-          resolve(response);
-        }, err=>{
-          reject(err);
-        })
+        reject(err);
       });
     });
   }
 
   public signup(email: string, password: string, name: string){
     return new Promise((resolve,reject)=>{
-      this.getNativeStorageItem('user').then(response=>{
+      let params = {
+        name: name,
+        email: email,
+        password: password,
+
+      };
+      this.api.post(this.api.createAccount, params).then((response:any)=>{
+        console.log(response);
+        let storageItem = JSON.stringify( {
+          username: email,
+          servicetoken:  response.session
+        });
+        localStorage.setItem('user', storageItem);
+        if(!this.api.isPWA()){
+          this.nativeStorage.setItem('user',storageItem);
+        }
         resolve(response);
       }, err=>{
-        let params = {
-          name: name,
-          email: email,
-          password: password,
-
-        };
-        this.api.post(this.api.createAccount, params).then((response:any)=>{
-          console.log(response);
-          let storageItem = JSON.stringify( {
-            username: email,
-            servicetoken:  response.session
-          });
-          this.nativeStorage.setItem('user',storageItem);
-          localStorage.setItem('user', storageItem);
-          resolve(response);
-        }, err=>{
-          reject(err);
-        })
-      });
+        reject(err);
+      })
     });
   }
 
@@ -233,12 +230,14 @@ export class RestService {
   public getNativeStorageItem(item: string){
     return new Promise((resolve,reject)=>{
       if(this.api.isPWA()){
-        let userData = localStorage.getItem(item);
-        if(userData){
-          resolve(userData);
+        console.log('getting local storage item' + item);
+        let data = localStorage.getItem(item);
+        console.log('got local storage item' + data);
+        if(data){
+          resolve(data);
         }
         else{
-          reject();
+          reject('err getting data');
         }
       }
       else{

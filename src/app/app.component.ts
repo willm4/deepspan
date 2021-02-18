@@ -13,8 +13,7 @@ export class AppComponent {
   constructor(private user: UserService, private platform: Platform, private router: Router, private app: AppService) {
     this.platform.ready().then(()=>{
       this.checkUser();
-      console.log('setting ipc')
-      // this.app.setIPC();
+ 
     });
 
   }
