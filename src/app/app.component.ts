@@ -30,16 +30,6 @@ export class AppComponent {
     })
   }
 
-  login(){
-    console.log('loggin in')
-    this.user.login('will@silvernovus.com', 'Covid123').then(response=>{
-      console.log('logged in')
-      console.log(response);
-    }, err=>{
-      console.log(err);
-    })
-  }
-
   goToLogin(){
     this.router.navigateByUrl('/login');
   }

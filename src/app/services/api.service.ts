@@ -34,7 +34,7 @@ export class ApiService {
   public getBubblesWithDepth: string = this.getBubblesWithoutEmail + "/depth/" // ADD DEPTH ONTO THIS
   public addBubbles: string = this.path + "bubbles" // SEND ARRAY OF EMAILS TO LINK
 
-  constructor(private http: HTTP, public platform: Platform) { }
+  constructor(private http: HTTP, private httpClient: HttpClient, public platform: Platform) { }
 
 
   public isPWA(){
@@ -49,7 +49,7 @@ export class ApiService {
             headers: {
                 'Authorization' : 'Bearer ' + serviceToken,
                 'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json; charset=UTF-8'
+                'Content-Type': 'application/json; charset=UTF-8',
             }
           }
           ).then(response =>{
@@ -110,12 +110,17 @@ export class ApiService {
     return new Promise((resolve,reject)=>{
 
       if(this.isPWA()){
+
+        //WORKS 
+
         axios.get(path,
           {
             headers: {
                 'Authorization' : 'Bearer ' + serviceToken,
                 'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json; charset=UTF-8'
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Access-Control-Allow-Methods':'GET, POST, PUT',
+                'Access-Control-Allow-Headers': 'Content-Type'
             }
           }
           ).then(response =>{
@@ -124,6 +129,15 @@ export class ApiService {
             reject(err)
             console.log(err)
           });
+
+        // WORKS
+          // this.httpClient.get(path, {headers:{'Authorization' : 'Bearer ' + serviceToken,  'Access-Control-Allow-Origin': '*',               'Content-Type': 'application/json; charset=UTF-8', }})
+          // .subscribe(response=>{
+          //   resolve(response);
+          // }, err=>{
+          //   console.log(err)
+          //   reject(err);
+          // })
       }
       else{
         let header: any = {

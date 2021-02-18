@@ -37,9 +37,9 @@ export class UserService {
     return new Promise((resolve,reject)=>{
       this.rest.login(username, password)
       .then((response:any)=>{
-        if(response.result == "success"){
+        if(response){
           this.email = username;
-          this.servicetoken = response.session;
+          this.servicetoken = response.servicetoken;
           this.rest.setUserData(this.servicetoken, this.email);
           resolve();
         }

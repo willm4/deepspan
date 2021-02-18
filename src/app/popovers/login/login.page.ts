@@ -36,6 +36,7 @@ export class LoginPage implements OnInit {
   }
 
   public login(){
+    console.log('logging in')
     this.user.login(this.email, this.password).then(response=>{
       this.goToRoot();
     }, err=>{
