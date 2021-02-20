@@ -4,6 +4,7 @@ import { HTTP } from '@ionic-native/http/ngx';
 import { HttpClient, HttpHeaders } from  '@angular/common/http';
 import { Platform } from '@ionic/angular';
 import axios from 'axios';
+import { NativeStorage } from '@ionic-native/native-storage/ngx';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,7 @@ export class ApiService {
   public ipc: string = this.path +  "ipc";
   
   // DOCUMENTS -- TODO
-  public document: string = this.path + "document/"
+  public doc: string = this.path + "document/"
 
   // BUBBLES
   public getBubblesWithoutEmail: string = this.path + "bubbles"
@@ -34,123 +35,114 @@ export class ApiService {
   public getBubblesWithDepth: string = this.getBubblesWithoutEmail + "/depth/" // ADD DEPTH ONTO THIS
   public addBubbles: string = this.path + "bubbles" // SEND ARRAY OF EMAILS TO LINK
 
-  constructor(private http: HTTP, private httpClient: HttpClient, public platform: Platform) { }
+  constructor(private http: HTTP, private httpClient: HttpClient, public platform: Platform, private storage: NativeStorage) { }
 
 
   public isPWA(){
-    return !this.platform.is('cordova');
+    return document.URL.indexOf('http') === 0;
   }
 
-  public delete(path: string, serviceToken: any){
-    return new Promise((resolve,reject)=>{
+  getHeader(){
+    return new Promise((resolve)=>{
       if(this.isPWA()){
-        axios.delete(path,
-          {
+        let userData = localStorage.getItem('user');
+        if(userData){
+          let data = JSON.parse(userData);
+          resolve({
             headers: {
-                'Authorization' : 'Bearer ' + serviceToken,
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json; charset=UTF-8',
-            }
+              'Authorization' : 'Bearer ' + data.servicetoken,
+              'Access-Control-Allow-Origin': '*',
+              'Content-Type': 'application/json; charset=UTF-8'
           }
-          ).then(response =>{
-            resolve();
-          }, err=>{
-            reject(err)
-            console.log(err)
           });
+        }
+        else{
+          resolve({})
+        }
       }
       else{
-        let header: any = {
-          Authorization: 'Bearer ' + serviceToken
-        }
-        this.http.delete(path, {}, header ).then(response=>{
-          resolve();
-        },err=>{
-          reject(err);
+        this.storage.getItem('user').then((response:any)=>{
+          let data = JSON.parse(response);
+          resolve({
+            Authorization: 'Bearer ' + data.servicetoken
+          });
+        }, err=>{
+          resolve({});
         })
       }
     })
   }
 
-  public post(path: string, params: any = false, serviceToken: any = false){
+  public delete(path: string){
     return new Promise((resolve,reject)=>{
-      let body = params ?? {};
-      if(this.isPWA()){
-        axios.post(path,params,
-          {
-            headers: {
-                'Authorization' : 'Bearer ' + serviceToken,
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json; charset=UTF-8'
-            }
-          }
-          ).then(response =>{
-            resolve(response.data);
-          }, err=>{
-            reject(err)
-            console.log(err)
-          });
-      }
-      else{
-        let header: any = {
-          Authorization: 'Bearer ' + serviceToken
+
+      this.getHeader().then(header=>{
+        if(this.isPWA()){
+          axios.delete(path,header).then(response =>{
+              resolve();
+            }, err=>{
+              reject(err)
+              console.log(err)
+            });
         }
-        this.http.post( path, body, header).then(response=>{
-          resolve(response);
-        }, err=>{
-          reject(err);
-        }).catch(err=>{
-          reject(err);
-        })
-      }
+        else{
+          this.http.delete(path, {}, header ).then(response=>{
+            resolve();
+          },err=>{
+            reject(err.error.message);
+          })
+        }
+      });
+    })
+  }
+
+  public post(path: string, params: any = {}){
+    return new Promise((resolve,reject)=>{
+      this.getHeader().then(header=>{
+        if(this.isPWA()){
+          axios.post(path,params,header).then(response =>{
+              resolve(response.data);
+            }, err=>{
+              reject(err)
+              console.log(err)
+            });
+        }
+        else{
+          this.http.setDataSerializer("json");
+          this.http.post( path, params, header).then(response=>{
+            resolve(JSON.parse(response.data));
+          }, err=>{
+            reject(err.error.message);
+          }).catch(err=>{
+            reject(err);
+          })
+        }
+      })
     });
   }
 
-  public get(path: string, serviceToken: string){
+  public get(path: string){
     return new Promise((resolve,reject)=>{
 
-      if(this.isPWA()){
-
-        //WORKS 
-
-        axios.get(path,
-          {
-            headers: {
-                'Authorization' : 'Bearer ' + serviceToken,
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type': 'application/json; charset=UTF-8',
-                'Access-Control-Allow-Methods':'GET, POST, PUT',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            }
-          }
-          ).then(response =>{
-            resolve(response.data);
-          }, err=>{
-            reject(err)
-            console.log(err)
-          });
-
-        // WORKS
-          // this.httpClient.get(path, {headers:{'Authorization' : 'Bearer ' + serviceToken,  'Access-Control-Allow-Origin': '*',               'Content-Type': 'application/json; charset=UTF-8', }})
-          // .subscribe(response=>{
-          //   resolve(response);
-          // }, err=>{
-          //   console.log(err)
-          //   reject(err);
-          // })
-      }
-      else{
-        let header: any = {
-          Authorization: 'Bearer ' + serviceToken
+      this.getHeader().then(header=>{
+        if(this.isPWA()){
+          axios.get(path,header).then(response =>{
+              resolve(response.data);
+            }, err=>{
+              reject(err.error.message)
+              console.log(err)
+            });
         }
-        this.http.get( path, {}, header).then(response=>{
-          resolve(response);
-        }, err=>{
-          reject(err);
-        }).catch(err=>{
-          reject(err);
-        })
-      }
+        else{
+          this.http.get( path, {}, header).then(response=>{
+            resolve(JSON.parse(response.data));
+          }, err=>{
+            reject(err);
+          }).catch(err=>{
+            reject(err);
+          })
+        }
+      })
     });
   }
 

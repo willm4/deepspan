@@ -7,37 +7,21 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
 })
 export class RestService {
 
-  public servicetoken: string;
-  public email :string;
-  constructor(private api: ApiService, private nativeStorage: NativeStorage) { }
+  constructor(private api: ApiService, public nativeStorage: NativeStorage) { }
 
   public getBubbles(){
     return new Promise((resolve,reject)=>{
-      this.nativeStorage.getItem('bubbles').then((response)=>{
-        let data = JSON.parse(response);
-        if(new Date(data['updated']).toLocaleDateString() == new Date().toLocaleDateString()){
-          resolve(data['data']);
-        }
-        else{
-          this.getBubblesFromServer().then((response:any)=>{
-            resolve(response);
-          }, err=>{
-            reject(err);
-          })
-        }
+      this.getBubblesFromServer().then((response:any)=>{
+        resolve(response);
       }, err=>{
-        this.getBubblesFromServer().then(response=>{
-          resolve(response);
-        }, err=>{
-          reject(err);
-        })
+        reject(err);
       })
     })
   }
 
   public removeBubble(id: number){
     return new Promise((resolve,reject)=>{
-      this.api.delete(this.api.deleteBubble  + id , this.servicetoken).then(response=>{
+      this.api.delete(this.api.deleteBubble  + id).then(response=>{
         resolve(response);
       }, err=>{
         reject(err);
@@ -48,7 +32,7 @@ export class RestService {
   public addBubble(email: string){
     return new Promise((resolve,reject)=>{
       let params = {members: [email]};
-      this.api.post(this.api.addBubbles, params, this.servicetoken).then(response=>{
+      this.api.post(this.api.addBubbles, params).then(response=>{
         resolve(response);
       }, err=>{
         reject(err);
@@ -58,7 +42,7 @@ export class RestService {
 
   private getBubblesFromServer(){
     return new Promise((resolve,reject)=>{
-      this.api.get(this.api.getBubblesWithEmail, this.servicetoken).then(response=>{
+      this.api.get(this.api.getBubblesWithEmail).then(response=>{
         let nativeData = {updated: new Date(), data: response};
         this.nativeStorage.setItem('bubbles', JSON.stringify(nativeData));
         resolve(response);
@@ -121,7 +105,7 @@ export class RestService {
 
   public logout(){
     return new Promise((resolve,reject)=>{
-      this.api.delete(this.api.logout, this.servicetoken).then(response=>{
+      this.api.delete(this.api.logout).then(response=>{
         this.nativeStorage.clear();
         localStorage.clear();
         resolve();
@@ -138,16 +122,13 @@ export class RestService {
         password: password
       };
       this.api.post(this.api.login, params).then((response:any)=>{
-        console.log(response);
+        
         let storageItem = JSON.stringify( {
           username: email,
           servicetoken:  response.session
         });
-        console.log('setting local storage item' + 'user');
+        this.nativeStorage.setItem('user',storageItem);
         localStorage.setItem('user', storageItem);
-        if(!this.api.isPWA()){
-          this.nativeStorage.setItem('user',storageItem);
-        }
         resolve(response);
       }, err=>{
         reject(err);
@@ -164,15 +145,12 @@ export class RestService {
 
       };
       this.api.post(this.api.createAccount, params).then((response:any)=>{
-        console.log(response);
         let storageItem = JSON.stringify( {
           username: email,
           servicetoken:  response.session
         });
+        this.nativeStorage.setItem('user',storageItem);
         localStorage.setItem('user', storageItem);
-        if(!this.api.isPWA()){
-          this.nativeStorage.setItem('user',storageItem);
-        }
         resolve(response);
       }, err=>{
         reject(err);
@@ -216,25 +194,19 @@ export class RestService {
 
   getDocFromServer(type){
     return new Promise((resolve,reject)=>{
-      this.api.get(this.api.document + type, this.servicetoken).then(response=>{
+      this.api.get(this.api.doc + type).then(response=>{
         resolve(response['tbody']);
       })
     })
   }
 
-  setUserData(token, email){
-    this.servicetoken = token;
-    this.email = email;
-  }
 
   public getNativeStorageItem(item: string){
     return new Promise((resolve,reject)=>{
       if(this.api.isPWA()){
-        console.log('getting local storage item' + item);
         let data = localStorage.getItem(item);
-        console.log('got local storage item' + data);
         if(data){
-          resolve(data);
+          resolve(JSON.parse(data));
         }
         else{
           reject('err getting data');
@@ -242,7 +214,7 @@ export class RestService {
       }
       else{
         this.nativeStorage.getItem(item).then(response=>{
-          resolve(response);
+          resolve(JSON.parse(response));
         }, err=>{
           reject(err);
         })

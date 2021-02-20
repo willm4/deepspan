@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-login',
@@ -15,7 +15,7 @@ export class LoginPage implements OnInit {
   password: string = '';
   name: string = '';
 
-  constructor(private user: UserService, private router: Router, private alertCtrl: AlertController) { }
+  constructor(private app: AppService, private router: Router, private alertCtrl: AlertController) { }
 
   ngOnInit() {
   }
@@ -36,8 +36,7 @@ export class LoginPage implements OnInit {
   }
 
   public login(){
-    console.log('logging in')
-    this.user.login(this.email, this.password).then(response=>{
+    this.app.user.login(this.email, this.password).then(response=>{
       this.goToRoot();
     }, err=>{
       this.promptLoginFailedAlert(err);
@@ -45,7 +44,7 @@ export class LoginPage implements OnInit {
   }
 
   public signup(){
-    this.user.signup(this.email, this.password, this.name).then(response=>{
+    this.app.user.signup(this.email, this.password, this.name).then(response=>{
       this.goToRoot();
     }, err=>{
       this.promptSignupFailedAlert(err);

@@ -1,17 +1,13 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, NgZone, ElementRef, ViewChild } from '@angular/core';
 
 // amCharts imports
 import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import * as am4plugins_forceDirected from "@amcharts/amcharts4/plugins/forceDirected"; 
-import { BubblesService } from 'src/app/services/bubbles.service';
-import { PopoverController, ModalController, AlertController } from '@ionic/angular';
-import { AddBubblePage } from 'src/app/popovers/add-bubble/add-bubble.page';
+import { ModalController, AlertController, ToastController } from '@ionic/angular';
 import { Bubble } from 'src/app/classes/bubble';
 import { AppService } from 'src/app/services/app.service';
-// lodash
-import { cloneDeep } from "lodash";
 
 am4core.useTheme(am4themes_animated);
 
@@ -20,117 +16,104 @@ am4core.useTheme(am4themes_animated);
   templateUrl: './bubbles.page.html',
   styleUrls: ['./bubbles.page.scss'],
 })
-export class BubblesPage implements AfterViewInit, OnDestroy {
+export class BubblesPage implements AfterViewInit {
 
+  @ViewChild("bubbleschart") bubbleschart: ElementRef;
   chart: am4plugins_forceDirected.ForceDirectedTree;
+  editing: boolean = false;
+  bubbleEditType: string = 'add';
+  newBubble: Bubble = new Bubble();
+  bubbleEdit: Bubble = new Bubble();
 
-  constructor(public zone:NgZone, public modalCtrl: ModalController, public app: AppService, private alertCtrl:AlertController) { 
+  constructor(public zone:NgZone
+    , public modalCtrl: ModalController
+    , public app: AppService
+    , private alertCtrl:AlertController
+    , private toastCtrl: ToastController) { 
 
   }
 
-  ngAfterViewInit() {
 
+  ngAfterViewInit() {
     this.zone.runOutsideAngular(() => {
       setTimeout(()=>{
         this.drawBubbles(true);
       }, 1000);
     });
   }
+
+  ionViewDidEnter() {
+    this.drawBubbles(true);
+  }
+
+  edit(){
+    this.editing = true;
+  }
+
+  cancelEdit(){
+    this.resetTempBubs();
+    this.bubbleEditType = 'add';
+    this.editing = false;
+  }
   
-
-  ngOnDestroy() {
-    this.zone.runOutsideAngular(() => {
-      if (this.chart) {
-        this.chart.dispose();
-      }
-    });
-  }
-
-  async removeBubble(){
-    let inputs = []
-    this.app.bubbleCtrl.bubbles.forEach(b=>{
-      inputs.push(     {
-        name: b.id,
-        type: 'radio',
-        label: b.email,
-        value: b.id
+  removeBubble(){
+    if(this.bubbleEdit.id){
+      this.app.removeBubble(this.bubbleEdit.id).then(response=>{
+        this.promptToast(this.bubbleEdit.email + ' was removed', 'success' );
+        this.bubbleEdit = new Bubble();
+        this.drawBubbles();
+      }, err=>{
+        this.promptToast('Error removing ' +this.bubbleEdit.email, 'danger' );
       });
-    });
-
-    const alert = await this.alertCtrl.create({
-      cssClass: 'my-custom-class',
-      header: 'REMOVE BUBBLE',
-      message: 'CHOOSE BUBBLE TO REMOVE',
-      inputs: inputs,
-      buttons: ['CANCEL',
-      {
-        text: 'REMOVE',
-        cssClass: 'danger',
-        handler: (bubbleID) => {
-          if(bubbleID){
-            this.app.removeBubble(bubbleID).then(()=>{
-              this.drawBubbles();
-            }, err=>{
-              console.log(err);
-            })
-          }
-        }
-      }]
-    });
-    alert.present();
-
+    }
   }
 
-  async addBubble(){
-    const alert = await this.alertCtrl.create({
-      cssClass: 'my-custom-class',
-      header: 'ADD BUBBLE',
-      message: 'CREATE NEW BUBBLE',
-      inputs:[        {
-        name: 'bubblename',
-        type: 'text',
-        id: 'bubblename',
-        value: '',
-        placeholder: 'Enter email'
-      }],
-      buttons: ['CANCEL',
-      {
-        text: 'ADD',
-        cssClass: 'success',
-        handler: (alertData) => {
-          if(alertData.bubblename){
-            this.app.addBubble(alertData.bubblename).then(()=>{
-              this.drawBubbles(true);
-            }, err=>{
-              console.log(err);
-            })
-          }
-        }
-      }]
-    });
-    alert.present();
+  addBubble(){
+    if(this.newBubble.emailValid()){
+      this.app.addBubble(this.newBubble.email).then(()=>{
+          this.drawBubbles(true);
+          this.newBubble = new Bubble();
+          this.promptToast(this.newBubble.email + ' added successfully!', 'success' );
+        }, err=>{
+          this.promptToast('Error adding ' +this.newBubble.email, 'danger' );
+        })
+    }
+    else{
+      this.promptToast("Bubble couldn't be added, email invalid.", 'danger' );
+    }
   }
 
+  async promptToast(message: string, color: string){
+    const toast = await this.toastCtrl.create({
+      message: message,
+      duration: 2000,
+      color: color,
+      position: 'bottom',
+      buttons: [ {
+          text: 'OK',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        }
+      ]
+    });
+    toast.present();
+  }
 
-  // async addBubble(){
-  //   const bubbleCtrl = cloneDeep(this.app.bubbleCtrl);
-  //   const modal = await this.modalCtrl.create({
-  //     component: AddBubblePage,
-  //     componentProps:{bubbles:this.app.bubbleCtrl.bubbles}
-  //   });
+  resetTempBubs(){
+    this.bubbleEdit = new Bubble();
+    this.newBubble = new Bubble();
+  }
 
-  //   await modal.present();
-  //   modal.onDidDismiss().then((response) =>{
-  //     this.drawBubbles();
-  //   });
-  // }
 
   drawBubbles(isInit: boolean = false){
     am4core.useTheme(am4themes_animated);
     // Themes end
 
-    let chart = am4core.create("bubbles-chart", am4plugins_forceDirected.ForceDirectedTree);
+    let chart = am4core.create(this.bubbleschart.nativeElement, am4plugins_forceDirected.ForceDirectedTree);
 
+    chart.responsive.enabled = true;
     let networkSeries = chart.series.push(new am4plugins_forceDirected.ForceDirectedSeries())
     networkSeries.dataFields.linkWith = "linkWith";
     networkSeries.dataFields.name = "name";
@@ -172,7 +155,7 @@ export class BubblesPage implements AfterViewInit, OnDestroy {
       this.getChartData().then((response:any)=>{
         networkSeries.data = response;
       }, err=>{
-        alert(err);
+        console.log(err);
       });
     }
     else{

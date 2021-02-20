@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
+import { AppService } from 'src/app/services/app.service';
 
 @Component({
   selector: 'app-profile',
@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 })
 export class ProfilePage implements OnInit {
 
-  constructor(public user: UserService, private router: Router) { }
+  constructor(public app: AppService, private router: Router) { }
 
   ngOnInit() {
   }
@@ -19,10 +19,10 @@ export class ProfilePage implements OnInit {
   }
 
   logout(){
-    this.user.logout().then(()=>{
+    this.app.user.logout().then(()=>{
       this.router.navigateByUrl('/login')
     }, err=>{
-      alert('err signing out ' + err);
+      console.log('err signing out ' + err);
     })
   }
 

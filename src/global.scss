@@ -45,3 +45,36 @@ ion-card{
 .full-content-flex{
     flex:1; width:100%; display:flex; flex-direction:column; overflow: none
 }
+
+.text-center{
+    text-align: center !important;
+}
+
+.card-header{
+    padding-top:10px !important;
+    padding-bottom:0px !important
+}
+
+ion-list > ion-item{
+    font-size: 12px !important;
+}
+
+ion-list > ion-item > ion-label,
+ion-list > ion-item > ion-note{
+   margin:5px !important
+}
+
+ion-list > ion-item,
+ion-list > ion-list-header{
+    --min-height:0px !important
+}
+
+ion-card-content{
+    padding-top: 0px !important;
+    padding-bottom: 5px !important;
+}
+
+ion-list-header{
+    font-size: 14px !important;
+    --min-height:0px !important
+}

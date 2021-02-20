@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { UserService } from './services/user.service';
 import { Platform } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { AppService } from './services/app.service';
@@ -10,7 +9,7 @@ import { AppService } from './services/app.service';
   styleUrls: ['app.component.scss'],
 })
 export class AppComponent {
-  constructor(private user: UserService, private platform: Platform, private router: Router, private app: AppService) {
+  constructor(private platform: Platform, private router: Router, private app: AppService) {
     this.platform.ready().then(()=>{
       this.checkUser();
  
@@ -19,12 +18,11 @@ export class AppComponent {
   }
 
   checkUser(){
-    this.user.checkUser().then(()=>{
-      if(!this.user.isValid()){
+    this.app.user.checkUser().then(()=>{
+      if(!this.app.user.isValid()){
         this.goToLogin();
       }
     }, err=>{
-      console.log(err);
       this.goToLogin();
     })
   }

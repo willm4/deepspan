@@ -31,7 +31,7 @@ export class BubblesService {
   getChartData(email: string){
     let userData =    {  
       "name": email,
-      "value":100,
+      "value":500,
       "children":[  
     
       ]
@@ -40,7 +40,7 @@ export class BubblesService {
       userData.children.push(
         {  
           "name":d.email,
-          "value":50,
+          "value":300,
           "linkWith":[ ]
       }
       );

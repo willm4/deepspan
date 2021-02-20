@@ -9,13 +9,9 @@
     <ion-list-header color="light">
       PROFILE
     </ion-list-header>
-    <ion-item *ngIf="user.name">
-      <ion-label>NAME</ion-label>
-      <ion-note slot="end" color="medium">{{user.name}}</ion-note>
-    </ion-item>
     <ion-item>
       <ion-label>EMAIL</ion-label>
-      <ion-note slot="end" color="medium">{{user.email}}</ion-note>
+      <ion-note slot="end" color="medium">{{app.user.email}}</ion-note>
     </ion-item>
     <ion-list-header color="light">
       TERMS
@@ -56,7 +52,7 @@
     </ion-list-header>
     <ion-item>
       <ion-label>LOGGED IN AS</ion-label>
-      <ion-note slot="end" color="medium">{{user.email}}</ion-note>
+      <ion-note slot="end" color="medium">{{app.user.email}}</ion-note>
     </ion-item>
     <ion-item style="text-align: center;">
       <ion-button color="danger" expand="block" style="width:100%;" fill="clear" size="large" (click)="logout()">LOGOUT</ion-button>

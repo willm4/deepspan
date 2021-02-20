@@ -9,17 +9,11 @@ export class UserService {
 
   private isTest: boolean = false;
   public email: string = !this.isTest ? "" : "will@silvernovus.com";
-  public password: string = !this.isTest ? "" : "Covid123";
-  public name: string = !this.isTest ? "" : "Will";
-  private servicetoken: string = !this.isTest ? "" : "9298b1f2-b952-4c37-70ba-427513dfecf8";
 
   constructor(private rest: RestService, private platform: Platform) { }
 
   public isValid(){
-    let isValid = this.email && this.servicetoken;
-    if(isValid){
-      this.rest.setUserData(this.servicetoken, this.email);
-    }
+    let isValid = this.email;
     return isValid;
   }
 
@@ -28,7 +22,7 @@ export class UserService {
       this.rest.logout().then(()=>{
         resolve();
       }, err=>{
-        reject();
+        reject(err);
       })
     })
   }
@@ -39,15 +33,13 @@ export class UserService {
       .then((response:any)=>{
         if(response.result == "success"){
           this.email = username;
-          this.servicetoken = response.session;
-          this.rest.setUserData(this.servicetoken, this.email);
           resolve();
         }
         else{
-          reject('Oops, error loging in. Please try again.');
+          reject('Oops, error loging in. Please try again. '+ JSON.stringify(response));
         }
       }, (err: any)=>{
-        reject(err.error.message);
+        reject(err);
       })
     })
   }
@@ -57,40 +49,26 @@ export class UserService {
       this.rest.signup(username, password, name)
       .then((response:any)=>{
         this.email = username;
-        this.name = name;
-        this.servicetoken = response.uuid;
-        this.rest.setUserData(this.servicetoken, this.email);
         resolve();
       }, (err: any)=>{
-        reject(err.error.message);
+        reject(err);
       })
     })
   }
 
-  private setUserData(data: any){
-    let userData = JSON.parse(data);
-    this.email        = userData.username;
-    this.servicetoken = userData.servicetoken;
-    this.rest.setUserData(this.servicetoken, this.email);
+  private setUserData(userData: any){
+    this.email = userData.username;
   }
 
-  private isPWA(){
-    return !this.platform.is('cordova');
-  }
 
   public checkUser(){
     return new Promise((resolve,reject)=>{
-      if(this.isValid()){
+      this.rest.getNativeStorageItem('user').then(response=>{
+        this.setUserData(response);
         resolve();
-      }
-      else{
-        this.rest.getNativeStorageItem('user').then(response=>{
-          this.setUserData(response);
-          resolve();
-        }, err=>{
-          reject(err);
-        })
-      }
+      }, err=>{
+        reject(err);
+      })
     })
   }
 
