@@ -42,33 +42,38 @@ export class ApiService {
     return document.URL.indexOf('http') === 0;
   }
 
-  getHeader(){
+  getHeader(isLogin: boolean = false){
     return new Promise((resolve)=>{
-      if(this.isPWA()){
-        let userData = localStorage.getItem('user');
-        if(userData){
-          let data = JSON.parse(userData);
-          resolve({
-            headers: {
-              'Authorization' : 'Bearer ' + data.servicetoken,
-              'Access-Control-Allow-Origin': '*',
-              'Content-Type': 'application/json; charset=UTF-8'
-          }
-          });
-        }
-        else{
-          resolve({})
-        }
+      if(isLogin){
+        resolve({});
       }
       else{
-        this.storage.getItem('user').then((response:any)=>{
-          let data = JSON.parse(response);
-          resolve({
-            Authorization: 'Bearer ' + data.servicetoken
-          });
-        }, err=>{
-          resolve({});
-        })
+        if(this.isPWA()){
+          let userData = localStorage.getItem('user');
+          if(userData){
+            let data = JSON.parse(userData);
+            resolve({
+              headers: {
+                'Authorization' : 'Bearer ' + data.servicetoken,
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json; charset=UTF-8'
+            }
+            });
+          }
+          else{
+            resolve({})
+          }
+        }
+        else{
+          this.storage.getItem('user').then((response:any)=>{
+            let data = JSON.parse(response);
+            resolve({
+              Authorization: 'Bearer ' + data.servicetoken
+            });
+          }, err=>{
+            resolve({});
+          })
+        }
       }
     })
   }
@@ -96,9 +101,9 @@ export class ApiService {
     })
   }
 
-  public post(path: string, params: any = {}){
+  public post(path: string, params: any = {}, isLogin: boolean = false){
     return new Promise((resolve,reject)=>{
-      this.getHeader().then(header=>{
+      this.getHeader(isLogin).then(header=>{
         if(this.isPWA()){
           axios.post(path,params,header).then(response =>{
               resolve(response.data);

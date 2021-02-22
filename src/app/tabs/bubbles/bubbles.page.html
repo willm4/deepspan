@@ -20,7 +20,7 @@
       <ion-card>
         <ion-card-header class="card-header">
           <ion-card-subtitle class="text-center">
-            <span *ngIf="!editing" style="margin-bottom: 10px !important; font-size: 14px !important;">{{app.user.email}}'s Bubble</span>
+            <span *ngIf="!editing" style="margin-bottom: 10px !important; font-size: 14px !important;">{{app.user.name}}'s Bubble</span>
             <ion-segment *ngIf="editing" [(ngModel)]="bubbleEditType"  (ionChange)="resetTempBubs()">
               <ion-segment-button value="add">
                 <ion-label>ADD BUBBLE</ion-label>
@@ -31,12 +31,16 @@
             </ion-segment>
           </ion-card-subtitle>
         </ion-card-header>
-        <ion-card-content>
+        <div style="padding-bottom: 10px !important;">
           
         <ion-list lines="none" *ngIf="!editing">
           <ion-item>
-            <ion-label>SEATTLE,WA INFECTION RATE</ion-label>
-            <ion-note slot="end" color="medium">1 in 100</ion-note>
+            <ion-label>
+              {{app.location}} INFECTION RATE
+            </ion-label>
+            <ion-note slot="end" color="medium">
+              1 in {{app.ipc}}
+            </ion-note>
           </ion-item>
           <ion-item>
             <ion-label>TOTAL BUBBLE SIZE</ion-label>
@@ -50,24 +54,31 @@
         <!-- ADDING BUBBLE -->
         <ion-list lines="none" *ngIf="editing && bubbleEditType == 'add'">
           <ion-item>
+            <ion-label>NAME</ion-label>
+            <ion-input  slot="end" placeholder="ENTER NAME..." type="string" [(ngModel)]="newBubble.name"></ion-input>
+          </ion-item>
+          <ion-item>
             <ion-label>EMAIL</ion-label>
             <ion-input  slot="end" placeholder="ENTER EMAIL..." type="email" [(ngModel)]="newBubble.email"></ion-input>
           </ion-item>
         </ion-list>
         <!-- EDITING /REMOVING BUBBLE-->
         <ion-list lines="none" *ngIf="editing && bubbleEditType == 'edit'">
-          <ion-item>
+          <ion-item *ngIf="app.bubbleCtrl.bubbles.length > 0">
             <ion-label>BUBBLE</ion-label>
             <ion-select placeholder="SELECT BUBBLE" [(ngModel)]="bubbleEdit" [value]="bubbleEdit">
               <ion-select-option *ngFor="let b of app.bubbleCtrl.bubbles" [value]="b">{{b.email}}</ion-select-option>
             </ion-select>
+          </ion-item>
+          <ion-item *ngIf="app.bubbleCtrl.bubbles.length == 0">
+            <ion-label>Your circle doesn't have any bubbles</ion-label>
           </ion-item>
         </ion-list>
         <div>
           <ion-button *ngIf="editing && bubbleEditType == 'add'" expand="block" style="font-size: 12px !important;" fill="clear" color="success" (click)="addBubble()">ADD BUBBLE</ion-button>
           <ion-button *ngIf="editing && bubbleEditType == 'edit' && bubbleEdit.id" expand="block" style="font-size: 12px !important;" fill="clear" color="danger" (click)="removeBubble()">REMOVE BUBBLE</ion-button>
         </div>
-        </ion-card-content>
+      </div>
       </ion-card>
     </div>
     <div #bubbleschart id="bubbles-chart"></div>

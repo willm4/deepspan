@@ -35,17 +35,19 @@ export class BubblesPage implements AfterViewInit {
 
 
   ngAfterViewInit() {
-    this.zone.runOutsideAngular(() => {
-      setTimeout(()=>{
-        this.drawBubbles(true);
-      }, 1000);
-    });
+    setTimeout(()=>{
+      this.drawBubbles(true);
+      if(!this.app.ipc){
+        this.app.setIPC();
+      }
+    }, 1000);
   }
 
-  ionViewDidEnter() {
-    this.drawBubbles(true);
+  ionViewDidEnter(){
+    if(!this.app.ipc){
+      this.app.setIPC();
+    }
   }
-
   edit(){
     this.editing = true;
   }
@@ -69,13 +71,13 @@ export class BubblesPage implements AfterViewInit {
   }
 
   addBubble(){
-    if(this.newBubble.emailValid()){
-      this.app.addBubble(this.newBubble.email).then(()=>{
+    if(this.newBubble.emailValid() && this.newBubble.name){
+      this.app.addBubble(this.newBubble).then(()=>{
           this.drawBubbles(true);
           this.newBubble = new Bubble();
-          this.promptToast(this.newBubble.email + ' added successfully!', 'success' );
+          this.promptToast(this.newBubble.name + ' added successfully!', 'success' );
         }, err=>{
-          this.promptToast('Error adding ' +this.newBubble.email, 'danger' );
+          this.promptToast('Error adding ' +this.newBubble.name, 'danger' );
         })
     }
     else{
@@ -114,6 +116,8 @@ export class BubblesPage implements AfterViewInit {
     let chart = am4core.create(this.bubbleschart.nativeElement, am4plugins_forceDirected.ForceDirectedTree);
 
     chart.responsive.enabled = true;
+    chart.width = am4core.percent(100);
+    chart.height = am4core.percent(100);
     let networkSeries = chart.series.push(new am4plugins_forceDirected.ForceDirectedSeries())
     networkSeries.dataFields.linkWith = "linkWith";
     networkSeries.dataFields.name = "name";
@@ -131,11 +135,11 @@ export class BubblesPage implements AfterViewInit {
     nodeTemplate.label.hideOversized = true;
     nodeTemplate.label.truncate = true;
 
-    let linkTemplate = networkSeries.links.template;
-    linkTemplate.strokeWidth = 1;
-    let linkHoverState = linkTemplate.states.create("hover");
-    linkHoverState.properties.strokeOpacity = 1;
-    linkHoverState.properties.strokeWidth = 2;
+    // let linkTemplate = networkSeries.links.template;
+    // linkTemplate.strokeWidth = 1;
+    // let linkHoverState = linkTemplate.states.create("hover");
+    // linkHoverState.properties.strokeOpacity = 1;
+    // linkHoverState.properties.strokeWidth = 2;
 
     nodeTemplate.events.on("over", function (event) {
         let dataItem = event.target.dataItem;

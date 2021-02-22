@@ -8,8 +8,8 @@ import { Platform } from '@ionic/angular';
 export class UserService {
 
   private isTest: boolean = false;
-  public email: string = !this.isTest ? "" : "will@silvernovus.com";
-
+  public email: string = "";
+  public name: string = "";
   constructor(private rest: RestService, private platform: Platform) { }
 
   public isValid(){
@@ -23,6 +23,21 @@ export class UserService {
         resolve();
       }, err=>{
         reject(err);
+      })
+    })
+  }
+
+  public checkSession(){
+    return new Promise((resolve,reject)=>{
+      this.rest.checkSession().then((response:any)=>{
+        if(response.result == "success"){
+          resolve();
+        }
+        else{
+          reject();
+        }
+      },err=>{
+        reject();
       })
     })
   }
@@ -57,15 +72,37 @@ export class UserService {
   }
 
   private setUserData(userData: any){
-    this.email = userData.username;
+    return new Promise((resolve,reject)=>{
+      if(userData && userData.username && userData.name){
+        this.email = userData.username;
+        this.name = userData.name;
+        resolve();
+      }
+      else{
+        this.rest.getProfile().then(response=>{
+          this.rest.getNativeStorageItem('user').then((userData: any)=>{
+            this.name = userData.name;
+            resolve();
+          }, err=>{
+            reject();
+          })
+        }, err=>{
+  
+        })
+      }
+    })
   }
 
 
   public checkUser(){
     return new Promise((resolve,reject)=>{
-      this.rest.getNativeStorageItem('user').then(response=>{
-        this.setUserData(response);
-        resolve();
+      this.rest.getNativeStorageItem('user').then((userData)=>{
+        this.checkSession().then(()=>{
+          this.setUserData(userData);
+          resolve();
+        },err=>{
+          reject();
+        })
       }, err=>{
         reject(err);
       })

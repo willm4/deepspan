@@ -28,9 +28,9 @@ export class BubblesService {
     this.bubbles = bubbles;
   }
 
-  getChartData(email: string){
+  getChartData(name: string){
     let userData =    {  
-      "name": email,
+      "name": name,
       "value":500,
       "children":[  
     
@@ -39,7 +39,7 @@ export class BubblesService {
     this.bubbles.forEach(d=>{
       userData.children.push(
         {  
-          "name":d.email,
+          "name":d.name ?? d.id,
           "value":300,
           "linkWith":[ ]
       }
