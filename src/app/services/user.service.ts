@@ -10,6 +10,7 @@ export class UserService {
   private isTest: boolean = false;
   public email: string = "";
   public name: string = "";
+  public id: number;
   constructor(private rest: RestService, private platform: Platform) { }
 
   public isValid(){
@@ -47,7 +48,9 @@ export class UserService {
       this.rest.login(username, password)
       .then((response:any)=>{
         if(response.result == "success"){
-          this.email = username;
+          this.email = this.rest.email;
+          this.id = this.rest.id;
+          this.name = this.rest.name;
           resolve();
         }
         else{
@@ -63,7 +66,9 @@ export class UserService {
     return new Promise((resolve,reject)=>{
       this.rest.signup(username, password, name)
       .then((response:any)=>{
-        this.email = username;
+        this.email = this.rest.email;
+        this.id = this.rest.id;
+        this.name = this.rest.name;
         resolve();
       }, (err: any)=>{
         reject(err);
@@ -73,15 +78,17 @@ export class UserService {
 
   private setUserData(userData: any){
     return new Promise((resolve,reject)=>{
-      if(userData && userData.username && userData.name){
+      if(userData && userData.username && userData.name && userData.id){
         this.email = userData.username;
         this.name = userData.name;
+        this.id   = userData.id;
         resolve();
       }
       else{
         this.rest.getProfile().then(response=>{
           this.rest.getNativeStorageItem('user').then((userData: any)=>{
             this.name = userData.name;
+            this.id = userData.id;
             resolve();
           }, err=>{
             reject();

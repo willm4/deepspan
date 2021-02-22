@@ -8,6 +8,9 @@ import { Bubble } from '../classes/bubble';
 })
 export class RestService {
 
+  email: string;
+  id: number;
+  name:string;
   constructor(private api: ApiService, public nativeStorage: NativeStorage) { }
 
   public getBubbles(){
@@ -43,10 +46,20 @@ export class RestService {
 
   private getBubblesFromServer(){
     return new Promise((resolve,reject)=>{
-      this.api.get(this.api.getBubblesWithEmail).then(response=>{
-        let nativeData = {updated: new Date(), data: response};
-        this.nativeStorage.setItem('bubbles', JSON.stringify(nativeData));
-        resolve(response);
+      this.api.get(this.api.getBubblesWithEmail).then((coreBubbles: any[])=>{
+        // let nativeData = {updated: new Date(), data: response};
+        // this.nativeStorage.setItem('bubbles', JSON.stringify(nativeData));
+        this.api.get(this.api.getBubblesWithDepth + "1").then((depthBubbles: any[])=>{
+          resolve({
+            core: coreBubbles,
+            depth: depthBubbles
+          });
+        }, err=>{
+          resolve({
+            core: coreBubbles,
+            depth: []
+          });
+        })
       }, err=>{
         reject(err);
       })
@@ -120,7 +133,7 @@ export class RestService {
         this.nativeStorage.setItem('user',storageItem);
         localStorage.setItem('user', storageItem);
         this.getProfile().then(()=>{
-          resolve();
+          resolve(response);
         }, err=>{
           reject();
         })
@@ -135,8 +148,12 @@ export class RestService {
       this.api.get(this.api.profile).then((profData: any)=>{
         this.getNativeStorageItem('user').then((user: any)=>{
           user.name = profData.name;
+          user.id   = profData.id;
           this.nativeStorage.setItem('user',JSON.stringify(user));
           localStorage.setItem('user', JSON.stringify(user));
+          this.name = user.name;
+          this.id = user.id;
+          this.email = user.email;
           resolve();
         }, err=>{
           reject();
@@ -163,7 +180,11 @@ export class RestService {
         });
         this.nativeStorage.setItem('user',storageItem);
         localStorage.setItem('user', storageItem);
-        resolve(response);
+        this.getProfile().then(()=>{
+          resolve(response);
+        }, err=>{
+          reject();
+        })
       }, err=>{
         reject(err);
       })

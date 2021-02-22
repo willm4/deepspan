@@ -25,7 +25,7 @@ export class AppService {
    }
 
    public getChartData(){
-     return this.bubbleCtrl.getChartData(this.user.name)
+     return this.bubbleCtrl.getChartData(this.user.name, this.user.id)
    }
    
    public getBubbles(){

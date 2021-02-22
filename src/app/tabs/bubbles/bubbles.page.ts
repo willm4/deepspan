@@ -115,6 +115,8 @@ export class BubblesPage implements AfterViewInit {
 
     let chart = am4core.create(this.bubbleschart.nativeElement, am4plugins_forceDirected.ForceDirectedTree);
 
+    am4core.options.disableHoverOnTransform = "touch";
+    
     chart.responsive.enabled = true;
     chart.width = am4core.percent(100);
     chart.height = am4core.percent(100);
@@ -124,6 +126,7 @@ export class BubblesPage implements AfterViewInit {
     networkSeries.dataFields.id = "name";
     networkSeries.dataFields.value = "value";
     networkSeries.dataFields.children = "children";
+    networkSeries.tooltip.disabled = true;
 
     networkSeries.nodes.template.label.text = "{name}"
     networkSeries.fontSize = 8;

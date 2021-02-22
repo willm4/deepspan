@@ -24,7 +24,7 @@ export class Bubble {
       this.user2_id      = data.user2_id;
       this.edge_status   = data.edge_status;
       this.depth         = data.depth;
-      this.name          = data.name;
+      this.name          = data.name ?? data.id;
     }
    }
 
