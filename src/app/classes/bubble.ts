@@ -1,4 +1,5 @@
 
+
 export class Bubble {
 
 
@@ -6,12 +7,16 @@ export class Bubble {
   // user1_id       integer not null references users(id),
   // user2_id       integer not null references users(id),
   // edge_status    integer not null
-
+  public  statuses = {
+    MEMBER_INVITED: 0,
+    MEMBER_DECLINED: 1,
+    MEMBER_ACCEPTED: 2
+  }
 
   public id: number;
-  public user1_id: number;
-  public user2_id: number;
-  public edge_status: number;
+  public user1id: number; // user that created it? 
+  public user2id: number; // users it owns? 
+  public edgestatus: number; // see statuses above
   public email: string;
   public name: string;
   public depth: number;
@@ -20,12 +25,17 @@ export class Bubble {
     if(data){
       this.id             = data.id;
       this.email         = data.email;
-      this.user1_id      = data.user1_id;
-      this.user2_id      = data.user2_id;
-      this.edge_status   = data.edge_status;
+      this.user1id      = data.user1id;
+      this.user2id      = data.user2id;
+      this.edgestatus   = data.edgestatus;
       this.depth         = data.depth;
       this.name          = data.name ?? data.id;
     }
+   }
+
+   canSave(userId: number){
+     console.log(this.id)
+     return this.name &&  this.name.length > 0 && this.user1id == userId && this.edgestatus == this.statuses.MEMBER_INVITED
    }
 
    emailValid() {

@@ -17,7 +17,11 @@ const routes: Routes = [
   {
     path: 'document',
     loadChildren: () => import('./popovers/document/document.module').then( m => m.DocumentPageModule)
-  }
+  },
+  {
+    path: 'tabs',
+    loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
+  },
 ];
 @NgModule({
   imports: [

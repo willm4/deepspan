@@ -8,7 +8,7 @@
     <ion-title>BUBBLES</ion-title>
     <ion-buttons slot="end">
       <ion-button *ngIf="editing" (click)="cancelEdit()">
-        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+        <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -44,43 +44,112 @@
           </ion-item>
           <ion-item>
             <ion-label>TOTAL BUBBLE SIZE</ion-label>
-            <ion-note slot="end" color="medium">{{app.bubbleCtrl.bubbles.length}}</ion-note>
+            <ion-note slot="end" color="medium">{{app.bubbleCtrl.size}}</ion-note>
           </ion-item>
-          <ion-item>
+          <ion-item lines="full">
             <ion-label>BUBBLE ACCURACY</ion-label>
             <ion-note slot="end" color="medium">86%</ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label slot="start">BUBBLE RISK</ion-label>
+            <ion-note slot="start" [color]="app.bubbleCtrl.bubbles.length > 5 ? 'danger' : app.bubbleCtrl.bubbles.length > 3 ? 'warning' : 'success'">
+              {{app.bubbleCtrl.bubbles.length > 5 ? 'HIGH' : app.bubbleCtrl.bubbles.length > 3 ? 'MEDIUM' : 'LOW'}}
+            </ion-note>
+          </ion-item>
+          <ion-item>
+            <ion-label>
+              <div class="risk-progress ion-text-center">
+                <ion-progress-bar [value]="app.bubbleCtrl.bubbles.length > 0 ? app.bubbleCtrl.bubbles.length / 10 : 0" 
+                                  buffer=".1" 
+                                  [style]="{'--buffer-background': app.bubbleCtrl.bubbles.length > 3 ? '#eb445a' : '#ffc409' }"
+                                  [color]="app.bubbleCtrl.bubbles.length > 5 ? 'danger' : app.bubbleCtrl.bubbles.length > 3 ? 'warning' : 'success'">
+                </ion-progress-bar>
+              </div>
+            </ion-label>
           </ion-item>
         </ion-list>
         <!-- ADDING BUBBLE -->
         <ion-list lines="none" *ngIf="editing && bubbleEditType == 'add'">
           <ion-item>
-            <ion-label>NAME</ion-label>
-            <ion-input  slot="end" placeholder="ENTER NAME..." type="string" [(ngModel)]="newBubble.name"></ion-input>
+            <ion-label>EMAIL</ion-label>
+            <ion-input clear-input="true"  slot="end" placeholder="ENTER EMAIL..." type="email" [(ngModel)]="newBubble.email"></ion-input>
           </ion-item>
           <ion-item>
-            <ion-label>EMAIL</ion-label>
-            <ion-input  slot="end" placeholder="ENTER EMAIL..." type="email" [(ngModel)]="newBubble.email"></ion-input>
+            <ion-label>NAME</ion-label>
+            <ion-input clear-input="true"  slot="end" placeholder="ENTER NAME..." type="string" [(ngModel)]="newBubble.name"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-lable>CONNECTION</ion-lable>
+            <ion-select slot="end">
+              <ion-select-option *ngFor="let i of connections" [value]="i">{{i}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-lable>COVID STATUS</ion-lable>
+            <ion-select slot="end">
+              <ion-select-option *ngFor="let i of covidStatuses" [value]="i">{{i}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-lable>PRIVACY</ion-lable>
+            <ion-select slot="end">
+              <ion-select-option *ngFor="let i of privacy" [value]="i">{{i}}</ion-select-option>
+            </ion-select>
           </ion-item>
         </ion-list>
         <!-- EDITING /REMOVING BUBBLE-->
         <ion-list lines="none" *ngIf="editing && bubbleEditType == 'edit'">
           <ion-item *ngIf="app.bubbleCtrl.bubbles.length > 0">
             <ion-label>BUBBLE</ion-label>
-            <ion-select placeholder="SELECT BUBBLE" [(ngModel)]="bubbleEdit" [value]="bubbleEdit">
-              <ion-select-option *ngFor="let b of app.bubbleCtrl.bubbles" [value]="b">{{b.email}}</ion-select-option>
+            <ion-select placeholder="SELECT BUBBLE" [(ngModel)]="bubbleEdit" [value]="bubbleEdit" slot="end" (click)="resetBubbles()">
+              <ion-select-option *ngFor="let b of bubbles" [value]="b">{{b.name}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item *ngIf="bubbleEdit.id">
+            <ion-label>EMAIL</ion-label>
+            <ion-input clear-input="true"  slot="end" disabled placeholder="ENTER EMAIL..." type="email" [(ngModel)]="bubbleEdit.email"></ion-input>
+          </ion-item>
+          <ion-item *ngIf="bubbleEdit.id">
+            <ion-label>NAME</ion-label>
+            <ion-input clear-input="true"  slot="end" placeholder="ENTER NAME..." type="string" [(ngModel)]="bubbleEdit.name"></ion-input>
+          </ion-item>
+          <ion-item *ngIf="bubbleEdit.id">
+            <ion-lable>CONNECTION</ion-lable>
+            <ion-select slot="end">
+              <ion-select-option *ngFor="let i of connections" [value]="i">{{i}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item *ngIf="bubbleEdit.id">
+            <ion-lable>COVID STATUS</ion-lable>
+            <ion-select slot="end">
+              <ion-select-option *ngFor="let i of covidStatuses" [value]="i">{{i}}</ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item *ngIf="bubbleEdit.id">
+            <ion-lable>PRIVACY</ion-lable>
+            <ion-select slot="end">
+              <ion-select-option *ngFor="let i of privacy" [value]="i">{{i}}</ion-select-option>
             </ion-select>
           </ion-item>
           <ion-item *ngIf="app.bubbleCtrl.bubbles.length == 0">
             <ion-label>Your circle doesn't have any bubbles</ion-label>
           </ion-item>
         </ion-list>
-        <div>
-          <ion-button *ngIf="editing && bubbleEditType == 'add'" expand="block" style="font-size: 12px !important;" fill="clear" color="success" (click)="addBubble()">ADD BUBBLE</ion-button>
-          <ion-button *ngIf="editing && bubbleEditType == 'edit' && bubbleEdit.id" expand="block" style="font-size: 12px !important;" fill="clear" color="danger" (click)="removeBubble()">REMOVE BUBBLE</ion-button>
+        <div style="width:100%; display:flex; flex-direction:row;">
+          <div style="flex:1" *ngIf="editing && bubbleEditType == 'add'">
+            <ion-button expand="block" style="font-size: 12px !important;" fill="clear" color="success" (click)="addBubble()">ADD BUBBLE</ion-button>
+          </div>
+          <div style="flex:1" *ngIf="editing && bubbleEditType == 'edit' && bubbleEdit.id">
+            <ion-button  expand="block" style="font-size: 12px !important;" fill="clear" color="danger" (click)="removeBubble()">REMOVE BUBBLE</ion-button>
+          </div>
+          <div style="flex:1" *ngIf="editing && bubbleEditType == 'edit' && bubbleEdit.id">
+            <ion-button expand="block" style="font-size: 12px !important;" fill="clear" color="success" (click)="saveBubbleChanges()">UPDATE BUBBLE</ion-button>
+          </div>
         </div>
       </div>
       </ion-card>
     </div>
     <div #bubbleschart id="bubbles-chart"></div>
+
   </div>
 </ion-content>

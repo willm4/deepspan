@@ -9,11 +9,11 @@
     <div style="width:100%; flex-direction:row; text-align: center;" *ngIf="currentPage == 'login'">
       <ion-item>
         <ion-label color="secondary"position="floating">EMAIL</ion-label>
-        <ion-input color="secondary"[(ngModel)]="email"></ion-input>
+        <ion-input clear-input="true" color="secondary"[(ngModel)]="email"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label color="secondary"position="floating">PASSWORD</ion-label>
-        <ion-input color="secondary" type="password" [(ngModel)]="password"></ion-input>
+        <ion-input clear-input="true" color="secondary" type="password" [(ngModel)]="password"></ion-input>
       </ion-item>
       <div style="padding-top: 50px;">
         <ion-text size="small" color="medium">Don't have an account? </ion-text>
@@ -23,15 +23,15 @@
     <div style="width:100%; flex-direction:row; text-align: center;" *ngIf="currentPage == 'signup'">
       <ion-item>
         <ion-label color="secondary"position="floating">NAME</ion-label>
-        <ion-input color="secondary"[(ngModel)]="name"></ion-input>
+        <ion-input clear-input="true" color="secondary"[(ngModel)]="name"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label color="secondary"position="floating">EMAIL</ion-label>
-        <ion-input color="secondary"[(ngModel)]="email"></ion-input>
+        <ion-input clear-input="true" color="secondary"[(ngModel)]="email"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label color="secondary"position="floating">PASSWORD</ion-label>
-        <ion-input color="secondary" type="password" [(ngModel)]="password"></ion-input>
+        <ion-input clear-input="true" color="secondary" type="password" [(ngModel)]="password"></ion-input>
       </ion-item>
       <div style="padding-top: 50px;">
         <ion-text size="small" color="medium">Already have an account? </ion-text>

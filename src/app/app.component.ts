@@ -18,9 +18,15 @@ export class AppComponent {
   }
 
   checkUser(){
-    this.app.user.checkUser().then(()=>{
-      if(!this.app.user.isValid()){
-        this.goToLogin();
+    this.app.user.isValid().then(isValid=>{
+      if(!isValid){
+        this.app.user.checkUser().then((validAfterCheck)=>{
+          if(!validAfterCheck){
+            this.goToLogin();
+          }
+        }, err=>{
+          this.goToLogin();
+        })
       }
     }, err=>{
       this.goToLogin();

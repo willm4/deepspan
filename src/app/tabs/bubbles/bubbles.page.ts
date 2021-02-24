@@ -18,12 +18,34 @@ am4core.useTheme(am4themes_animated);
 })
 export class BubblesPage implements AfterViewInit {
 
+  connections = [
+    'Spouse/S.O',
+    'Family',
+    "Roommate",
+    "Non-Resident Family",
+    "Friend/Colleague"
+  ];
+  covidStatuses = [
+    "Unknown",
+    "Symptomatic",
+    "Infected",
+    "Previous Infection",
+    "Vaccinated"
+  ];
+  privacy = [
+    "Show only Bubble #",
+    "Show Full Bubble",
+    "Don't Show Anything"
+  ];
   @ViewChild("bubbleschart") bubbleschart: ElementRef;
   chart: am4plugins_forceDirected.ForceDirectedTree;
   editing: boolean = false;
   bubbleEditType: string = 'add';
   newBubble: Bubble = new Bubble();
   bubbleEdit: Bubble = new Bubble();
+  hasData: boolean = false;
+  loadingBubbles: boolean = false;
+  bubbles: Array<Bubble> = new Array<Bubble>();
 
   constructor(public zone:NgZone
     , public modalCtrl: ModalController
@@ -33,20 +55,30 @@ export class BubblesPage implements AfterViewInit {
 
   }
 
+  resetBubbles(){
+    this.bubbles = this.app.bubbleCtrl.getBubblesClone();
+  }
+
 
   ngAfterViewInit() {
     setTimeout(()=>{
-      this.drawBubbles(true);
+      if(!this.hasData){
+        this.drawBubbles(true);
+      }
       if(!this.app.ipc){
         this.app.setIPC();
       }
-    }, 1000);
+    }, 5000);
   }
 
   ionViewDidEnter(){
     if(!this.app.ipc){
       this.app.setIPC();
     }
+    if(!this.hasData){
+      this.drawBubbles(true);
+    }
+    this.resetBubbles();
   }
   edit(){
     this.editing = true;
@@ -57,6 +89,24 @@ export class BubblesPage implements AfterViewInit {
     this.bubbleEditType = 'add';
     this.editing = false;
   }
+
+  saveBubbleChanges(){
+    if(this.bubbleEdit.id){
+      if(this.bubbleEdit.canSave(this.app.user.id)){
+        this.app.editBubble(this.bubbleEdit).then(response=>{
+          this.promptToast(this.bubbleEdit.name + ' updated successfully!', 'success' );
+          this.bubbleEdit = new Bubble();
+          this.drawBubbles(true);
+        }, err=>{
+          console.log(err);
+          this.promptToast("Error updating " + this.bubbleEdit.name + '.', 'danger' );
+        })
+      }
+      else{
+        this.promptToast("Couldn't update " + this.bubbleEdit.name + '. Invalid name or permissions.', 'danger' );
+      }
+    }
+  }
   
   removeBubble(){
     if(this.bubbleEdit.id){
@@ -64,8 +114,9 @@ export class BubblesPage implements AfterViewInit {
         this.promptToast(this.bubbleEdit.email + ' was removed', 'success' );
         this.bubbleEdit = new Bubble();
         this.drawBubbles();
+        this.resetBubbles();
       }, err=>{
-        this.promptToast('Error removing ' +this.bubbleEdit.email, 'danger' );
+        this.promptToast('Error removing ' +this.bubbleEdit.name, 'danger' );
       });
     }
   }
@@ -74,8 +125,8 @@ export class BubblesPage implements AfterViewInit {
     if(this.newBubble.emailValid() && this.newBubble.name){
       this.app.addBubble(this.newBubble).then(()=>{
           this.drawBubbles(true);
-          this.newBubble = new Bubble();
           this.promptToast(this.newBubble.name + ' added successfully!', 'success' );
+          this.newBubble = new Bubble();
         }, err=>{
           this.promptToast('Error adding ' +this.newBubble.name, 'danger' );
         })
@@ -116,7 +167,7 @@ export class BubblesPage implements AfterViewInit {
     let chart = am4core.create(this.bubbleschart.nativeElement, am4plugins_forceDirected.ForceDirectedTree);
 
     am4core.options.disableHoverOnTransform = "touch";
-    
+
     chart.responsive.enabled = true;
     chart.width = am4core.percent(100);
     chart.height = am4core.percent(100);
@@ -161,6 +212,8 @@ export class BubblesPage implements AfterViewInit {
     if(isInit){
       this.getChartData().then((response:any)=>{
         networkSeries.data = response;
+        this.hasData = response.length > 0;
+
       }, err=>{
         console.log(err);
       });
@@ -174,7 +227,12 @@ export class BubblesPage implements AfterViewInit {
 getChartData(){
   return new Promise((resolve,reject)=>{
     this.app.getBubbles().then(()=>{
-      resolve(this.app.getChartData());
+      let data = this.app.getChartData();
+      this.app.statuses.push('app data ' + JSON.stringify(data));
+      console.log('chart data');
+      console.log(data);
+      resolve(data);
+      this.resetBubbles();
     }, err=>{
       reject(err);
     });

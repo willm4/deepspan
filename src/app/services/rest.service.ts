@@ -33,6 +33,21 @@ export class RestService {
     })
   }
 
+  public editBubble(bubble:Bubble){
+    return new Promise((resolve,reject)=>{
+      console.log(bubble.id)
+      let params = {
+        id: bubble.user2id,
+        name: bubble.name
+      };
+      this.api.put(this.api.editBubble, params).then(response=>{
+        resolve(response);
+      }, err=>{
+        reject(err);
+      })
+    })
+  }
+
   public addBubble(bubble: Bubble){
     return new Promise((resolve,reject)=>{
       let params = {members: [{email: bubble.email, name: bubble.name}]};
@@ -46,10 +61,11 @@ export class RestService {
 
   private getBubblesFromServer(){
     return new Promise((resolve,reject)=>{
+      console.log('id' + this.id)
       this.api.get(this.api.getBubblesWithEmail).then((coreBubbles: any[])=>{
         // let nativeData = {updated: new Date(), data: response};
         // this.nativeStorage.setItem('bubbles', JSON.stringify(nativeData));
-        this.api.get(this.api.getBubblesWithDepth + "1").then((depthBubbles: any[])=>{
+        this.api.get(this.api.getBubblesWithDepth + "2").then((depthBubbles: any[])=>{
           resolve({
             core: coreBubbles,
             depth: depthBubbles
@@ -68,7 +84,6 @@ export class RestService {
 
   public getIPC(region: string, state: string, lat: any = null, lon: any = null){
     return new Promise((resolve,reject)=>{
-      console.log('getting ipc');
       this.getIPCFromServer(region,state,lat,lon).then(response=>{
         // let nativeData = {updated: new Date(), data: response};
         // this.nativeStorage.setItem('ipc', JSON.stringify(nativeData));
@@ -88,7 +103,6 @@ export class RestService {
         lat: lat,
         lon: lon
       };
-      console.log(body)
       this.api.post(this.api.ipc, body).then(response=>{
         resolve(response);
       }, err=>{

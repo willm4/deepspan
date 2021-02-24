@@ -34,6 +34,7 @@ export class ApiService {
   public deleteBubble: string = this.path + "bubble/" // ADD BUBBLE ID
   public getBubblesWithDepth: string = this.getBubblesWithoutEmail + "/depth/" // ADD DEPTH ONTO THIS
   public addBubbles: string = this.path + "bubbles" // SEND ARRAY OF EMAILS TO LINK
+  public editBubble: string = this.path + "invited/name";
 
   constructor(private http: HTTP, private httpClient: HttpClient, public platform: Platform, private storage: NativeStorage) { }
 
@@ -78,6 +79,7 @@ export class ApiService {
     })
   }
 
+
   public delete(path: string){
     return new Promise((resolve,reject)=>{
 
@@ -94,6 +96,28 @@ export class ApiService {
           this.http.delete(path, {}, header ).then(response=>{
             resolve();
           },err=>{
+            reject(err.error.message);
+          })
+        }
+      });
+    })
+  }
+
+  public put(path:string, params: any = {}){
+    return new Promise((resolve,reject)=>{
+      this.getHeader().then(header=>{
+        if(this.isPWA()){
+          axios.put(path, params,header).then(response=>{
+            resolve(response.data);
+          }, err=>{
+            reject(err);
+          })
+        }
+        else{
+          this.http.setDataSerializer("json");
+          this.http.put(path, params, header).then(response=>{
+            resolve(response.data);
+          }, err=>{
             reject(err.error.message);
           })
         }

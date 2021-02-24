@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Bubble } from '../classes/bubble';
+import * as cloneDeep from 'lodash/cloneDeep';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +8,8 @@ import { Bubble } from '../classes/bubble';
 export class BubblesService {
 
   bubbles: Array<Bubble> = new Array<Bubble>();
-  level1: Array<Bubble> = new Array<Bubble>();
+  depth: Array<Bubble> = new Array<Bubble>();
+  size: number = 0;
   constructor() { }
 
   addBubble(bubble: Bubble){
@@ -19,9 +21,8 @@ export class BubblesService {
   }
 
   refresh(bubData: any){
-
     let bubbles = new Array<Bubble>();
-    let level1 = new Array<Bubble>();
+    let depth = new Array<Bubble>();
     if(bubData.core){
       bubData.core.forEach(bubble => {
         bubbles.push(new Bubble(bubble))
@@ -30,58 +31,84 @@ export class BubblesService {
     if(bubData.depth){
       bubData.depth.forEach(bubble => {
         let newBub = new Bubble(bubble);
-        level1.push(newBub)
+        depth.push(newBub)
       });
     }
     this.bubbles = bubbles;
-    this.level1 = level1;
+    this.depth = depth;
   }
 
-  getChartData(name: string, id: number){
-    let userData =    {  
+  getBubblesClone(){
+    return cloneDeep(this.bubbles);
+  }
+
+  getChartData(name: string, id: number){ // ID AND NAME OF USER, USED TO SET USER BUBBLE
+
+    let userBubble =    {  
       "name": name,
       "id": id,
-      "value":500,
-      "children":[  
-      ]
+      "value":900,
+      "children":[  ],
+      "linkWith": []
     };
-    this.bubbles.forEach(d=>{
-      let newBub = {  
-        "name":d.name ?? d.id,
-        "value":300,
-        "id": d.id,
+    // ADD BUBBLES FROM CHILDREN
+    this.bubbles.forEach(coreBubData=>{
+      let childBub = {  
+        "name":coreBubData.name ?? coreBubData.id,
+        "value":600,
+        "id": coreBubData.id,
+        "u1id": coreBubData.user1id,
+        "u2id": coreBubData.user2id,
         "linkWith":[ ],
         "children": [ ]
       };
-      
-      /// LINK BUBBLES TO USER HERE, PASS BUBBLE TO PARAMS 
+      if(childBub.u1id == userBubble.id){
+        userBubble.children.push(childBub);
+      }
+    });
 
-      // let links = [];
-      // userData.children.filter(c=>{ return c.id != d.id }).map(c=>{
-      //   links.push(c.name);
-      // });
-      // newBub.linkWith = links
 
-      this.level1.forEach(b=>{
-        if(b.id == d.id){
-          newBub.children.push({
-            "name":"?",
-            id: b.id,
-            "value":300
-          });
-        }
+    userBubble.children.forEach(childBub=>{
+      let links = [];
+      userBubble.children.filter(c=>{ return childBub.user1id == c.u1id }).map(c=>{
+        links.push(c.name);
       });
-      userData.children.push(newBub);
-    });
-    userData.children.forEach(d=>{
+      childBub.linkWith = links;
 
-      // let links = [];
-      // userData.children.filter(c=>{ return c.id != d.id }).map(c=>{
-      //   links.push(c.name);
-      // });
-      // d.linkWith = links
+      this.depth.forEach(deepBubData =>{
+        let depthBub = {  
+          "name": 'N/A_' + deepBubData.id,
+          "value":300,
+          "id": deepBubData.id,
+          "u1id": deepBubData.user1id,
+          "u2id": deepBubData.user2id,
+          "linkWith":[ ],
+          "children": [ ]
+        };
+        if(depthBub.id != childBub.id){
+          if(depthBub.u2id == childBub.u2id){
+            childBub.children.push(depthBub);
+          }
+          if(depthBub.u1id == childBub.u1id){
+            childBub.linkWith.push(depthBub.name);
+           
+          }
+        }
+        
+      })
+
+
+
     });
-    return [userData];
+
+    let size = userBubble.children.length;
+    userBubble.children.forEach(c=>{
+      size += c.children.length;
+    });
+    this.size = size;
+
+
+    return [userBubble];
   }
 
 }

@@ -14,8 +14,14 @@ export class UserService {
   constructor(private rest: RestService, private platform: Platform) { }
 
   public isValid(){
-    let isValid = this.email;
-    return isValid;
+    return new Promise((resolve,reject)=>{
+      this.rest.getNativeStorageItem('user').then((userData)=>{
+        this.setUserData(userData);
+        resolve(this.email && this.name && this.id);
+      }, err=>{
+        reject(err);
+      })
+    })
   }
 
   public logout(){
@@ -103,15 +109,14 @@ export class UserService {
 
   public checkUser(){
     return new Promise((resolve,reject)=>{
-      this.rest.getNativeStorageItem('user').then((userData)=>{
-        this.checkSession().then(()=>{
-          this.setUserData(userData);
-          resolve();
-        },err=>{
+      this.checkSession().then(()=>{
+        this.isValid().then((response)=>{
+          resolve(response);
+        }, err=>{
           reject();
         })
-      }, err=>{
-        reject(err);
+      },err=>{
+        reject();
       })
     })
   }

@@ -17,6 +17,7 @@ export class AppService {
   lat: number;
   lon: number;
   location: string;
+  statuses: Array<string> = new Array<string>();
   states = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
 
 
@@ -32,6 +33,7 @@ export class AppService {
      return new Promise((resolve,reject)=>{
        this.rest.getBubbles().then((bubbles: any)=>{
          if(bubbles){
+           console.log(JSON.stringify(bubbles))
            this.bubbleCtrl.refresh(bubbles);
          }
          resolve();
@@ -62,22 +64,26 @@ export class AppService {
      })
    }
 
+   public editBubble(bubble: Bubble){
+     return new Promise((resolve,reject)=>{
+       this.rest.editBubble(bubble).then((response:any)=>{
+        resolve()
+       }, err=>{
+         reject(err);
+       })
+     })
+   }
+
    public setIPC(){
      return new Promise((resolve,reject)=>{
-      console.log('setting location')
       this.setLocation().then(()=>{
-        console.log('making ipc request')
-        console.log('state ' + this.states[this.state]);
         this.rest.getIPC(this.region, this.states[this.state], this.lat, this.lon).then((response:any)=>{
-          console.log(response)
           this.ipc = Math.round(response.ipc);
           resolve();
         },err=>{
-          console.log("ERR SETTING IPC")
           reject("Error, couldn't set IPC");
         })
       }, err=>{
-        console.log('err getting ipc')
         reject();
       })
      })
@@ -97,10 +103,8 @@ export class AppService {
           });
         }
       }, err=>{
-        console.log('err setting location')
         reject("Couldn't get location.")
       }).catch(err=>{
-        console.log(err)
         reject(err);
       })
      });
@@ -131,7 +135,6 @@ export class AppService {
             location = location.substring(0, location.length - 1);
           }
           this.location = location.toUpperCase();
-          console.log(this.location)
           resolve();
         }
         else{
