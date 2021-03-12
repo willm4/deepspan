@@ -27,6 +27,7 @@
 
 
 // Global
+.popover-content.sc-ion-popover-ios{ width:80% !important; }
 ion-toolbar{
     text-align: center !important;
 }
@@ -59,9 +60,11 @@ ion-list > ion-item{
     font-size: 12px !important;
 }
 
+
+.list-header-margin,
 ion-list > ion-item > ion-label,
 ion-list > ion-item > ion-note{
-   margin:5px !important
+   margin:10px 5px 10px 5px 
 }
 
 ion-list > ion-item,
@@ -76,5 +79,7 @@ ion-card-content{
 
 ion-list-header{
     font-size: 14px !important;
+    min-height: 0px !important;
     --min-height:0px !important
 }
+

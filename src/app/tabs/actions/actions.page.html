@@ -1,90 +1,44 @@
 <ion-header>
   <ion-toolbar color="secondary">
+    <ion-buttons slot="end">
+      <ion-button (click)="refreshActions()">
+        <ion-icon slot="icon-only" name="refresh-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
     <ion-title>ACTIONS</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content>
+  <div *ngIf="!app.actions">No actions found. Refresh to check actions.</div>
 <ion-list>
-  <ion-item>
-    <ion-avatar slot="start">
-      <img src="../../../assets/icon/person-add-outline.svg">
-    </ion-avatar>
-    <ion-label style="display: flex; flex-direction:column;">
-      <div style="padding-bottom:5px">
-        <ion-note>
-          Feb 15, 1:30pm
-        </ion-note>
-      </div>
-      <div class="ion-text-wrap">
-        <h3><b>Noelle</b> Would like to join your LifeBubble!</h3>
-      </div>
-      <div style="padding-top: 10px; display: flex; width:100%; flex-direction: row;">
-        <div style="width:50%; text-align: center;"><ion-button  color="secondary" style="width:75%;" size="small">YES</ion-button></div>
-        <div style="width:50%; text-align: center;"><ion-button fill="outline"    style="width: 75%;" color="secondary"  size="small"> NOPE</ion-button></div>
-      </div>
-    </ion-label>
-  </ion-item>
-  <ion-item>
-    <ion-avatar slot="start">
-      <img src="../../../assets/icon/person-add-outline.svg">
-    </ion-avatar>
-    <ion-label style="display: flex; flex-direction:column;">
-      <div style="padding-bottom:5px">
-        <ion-note>
-          Feb 14, 2:40pm
-        </ion-note>
-      </div>
-      <div class="ion-text-wrap">
-        <h3>You invited <b>Kathy Mitchell</b> to join your LifeBubble!</h3>
-      </div>
-      <div style="padding-top: 10px; display: flex; width:100%; flex-direction: row;">
-        <div style="width:50%; text-align: center;"><ion-button  color="secondary" style="width:75%;" size="small">RE-INVITE</ion-button></div>
-      </div>
-    </ion-label>
-    <ion-buton slot="end">
-      <ion-icon slot="icon-only"  name="close-circle-outline"></ion-icon>
-    </ion-buton>
-  </ion-item>
 
-  <ion-item>
-    <ion-avatar slot="start">
-      <img src="../../../assets/icon/alert-circle-outline.svg">
-    </ion-avatar>
-    <ion-label style="display: flex; flex-direction:column; padding-bottom: 5px;">
-      <div style="padding-bottom:5px">
-        <ion-note>
-          Feb 13, 11:50am
-        </ion-note>
-      </div>
-      <div class="ion-text-wrap">
-        <h3>Your LifeBubble just expanded! <b>Eric Lang</b> to join your LifeBubble!</h3>
-      </div>
-    </ion-label>
-    <ion-buton slot="end">
-      <ion-icon slot="icon-only"  name="close-circle-outline"></ion-icon>
-    </ion-buton>
-  </ion-item>
+  <ion-item-sliding *ngFor="let a of app.actions; let i = index">
 
-  <ion-item>
-    <ion-avatar slot="start">
-      <img src="../../../assets/icon/alert-circle-outline.svg">
-    </ion-avatar>
-    <ion-label style="display: flex; flex-direction:column; padding-bottom: 5px;">
-      <div style="padding-bottom:5px">
-        <ion-note>
-          Feb 13, 11:50am
-        </ion-note>
-      </div>
-      <div class="ion-text-wrap">
-        <h3>Your LifeBubble just expanded! <b>Olivia Mitchell</b> to join your LifeBubble!</h3>
-      </div>
-    </ion-label>
-    <ion-buton slot="end">
-      <ion-icon slot="icon-only"  name="close-circle-outline"></ion-icon>
-    </ion-buton>
-  </ion-item>
+    <ion-item>
+      <ion-avatar slot="start">
+        <img [src]="a.img">
+      </ion-avatar>
+      <ion-label style="display: flex; flex-direction:column;">
+        <div class="ion-text-wrap">
+          <h3>{{a.text}}</h3>
+        </div>
+        <div style="display: flex; flex-direction: row;">
+          <ion-button color="success" size="small"  *ngIf="a.actiontype == app.actionTypes.ACTION_INVITE_RECEIVED" (click)="updateAction(a,2 )">ACCEPT</ion-button>
+          <ion-button color="light" size="small"  *ngIf="a.actiontype == app.actionTypes.ACTION_INVITE_RECEIVED" (click)="updateAction(a, 1)">DECLINE</ion-button>
+          <ion-button color="light" size="small" *ngIf="a.actiontype == app.actionTypes.ACTION_INVITE_SENT" (click)="updateAction(a,0)">REINVITE</ion-button>
+        </div>
+      </ion-label>
+      <ion-note slot="end" style="font-size:xx-small;">
+        {{a.dateLabel}}
+      </ion-note>
+      <ion-button slot="end" color="dark" fill="none" size="small" *ngIf="a.actiontype != app.actionTypes.ACTION_INVITE_RECEIVED" (click)="deleteAction(a)">X</ion-button>
+    </ion-item>
 
+    <ion-item-options side="end" *ngIf="a.actiontype != app.actionTypes.ACTION_INVITE_RECEIVED">
+      <ion-item-option color="light"  (click)="deleteAction(a)">{{a.actiontype == app.actionTypes.ACTION_INVITE_SENT ? 'UNDO' : 'DISMISS'}}</ion-item-option>
+    </ion-item-options>
+  </ion-item-sliding>
 
 </ion-list>
 </ion-content>

@@ -4,6 +4,7 @@ import { RestService } from 'src/app/services/rest.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import * as showdown from 'showdown';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
+import { DocumentsService } from 'src/app/services/documents.service';
 
 @Component({
   selector: 'app-document',
@@ -16,7 +17,7 @@ export class DocumentPage implements OnInit {
   content: any = "";
   loading: boolean = true;
 
-  constructor(private router: Router, private route: ActivatedRoute, private rest: RestService, public sanitizer: DomSanitizer, private inappBrowser: InAppBrowser) { 
+  constructor(private router: Router, private route: ActivatedRoute, private docCtrl: DocumentsService, public sanitizer: DomSanitizer, private inappBrowser: InAppBrowser) { 
    let type = this.route.snapshot.paramMap.get('type');
     this.setView(type)
   }
@@ -27,7 +28,7 @@ export class DocumentPage implements OnInit {
   }
 
   getContent(type: string){
-    this.rest.getDocument(type).then((response:string)=>{
+    this.docCtrl.getDocument(type).then((response:string)=>{
       this.setContent(response);
       console.log('setting content')
     }, err=>{

@@ -1,5 +1,6 @@
 <ion-header>
   <ion-toolbar color="secondary">
+    <img slot="start" style="border-radius: 50%; width:32px; height:32px; margin-left:4px; margin-right: 4px;" [src]="app.userCtrl.user.img">
     <ion-title>PROFILE</ion-title>
   </ion-toolbar>
 </ion-header>
@@ -7,14 +8,39 @@
 <ion-content>
   <ion-list lines="none">
     <ion-list-header color="light">
-      PROFILE
+      <ion-label class="list-header-margin">PROFILE</ion-label>
+      <ion-button class="list-header-margin" *ngIf="!isEditing" size="small" (click)="edit()">EDIT</ion-button>
+      <ion-button class="list-header-margin" *ngIf="isEditing" size="small" (click)="cancel()">CANCEL</ion-button>
+      <ion-button class="list-header-margin" *ngIf="isEditing" size="small" color="success" (click)="save()">SAVE</ion-button>
     </ion-list-header>
     <ion-item>
-      <ion-label>EMAIL</ion-label>
-      <ion-note slot="end" color="medium">{{app.user.email}}</ion-note>
+      <ion-label>NAME</ion-label>
+      <ion-note *ngIf="!isEditing" slot="end" color="medium">{{app.userCtrl.user.name}}</ion-note>
+      <ion-input *ngIf="isEditing" slot="end" [(ngModel)]="userEdits.name"></ion-input>
     </ion-item>
+    <ion-item>
+      <ion-label>EMAIL</ion-label>
+      <ion-note *ngIf="!isEditing" slot="end" color="medium">{{app.userCtrl.user.email}}</ion-note>
+      <ion-input *ngIf="isEditing" slot="end" type="email" [(ngModel)]="userEdits.email"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>STATUS</ion-label>
+      <ion-note *ngIf="!isEditing" slot="end" color="medium">{{app.userCtrl.user.userStatusName.name}}</ion-note>
+      <ion-select *ngIf="isEditing" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
+        <ion-select-option *ngFor="let s of app.userCtrl.userStatusDict" [value]="s">{{s.name}}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-button o class="list-header-margin" size="small" (click)="resetPassword()">RESET PASSWORD</ion-button>
+    </ion-item>
+    <!-- <ion-item>
+      <ion-label>LOCATION</ion-label>
+      <ion-note *ngIf="!isEditing" slot="end" color="medium">{{app.userCtrl.user.locationName ? app.userCtrl.user.locationName : 'N/A'}}</ion-note>
+      <ion-note *ngIf="isEditing" slot="end" color="medium">{{userEdits.locationName ? userEdits.locationName : 'N/A'}}</ion-note>
+      <ion-button slot="end" size="small" fill="outline" *ngIf="isEditing" (click)="setCurrentLocation()"><ion-icon slot="start" name="location-outline"></ion-icon>LOCATE</ion-button>
+    </ion-item> -->
     <ion-list-header color="light">
-      TERMS
+      <ion-label class="list-header-margin">TERMS</ion-label>
     </ion-list-header>
     <ion-item>
       <ion-label>TERMS AND CONDITIONS</ion-label>
@@ -35,11 +61,11 @@
       </ion-button>
     </ion-item>
     <ion-list-header color="light">
-      APP INFO
+     <ion-label class="list-header-margin"> APP INFO</ion-label>
     </ion-list-header>
     <ion-item>
       <ion-label>VERSION</ion-label>
-      <ion-note slot="end" color="medium">1.0</ion-note>
+      <ion-note slot="end" color="medium">{{app.build}}</ion-note>
     </ion-item>
     <ion-item>
       <ion-label>ABOUT</ion-label>
@@ -48,11 +74,11 @@
       </ion-button>
     </ion-item>
     <ion-list-header color="light">
-      STATUS
+      <ion-label class="list-header-margin">STATUS</ion-label>
     </ion-list-header>
     <ion-item>
       <ion-label>LOGGED IN AS</ion-label>
-      <ion-note slot="end" color="medium">{{app.user.email}}</ion-note>
+      <ion-note slot="end" color="medium">{{app.userCtrl.user.email}}</ion-note>
     </ion-item>
     <ion-item style="text-align: center;">
       <ion-button color="danger" expand="block" style="width:100%;" fill="clear" (click)="logout()"><ion-icon name="log-out-outline"></ion-icon> LOGOUT</ion-button>

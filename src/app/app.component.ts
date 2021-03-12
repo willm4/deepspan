@@ -18,22 +18,13 @@ export class AppComponent {
   }
 
   checkUser(){
-    this.app.user.isValid().then(isValid=>{
-      if(!isValid){
-        this.app.user.checkUser().then((validAfterCheck)=>{
-          if(!validAfterCheck){
-            this.goToLogin();
-          }
-        }, err=>{
-          this.goToLogin();
-        })
-      }
-    }, err=>{
+    this.app.userCtrl.checkSession().then(()=>{ }, err=>{
       this.goToLogin();
     })
   }
 
   goToLogin(){
+    this.app.clearStorage();
     this.router.navigateByUrl('/login');
   }
 

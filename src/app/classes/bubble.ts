@@ -1,3 +1,4 @@
+import { User } from './user';
 
 
 export class Bubble {
@@ -20,6 +21,8 @@ export class Bubble {
   public email: string;
   public name: string;
   public depth: number;
+  public user: User;
+  public img: string = "https://www.gravatar.com/avatar/f7256b954e2c23a1f9c5104f1f54fb17?d=mp&r=pg";
 
   constructor(data: any = null) {
     if(data){
@@ -36,6 +39,12 @@ export class Bubble {
    canSave(userId: number){
      console.log(this.id)
      return this.name &&  this.name.length > 0 && this.user1id == userId && this.edgestatus == this.statuses.MEMBER_INVITED
+   }
+
+   setUser(userData: any){
+     this.user = new User(userData);
+     this.name = this.user.name;
+     this.email = this.user.email;
    }
 
    emailValid() {

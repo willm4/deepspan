@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Bubble } from '../classes/bubble';
 import * as cloneDeep from 'lodash/cloneDeep';
+import { User } from '../classes/user';
+import {Md5} from 'ts-md5/dist/md5';
+import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,107 +11,170 @@ import * as cloneDeep from 'lodash/cloneDeep';
 export class BubblesService {
 
   bubbles: Array<Bubble> = new Array<Bubble>();
-  depth: Array<Bubble> = new Array<Bubble>();
+  users: Array<User> = new Array<User>();
   size: number = 0;
-  constructor() { }
+  accuracy: any = 'N/A';
+  
 
-  addBubble(bubble: Bubble){
-    this.bubbles.push(bubble);
+  userTypes = {
+    UNVALIDATED: 0,
+    VALIDATED: 1,
+    CURRENT_USER: 2
+  }
+  
+  constructor(private api: ApiService) { }
+
+
+  public removeBubble(id: number){ // user id
+    return new Promise((resolve,reject)=>{
+      this.api.delete(this.api.deleteBubble  + id).then(response=>{
+        this.refresh().then(()=>{
+          resolve();
+        })
+      }, err=>{
+        reject(err);
+      })
+    })
   }
 
-  removeBubble(id: number){
-    this.bubbles.splice(this.bubbles.map(function(x) {return x.id; }).indexOf(id), 1);
+  public addBubble(bubble: any){
+    return new Promise((resolve,reject)=>{
+      let params = {members: [{email: bubble.email, name: bubble.name, userstatus: bubble.userStatusName.value}]};
+      this.api.post(this.api.addBubbles, params).then(response=>{
+        this.refresh().then(()=>{
+          resolve();
+        })
+      }, err=>{
+        reject(err);
+      })
+    })
   }
 
-  refresh(bubData: any){
+  private getUsers(){
+    let users = new Array<User>();
+    let imgSrc =  "https://www.gravatar.com/avatar/";
+    return new Promise((resolve)=>{
+      this.api.get(this.api.userGraph).then((response: any)=>{
+        response.forEach(u=>{
+          u['img'] = imgSrc + Md5.hashStr(u.email.toLowerCase())+ "?d=mp&r=pg"
+          if (u.id == u.ownerid) {
+            u.userType = this.userTypes.CURRENT_USER
+        } else if (u.role.Int32 == -2) {
+            u.userType = this.userTypes.UNVALIDATED
+        }
+        else{
+          u.userType == this.userTypes.VALIDATED
+        }
+          users.push(u);
+        });
+        this.users = users;
+        resolve();
+      }, err=>{
+        this.users = users;
+        resolve();
+      })
+    })
+  }
+
+  private getBubbles(){
     let bubbles = new Array<Bubble>();
-    let depth = new Array<Bubble>();
-    if(bubData.core){
-      bubData.core.forEach(bubble => {
-        bubbles.push(new Bubble(bubble))
-      });
-    }
-    if(bubData.depth){
-      bubData.depth.forEach(bubble => {
-        let newBub = new Bubble(bubble);
-        depth.push(newBub)
-      });
-    }
-    this.bubbles = bubbles;
-    this.depth = depth;
+    return new Promise((resolve)=>{
+      this.api.get(this.api.bubbleGraph).then((response: any)=>{
+        response.forEach(b=>{
+          bubbles.push(new Bubble(b));
+        });
+        this.bubbles = bubbles;
+        resolve();
+      }, err=>{
+        this.bubbles = bubbles;
+        resolve();
+      })
+    })
+  }
+
+  public getData(){
+    return new Promise((resolve)=>{
+      resolve(Promise.all([this.getBubbles(), this.getUsers()]));
+    })
+  }
+
+  refresh(){
+    return new Promise((resolve)=>{
+      this.getData().then(()=>{
+        this.bubbles.forEach(b=>{
+          this.users.forEach(u=>{
+            if(u.id == b.id){
+              b.name = u.name;
+              b.email = u.email;
+              b.img   = u.img;
+            }
+          })
+        })
+        this.calcAccuracy();
+        resolve();
+      },err=>{
+        resolve();
+      })
+    })
+  }
+
+  calcAccuracy(){
+    let initialValue = 0
+    let usersValidated = this.users.reduce( function(total, current) {
+        return total + (current.role.Int32 >= 0 ? 1 : 0)
+    }, initialValue);
+    this.accuracy = (usersValidated/this.users.length).toFixed(2);
   }
 
   getBubblesClone(){
     return cloneDeep(this.bubbles);
   }
 
-  getChartData(name: string, id: number){ // ID AND NAME OF USER, USED TO SET USER BUBBLE
-
-    let userBubble =    {  
+  getChartData(name: string,id: number){
+    let response = {
       "name": name,
       "id": id,
-      "value":900,
-      "children":[  ],
-      "linkWith": []
+      "value": 900,
+      "children": [ ]
     };
-    // ADD BUBBLES FROM CHILDREN
-    this.bubbles.forEach(coreBubData=>{
-      let childBub = {  
-        "name":coreBubData.name ?? coreBubData.id,
-        "value":600,
-        "id": coreBubData.id,
-        "u1id": coreBubData.user1id,
-        "u2id": coreBubData.user2id,
-        "linkWith":[ ],
-        "children": [ ]
-      };
-      if(childBub.u1id == userBubble.id){
-        userBubble.children.push(childBub);
-      }
-    });
-
-
-    userBubble.children.forEach(childBub=>{
-      let links = [];
-      userBubble.children.filter(c=>{ return childBub.user1id == c.u1id }).map(c=>{
-        links.push(c.name);
-      });
-      childBub.linkWith = links;
-
-      this.depth.forEach(deepBubData =>{
-        let depthBub = {  
-          "name": 'N/A_' + deepBubData.id,
-          "value":300,
-          "id": deepBubData.id,
-          "u1id": deepBubData.user1id,
-          "u2id": deepBubData.user2id,
-          "linkWith":[ ],
-          "children": [ ]
-        };
-        if(depthBub.id != childBub.id){
-          if(depthBub.u2id == childBub.u2id){
-            childBub.children.push(depthBub);
-          }
-          if(depthBub.u1id == childBub.u1id){
-            childBub.linkWith.push(depthBub.name);
-           
-          }
-        }
-        
+     this.bubbles.forEach(x=>{
+      response.children.push({
+        "name": x.name,
+        "id": x.id,
+        "user1id":x.user1id,
+        "user2id": x.user2id,
+        "value": 300,
+        "children": []
       })
-
-
-
     });
-
-    let size = userBubble.children.length;
-    userBubble.children.forEach(c=>{
-      size += c.children.length;
+    
+    let level2 = this.bubbles.filter(x=>{
+      return x.depth == 2;
     });
-    this.size = size;
-
-
-    return [userBubble];
+    
+   
+    
+    response.children.forEach(x=>{
+      let children = level2.filter(c=>{
+        return c.user1id == x.user2id;
+      });
+      console.log(children)
+      if(children.length > 0){
+        x.name += " ("+ children.length + ")"
+        children.forEach(c=>{
+          x.children.push({
+            "name": "?",
+            "id": c.id,
+             "user1id":c.user1id,
+              "user2id": c.user2id,
+            "value": 100,
+            children:[]
+          });
+      })
+     }
+    })
+    
+    return [response];
   }
 
 }

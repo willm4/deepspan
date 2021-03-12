@@ -1,82 +1,76 @@
 import { Injectable } from '@angular/core';
 import { RestService } from './rest.service';
-import { Geolocation, Geoposition } from '@ionic-native/geolocation/ngx';
-import { NativeGeocoder, NativeGeocoderResult } from '@ionic-native/native-geocoder/ngx';
 import { BubblesService } from './bubbles.service';
+import { Action } from '../classes/action';
 import { UserService } from './user.service';
-import { Bubble } from '../classes/bubble';
+import { User } from '../classes/user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AppService {
 
+  build =  '2.4';
   ipc: number;
   region: string = '';
   state: string = '';
   lat: number;
   lon: number;
   location: string;
+  actions: Array<Action> = new Array<Action>();
   statuses: Array<string> = new Array<string>();
   states = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
 
-
-  constructor(private rest: RestService, private geolocation: Geolocation, private geocoder: NativeGeocoder, public bubbleCtrl: BubblesService, public user: UserService ) {
+  actionTypes =  {
+    ACTION_INVITE_SENT       : 0, //user_id sends invite to user_ref  (bubble_ref)
+    ACTION_INVITE_RECEIVED   : 1, //user_id receives invite from user_ref (bubble_ref)
+    ACTION_INVITE_REVOKED    : 2, //user_id cancels invite previously sent to user_ref (bubble_ref: deleted)
+    ACTION_INVITE_CANCELLED  : 3, //user_ref cancels invite previously sent to user_id (bubble_ref: deleted)
+    ACTION_INVITE_ACCEPTED   : 4, //user_ref accepts invite from user_id (bubble_ref) - can toggle in future
+    ACTION_INVITE_REJECTED   : 5, //user_ref rejects invite from user_id (bubble_ref) - can toggle in future
+    ACTION_BUBBLE_EXPANDED   : 6, //user_ref bubble expanded, direct link (via bubble_ref)
+    ACTION_BUBBLE_CONTRACTED : 7 //user_ref bubble contracted, direct link (via bubble_ref)
+  }
+  constructor(private rest: RestService,  public bubbleCtrl: BubblesService, public userCtrl: UserService ) {
 
    }
 
    public getChartData(){
-     return this.bubbleCtrl.getChartData(this.user.name, this.user.id)
-   }
-   
-   public getBubbles(){
-     return new Promise((resolve,reject)=>{
-       this.rest.getBubbles().then((bubbles: any)=>{
-         if(bubbles){
-           console.log(JSON.stringify(bubbles))
-           this.bubbleCtrl.refresh(bubbles);
-         }
-         resolve();
-       }, err=>{
-         reject(err);
-       })
-     })
+     return this.bubbleCtrl.getChartData(this.userCtrl.user.name, this.userCtrl.user.id)
    }
 
-   public removeBubble(id: number){
-     return new Promise((resolve,reject)=>{
-       this.rest.removeBubble(id).then(response=>{
-         this.bubbleCtrl.removeBubble(id);
-         resolve();
-       },err=>{
-         reject(err);
-       })
-     })
+   clearStorage(){
+     this.rest.clearStorage();
    }
 
-   public addBubble(bubble: Bubble){
-     return new Promise((resolve,reject)=>{
-       this.rest.addBubble(bubble).then(response=>{
-       resolve();
-       }, err=>{
-         reject(err);
-       })
-     })
-   }
 
-   public editBubble(bubble: Bubble){
+   public editInvitedUser(user: any){
+     console.log('editing invited user')
      return new Promise((resolve,reject)=>{
-       this.rest.editBubble(bubble).then((response:any)=>{
-        resolve()
-       }, err=>{
-         reject(err);
-       })
+      let params = {id: user.id,
+         email:user.email
+        ,creatorid:user.creatorid
+        , name: user.name
+        , userstatus:user.userstatus
+        ,creatorestimate: user.creatorestimate};
+        this.rest.editInvitedUser(params).then((response:any)=>{
+          resolve()
+        }, err=>{
+          reject(err);
+        })
      })
    }
 
    public setIPC(){
      return new Promise((resolve,reject)=>{
-      this.setLocation().then(()=>{
+      //  console.log('getting pic')
+      // this.rest.getIPC("SEATTLE", "Washington", 47.608013, -122.335167).then((response:any)=>{
+      //   this.ipc = Math.round(response.ipc);
+      //   resolve();
+      // },err=>{
+      //   reject("Error, couldn't set IPC");
+      // })
+      this.userCtrl.locationCtrl.setLocation().then(()=>{
         this.rest.getIPC(this.region, this.states[this.state], this.lat, this.lon).then((response:any)=>{
           this.ipc = Math.round(response.ipc);
           resolve();
@@ -89,66 +83,40 @@ export class AppService {
      })
    }
 
-   private setLocation(){
+   public getActions(){
      return new Promise((resolve,reject)=>{
-      this.geolocation.getCurrentPosition().then((response:Geoposition)=>{
-        if(!response.coords){
-          reject("Couldn't get valid location")
-        }
-        else{
-          this.lat = response.coords.latitude;
-          this.lon = response.coords.longitude;
-          this.setLocationAddress().then(()=>{
-            resolve();
-          });
-        }
-      }, err=>{
-        reject("Couldn't get location.")
-      }).catch(err=>{
-        reject(err);
-      })
-     });
+       this.rest.getActions().then((response:any)=>{
+         let actions = new Array<Action>();
+         if(response && response.length > 0){
+          response.forEach(a=>{
+            actions.push(new Action(a));
+          })
+         }
+         this.actions = actions
+         resolve();
+       })
+     })
    }
 
-   private setLocationAddress(){
-    return new Promise((resolve)=>{
-      this.geocoder.reverseGeocode(this.lat, this.lon).then((response:NativeGeocoderResult[])=>{
-        if(response && response.length > 0){
-          
-          let locationObj: NativeGeocoderResult = response[0];
-          var location = "";
-         if(locationObj.subAdministrativeArea){
-          this.region = locationObj.subAdministrativeArea;
-         }
-          if(locationObj.locality){
-            location += locationObj.locality + ", ";
-          }
-          if(locationObj.administrativeArea){
-            this.state = locationObj.administrativeArea;
-           location += locationObj.administrativeArea + ", ";
-          }
-          if(locationObj.countryCode){
-            location += locationObj.countryCode;
-          }
-          location = location.trim()
-          if(location.length > 0 && location.charAt(location.length - 1) == ","){
-            location = location.substring(0, location.length - 1);
-          }
-          this.location = location.toUpperCase();
-          resolve();
-        }
-        else{
-          this.region = null;
-          this.state = null;
-          resolve();
-        }
-      }, err=>{
-        this.region = null;
-        this.state = null;
+   public deleteAction(action: Action){
+     return new Promise((resolve,reject)=>{
+      this.rest.deleteAction(action).then(()=>{
         resolve();
+      }, err=>{
+        reject(err);
       })
-    })
+     })
    }
+
+   public updateAction(action: Action, edgeStatus: any){
+    return new Promise((resolve,reject)=>{
+     this.rest.updateAction(action, edgeStatus).then(()=>{
+       resolve();
+     }, err=>{
+       reject(err);
+     })
+    })
+  }
 
 
 }

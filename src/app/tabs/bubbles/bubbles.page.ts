@@ -5,10 +5,13 @@ import * as am4core from "@amcharts/amcharts4/core";
 import * as am4charts from "@amcharts/amcharts4/charts";
 import am4themes_animated from "@amcharts/amcharts4/themes/animated";
 import * as am4plugins_forceDirected from "@amcharts/amcharts4/plugins/forceDirected"; 
-import { ModalController, AlertController, ToastController } from '@ionic/angular';
+import { ModalController, AlertController, ToastController, PopoverController } from '@ionic/angular';
 import { Bubble } from 'src/app/classes/bubble';
 import { AppService } from 'src/app/services/app.service';
-
+import { EditbubblePage } from 'src/app/components/popovers/editbubble/editbubble.page';
+import { User } from 'src/app/classes/user';
+import { BubblesService } from 'src/app/services/bubbles.service';
+declare var vis: any;
 am4core.useTheme(am4themes_animated);
 
 @Component({
@@ -16,8 +19,8 @@ am4core.useTheme(am4themes_animated);
   templateUrl: './bubbles.page.html',
   styleUrls: ['./bubbles.page.scss'],
 })
-export class BubblesPage implements AfterViewInit {
-
+export class BubblesPage {
+  bubChartHeight: string = '100px';
   connections = [
     'Spouse/S.O',
     'Family',
@@ -38,6 +41,8 @@ export class BubblesPage implements AfterViewInit {
     "Don't Show Anything"
   ];
   @ViewChild("bubbleschart") bubbleschart: ElementRef;
+  @ViewChild("bubchartcontainer") bubchartcontainer: ElementRef;
+  chartHeight: number = 300;
   chart: am4plugins_forceDirected.ForceDirectedTree;
   editing: boolean = false;
   bubbleEditType: string = 'add';
@@ -47,28 +52,17 @@ export class BubblesPage implements AfterViewInit {
   loadingBubbles: boolean = false;
   bubbles: Array<Bubble> = new Array<Bubble>();
 
+  network: any;
+  graphdata: any;
+  options: any;
+
   constructor(public zone:NgZone
     , public modalCtrl: ModalController
     , public app: AppService
+    ,public popoverCtrl: PopoverController
     , private alertCtrl:AlertController
     , private toastCtrl: ToastController) { 
 
-  }
-
-  resetBubbles(){
-    this.bubbles = this.app.bubbleCtrl.getBubblesClone();
-  }
-
-
-  ngAfterViewInit() {
-    setTimeout(()=>{
-      if(!this.hasData){
-        this.drawBubbles(true);
-      }
-      if(!this.app.ipc){
-        this.app.setIPC();
-      }
-    }, 5000);
   }
 
   ionViewDidEnter(){
@@ -76,168 +70,140 @@ export class BubblesPage implements AfterViewInit {
       this.app.setIPC();
     }
     if(!this.hasData){
-      this.drawBubbles(true);
-    }
-    this.resetBubbles();
-  }
-  edit(){
-    this.editing = true;
-  }
-
-  cancelEdit(){
-    this.resetTempBubs();
-    this.bubbleEditType = 'add';
-    this.editing = false;
-  }
-
-  saveBubbleChanges(){
-    if(this.bubbleEdit.id){
-      if(this.bubbleEdit.canSave(this.app.user.id)){
-        this.app.editBubble(this.bubbleEdit).then(response=>{
-          this.promptToast(this.bubbleEdit.name + ' updated successfully!', 'success' );
-          this.bubbleEdit = new Bubble();
-          this.drawBubbles(true);
-        }, err=>{
-          console.log(err);
-          this.promptToast("Error updating " + this.bubbleEdit.name + '.', 'danger' );
-        })
-      }
-      else{
-        this.promptToast("Couldn't update " + this.bubbleEdit.name + '. Invalid name or permissions.', 'danger' );
-      }
+      this.refreshBubbles();
     }
   }
-  
-  removeBubble(){
-    if(this.bubbleEdit.id){
-      this.app.removeBubble(this.bubbleEdit.id).then(response=>{
-        this.promptToast(this.bubbleEdit.email + ' was removed', 'success' );
-        this.bubbleEdit = new Bubble();
-        this.drawBubbles();
-        this.resetBubbles();
-      }, err=>{
-        this.promptToast('Error removing ' +this.bubbleEdit.name, 'danger' );
+
+  nodeColor(user: User) {
+    if (user.userType == this.app.bubbleCtrl.userTypes.CURRENT_USER) {
+        return ("#00FF00")
+    } else if (user.userType == this.app.bubbleCtrl.userTypes.UNVALIDATED) {
+        return ("#D9D9D9")
+    } else {
+        return("#97C2FC")
+    }
+};
+
+  refreshBubbles(){
+    this.app.bubbleCtrl.refresh().then(response=>{
+      this.drawBubbles();
+    }, err=>{
+      console.log(err);
+    })
+  }
+
+  hideNode(index) { 
+    let obj = this.graphdata.nodes.get(index);
+    // obj.color = "#DD0000"
+    obj.hidden = true
+    console.log(obj);
+    this.graphdata.nodes[index] = obj;
+    this.network.destroy();
+    this.network = new vis.Network(this.bubbleschart.nativeElement, this.graphdata, this.options);
+    this.network.on( 'click', (properties)=> {
+      var ids = properties.nodes;
+      var clickedNodes = this.graphdata.nodes.get(ids);
+      this.editNode(clickedNodes[0])
+  });
+}
+// unhideNodes() {
+//     for(var i = 0; i < this.graphdata.nodes.length; i++){
+//         let obj = this.graphdata.nodes[i]
+//         // obj.color = "#DD0000"
+//         obj.hidden = false
+//         console.log(obj)
+//         this.graphdata.nodes[i] = obj;
+
+//     }
+// }
+
+  drawBubbles(){
+    var anodes = this.app.bubbleCtrl.users.map(user => ({id: user.id, label: user.name,   shape: "circularImage", image: user.img, color: this.nodeColor(user), border: this.nodeColor(user)}));
+    var aedges = this.app.bubbleCtrl.bubbles.map(bubble => ({from: bubble.user1id, to: bubble.user2id, arrows: 'to'}));
+    this.graphdata = {
+        nodes: new vis.DataSet(anodes),
+        edges: new vis.DataSet(aedges)
+    };
+    this.options = {
+      nodes:{
+          borderWidth: 5,
+          font: '15px SFPRO #222428',
+          color: {
+              background: '#50c8ff',
+              highlight: {
+                  background: '#62ceff'
+              }
+          }
+      }
+  }
+   if(this.network){
+    this.network.destroy();
+   }
+    this.network = new vis.Network(this.bubbleschart.nativeElement, this.graphdata, this.options);
+    this.bubChartHeight = this.bubchartcontainer.nativeElement.scrollHeight + 'px'
+    this.network.on( 'click', (properties)=> {
+      var ids = properties.nodes;
+      var clickedNodes = this.graphdata.nodes.get(ids);
+     this.editNode(clickedNodes[0])
+     //this.hideNode(ids[0]);
+  });
+    this.hasData = true;
+  }
+
+
+
+
+   async editNode(node: any){ // {id, name}
+   let user = new User();
+    if(node){
+      let users = this.app.bubbleCtrl.users.filter(u=>{
+        return u.id == node.id
       });
+      if(users && users.length > 0){
+        user = this.app.userCtrl.setExternalUserData(users[0]);
+      }
     }
-  }
-
-  addBubble(){
-    if(this.newBubble.emailValid() && this.newBubble.name){
-      this.app.addBubble(this.newBubble).then(()=>{
-          this.drawBubbles(true);
-          this.promptToast(this.newBubble.name + ' added successfully!', 'success' );
-          this.newBubble = new Bubble();
-        }, err=>{
-          this.promptToast('Error adding ' +this.newBubble.name, 'danger' );
-        })
-    }
-    else{
-      this.promptToast("Bubble couldn't be added, email invalid.", 'danger' );
-    }
-  }
-
-  async promptToast(message: string, color: string){
-    const toast = await this.toastCtrl.create({
-      message: message,
-      duration: 2000,
-      color: color,
-      position: 'bottom',
-      buttons: [ {
-          text: 'OK',
-          role: 'cancel',
-          handler: () => {
-            console.log('Cancel clicked');
+    if(node){
+      const popover = await this.popoverCtrl.create({
+        component: EditbubblePage,
+        showBackdrop: true,
+        componentProps:{
+          node: node,
+          user: user
+        }
+      });
+      await popover.present();
+      await popover.onDidDismiss().then((response: any)=>{
+        console.log(response.data);
+        if(response.data.hasChanges){
+          if(response.data.hideNode){
+            this.hideNode(node.id)
+          }
+          else{
+            this.drawBubbles();
           }
         }
-      ]
-    });
-    toast.present();
+        else if(response.data.hideNode){
+          this.hideNode(node.id)
+        }
+      })
+    }
   }
 
-  resetTempBubs(){
-    this.bubbleEdit = new Bubble();
-    this.newBubble = new Bubble();
-  }
-
-
-  drawBubbles(isInit: boolean = false){
-    am4core.useTheme(am4themes_animated);
-    // Themes end
-
-    let chart = am4core.create(this.bubbleschart.nativeElement, am4plugins_forceDirected.ForceDirectedTree);
-
-    am4core.options.disableHoverOnTransform = "touch";
-
-    chart.responsive.enabled = true;
-    chart.width = am4core.percent(100);
-    chart.height = am4core.percent(100);
-    let networkSeries = chart.series.push(new am4plugins_forceDirected.ForceDirectedSeries())
-    networkSeries.dataFields.linkWith = "linkWith";
-    networkSeries.dataFields.name = "name";
-    networkSeries.dataFields.id = "name";
-    networkSeries.dataFields.value = "value";
-    networkSeries.dataFields.children = "children";
-    networkSeries.tooltip.disabled = true;
-
-    networkSeries.nodes.template.label.text = "{name}"
-    networkSeries.fontSize = 8;
-    networkSeries.linkWithStrength = 0;
-
-    let nodeTemplate = networkSeries.nodes.template;
-    nodeTemplate.tooltipText = "{name}";
-    nodeTemplate.fillOpacity = 1;
-    nodeTemplate.label.hideOversized = true;
-    nodeTemplate.label.truncate = true;
-
-    // let linkTemplate = networkSeries.links.template;
-    // linkTemplate.strokeWidth = 1;
-    // let linkHoverState = linkTemplate.states.create("hover");
-    // linkHoverState.properties.strokeOpacity = 1;
-    // linkHoverState.properties.strokeWidth = 2;
-
-    nodeTemplate.events.on("over", function (event) {
-        let dataItem = event.target.dataItem;
-        dataItem.childLinks.each(function (link) {
-            link.isHover = true;
-        })
-    })
-
-    nodeTemplate.events.on("out", function (event) {
-        let dataItem = event.target.dataItem;
-        dataItem.childLinks.each(function (link) {
-            link.isHover = false;
-        })
-    })
-
-    if(isInit){
-      this.getChartData().then((response:any)=>{
-        networkSeries.data = response;
-        this.hasData = response.length > 0;
-
-      }, err=>{
-        console.log(err);
-      });
-    }
-    else{
-      networkSeries.data = this.app.getChartData();
-    }
-  
-}
-
-getChartData(){
-  return new Promise((resolve,reject)=>{
-    this.app.getBubbles().then(()=>{
-      let data = this.app.getChartData();
-      this.app.statuses.push('app data ' + JSON.stringify(data));
-      console.log('chart data');
-      console.log(data);
-      resolve(data);
-      this.resetBubbles();
-    }, err=>{
-      reject(err);
+  async addBubble(){
+    const popover = await this.popoverCtrl.create({
+      component: EditbubblePage,
+      showBackdrop: true,
+      componentProps:{
+      }
     });
-  })
-}
+    await popover.present();
+    await popover.onDidDismiss().then((response: any)=>{
+      if(response.data.hasChanges){
+        this.drawBubbles();
+      }
+    })
+  }
 
 
 

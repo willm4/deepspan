@@ -7,10 +7,6 @@ const routes: Routes = [
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
   },
   {
-    path: 'add-bubble',
-    loadChildren: () => import('./popovers/add-bubble/add-bubble.module').then( m => m.AddBubblePageModule)
-  },
-  {
     path: 'login',
     loadChildren: () => import('./popovers/login/login.module').then( m => m.LoginPageModule)
   },
@@ -21,6 +17,10 @@ const routes: Routes = [
   {
     path: 'tabs',
     loadChildren: () => import('./tabs/tabs.module').then(m => m.TabsPageModule)
+  },
+  {
+    path: 'editbubble',
+    loadChildren: () => import('./components/popovers/editbubble/editbubble.module').then( m => m.EditbubblePageModule)
   },
 ];
 @NgModule({
