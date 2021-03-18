@@ -100,6 +100,12 @@ export class EditbubblePage implements OnInit {
     return this.userEdits.name &&  this.userEdits.name.length > 0 && this.userEdits.email && this.userEdits.email.length > 0;
   }
 
+  hasChanges(){
+    return this.userRaw.name != this.userEdits.name
+    || this.userRaw.email != this.userEdits.email
+    || this.userRaw.userstatus != this.userEdits.userstatus;
+  }
+
   save(){
         if(!this.isEdit){
           if(this.userEdits.name && this.userEdits.email){
@@ -116,10 +122,15 @@ export class EditbubblePage implements OnInit {
         }
         else{
           let data = this.getDataFromEdge();
-          console.log(data);
           if (!data.valid) {
-            this.promptToast(data.invalidReason, 'danger' );
+            let errColor= 'danger';
             if(this.hideNode){
+              errColor = 'warning';
+            }
+            if(this.hasChanges()){
+              this.promptToast(data.invalidReason, errColor );
+            }
+            if(!this.hasChanges() || this.hideNode){
               this.close();
             }
           }
@@ -185,7 +196,7 @@ export class EditbubblePage implements OnInit {
           data.user = user;
           data.valid = true;
           if(user.role.Int32 != -2){
-            data.invalidReason = this.userRaw.name + " can only be edited by it's owner";
+            data.invalidReason = "Bubble can only be edited by " + this.userRaw.name;
             data.valid = false;
           }
         }
@@ -223,6 +234,11 @@ export class EditbubblePage implements OnInit {
     else{
       this.dismissPopover(hasChanges);
     }
+  }
+
+  dismiss(){
+    this.hideNode = false;
+    this.dismissPopover(false);
   }
 
   dismissPopover(hasChanges: boolean){

@@ -13,7 +13,7 @@ export class Action {
   refname: string; // name of user referred
   username: string; // user referring action
   text: string // user text from template
-  img: string = "https://www.gravatar.com/avatar/f7256b954e2c23a1f9c5104f1f54fb17?d=mp&r=pg";
+  img: string = "https://ui-avatars.com/api/?name=?";
 
   constructor(data: any) {
     this.id = data.id;

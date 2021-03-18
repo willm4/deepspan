@@ -5,5 +5,9 @@
 </ion-header>
 
 <ion-content scroll-x="false" scroll-y="false">
- 
+ <ul>
+   <li *ngFor="let s of app.statuses" >
+     {{s}}
+   </li>
+ </ul>
 </ion-content>

@@ -29,7 +29,11 @@ export class LoginPage implements OnInit {
   }
 
   private goToRoot(){
-    this.router.navigateByUrl('/tabs');
+    this.app.bubbleCtrl.refresh().then(response=>{
+      this.router.navigateByUrl('/tabs');
+    }, err=>{
+      console.log(err);
+    })
   }
 
   public login(){

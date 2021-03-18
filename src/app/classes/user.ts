@@ -47,11 +47,16 @@ export class User {
     value: 0,
     name: "UNKNOWN"
   };
-  img: string =  "https://www.gravatar.com/avatar/f7256b954e2c23a1f9c5104f1f54fb17?d=mp&r=pg";
+  ownerid: any;
+  avatarTxt: string = "?";
+  avatarLabel: string = "";
+  img: string =  "https://ui-avatars.com/api/?name=?";
+  avatarBackground: string = "97C2FC"
 
   constructor(data: any = null) { 
     if(data){
       this.id = data.id;
+      this.ownerid = data.ownerid;
       this.creatorid = data.creatorid;
       this.email = data.email;
       this.uuid = data.uuid;
@@ -71,8 +76,34 @@ export class User {
       this.userstatus = data.userstatus;
       this.creatorestimate = data.creatorestimate;
       this.img = data.img;
+      this.avatarLabel = this.name && this.name.length > 0
+      ? this.name.replace(/ .*/,'')
+      : '';
+      this.avatarTxt = this.name && this.name.length > 0
+      ? this.name.length >= 2
+        ? this.name.split(' ').slice(0,2).join('+')
+        : this.avatarLabel
+      : '?'
+
+      //current user
+      if (this.id == this.ownerid) {
+        this.userType = 2 
+        this.avatarBackground = "00FF00";
+      //unvalidated
+      } else if (this.role.Int32 == -2) {
+          this.userType = 0
+          this.avatarBackground = "D9D9D9"
+      }
+      // validated
+      else{
+        this.userType == 1
+        this.avatarBackground = "97C2FC"
+      }
+      this.img = "https://ui-avatars.com/api/?name=" + this.avatarTxt + "&background=" + this.avatarBackground;
     }
   }
+
+
 
 
 }

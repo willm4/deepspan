@@ -13,7 +13,7 @@ export class BubblesService {
   bubbles: Array<Bubble> = new Array<Bubble>();
   users: Array<User> = new Array<User>();
   size: number = 0;
-  accuracy: any = 'N/A';
+  accuracy: any;
   
 
   userTypes = {
@@ -52,20 +52,10 @@ export class BubblesService {
 
   private getUsers(){
     let users = new Array<User>();
-    let imgSrc =  "https://www.gravatar.com/avatar/";
     return new Promise((resolve)=>{
       this.api.get(this.api.userGraph).then((response: any)=>{
-        response.forEach(u=>{
-          u['img'] = imgSrc + Md5.hashStr(u.email.toLowerCase())+ "?d=mp&r=pg"
-          if (u.id == u.ownerid) {
-            u.userType = this.userTypes.CURRENT_USER
-        } else if (u.role.Int32 == -2) {
-            u.userType = this.userTypes.UNVALIDATED
-        }
-        else{
-          u.userType == this.userTypes.VALIDATED
-        }
-          users.push(u);
+        response.forEach(user=>{
+          users.push(new User(user));
         });
         this.users = users;
         resolve();

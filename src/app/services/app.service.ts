@@ -10,13 +10,8 @@ import { User } from '../classes/user';
 })
 export class AppService {
 
-  build =  '2.4';
+  build =  '2.5';
   ipc: number;
-  region: string = '';
-  state: string = '';
-  lat: number;
-  lon: number;
-  location: string;
   actions: Array<Action> = new Array<Action>();
   statuses: Array<string> = new Array<string>();
   states = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
@@ -64,14 +59,14 @@ export class AppService {
    public setIPC(){
      return new Promise((resolve,reject)=>{
       //  console.log('getting pic')
-      // this.rest.getIPC("SEATTLE", "Washington", 47.608013, -122.335167).then((response:any)=>{
+      // this.rest.getIPC("King", "Washington", 47.608013, -122.335167).then((response:any)=>{
       //   this.ipc = Math.round(response.ipc);
       //   resolve();
       // },err=>{
       //   reject("Error, couldn't set IPC");
       // })
       this.userCtrl.locationCtrl.setLocation().then(()=>{
-        this.rest.getIPC(this.region, this.states[this.state], this.lat, this.lon).then((response:any)=>{
+        this.rest.getIPC(this.userCtrl.locationCtrl.location.admin2, this.userCtrl.locationCtrl.location.provinceStateName, this.userCtrl.locationCtrl.location.lat, this.userCtrl.locationCtrl.location.lon).then((response:any)=>{
           this.ipc = Math.round(response.ipc);
           resolve();
         },err=>{

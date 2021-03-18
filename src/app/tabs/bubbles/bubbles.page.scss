@@ -10,7 +10,9 @@
 
 .bubble-chart-container{
     width:100%;
+    min-height: 50vh;
     flex: 1;
+    flex-grow: 1;
 }
 
 // .risk-progress {

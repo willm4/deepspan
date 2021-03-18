@@ -23,9 +23,9 @@ export class RestService {
   }
 
 
-  public getIPC(region: string, state: string, lat: any = null, lon: any = null){
+  public getIPC(admin2: string, state: string, lat: any = null, lon: any = null){
     return new Promise((resolve,reject)=>{
-      this.getIPCFromServer(region,state,lat,lon).then(response=>{
+      this.getIPCFromServer(admin2,state,lat,lon).then(response=>{
         // let nativeData = {updated: new Date(), data: response};
         // this.nativeStorage.setItem('ipc', JSON.stringify(nativeData));
         resolve(response);
@@ -34,13 +34,13 @@ export class RestService {
       })
     })
   }
-
-  private getIPCFromServer(region: string = null, state: string = null, lat: any = null, lon: any = null){
+v
+  private getIPCFromServer(admin2: string = null, state: string = null, lat: any = null, lon: any = null){
     return new Promise((resolve,reject)=>{
       let body = {
         countryregion: 'US', // COUNTRY
         provincestate: state, // STATE
-        admin2: region, //TODO  
+        admin2: admin2, //TODO  
         lat: lat,
         lon: lon
       };

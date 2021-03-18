@@ -43,7 +43,7 @@ export class UserService {
 
     public user: User = new User();
     public servicetoken: string = "";
-    public build: any = "2.4";
+    public build: any = "2.5";
   constructor(private api: ApiService,public nativeStorage: NativeStorage, public locationCtrl: LocationService) { }
 
 
@@ -79,10 +79,15 @@ export class UserService {
     })
   }
 
+
   getUserImg(user:User){
-    let imgSrc =  "https://www.gravatar.com/avatar/";
-    user.img = imgSrc + Md5.hashStr(user.email.toLowerCase())+ "?d=mp&r=pg"
-    return user.img;
+    let avatarTxt = user.name && user.name.length > 0
+    ? user.name.length >= 2
+      ? user.name.split(' ').slice(0,2).join('+')
+      : user.name.replace(/ .*/,'')
+    : '?'
+    return "https://ui-avatars.com/api/?name=" + avatarTxt;
+
   }
 
   private handleUserData(data: any){

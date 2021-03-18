@@ -30,12 +30,12 @@ export class ProfilePage implements OnInit {
   }
 
   setCurrentLocation(){
-    this.userEdits.lat.Float64 = this.app.lat;
-    this.userEdits.lon.Float64 = this.app.lon;
-    this.userEdits.provincestate.String = this.app.state;
+    this.userEdits.lat.Float64 = this.app.userCtrl.locationCtrl.location.lat;
+    this.userEdits.lon.Float64 = this.app.userCtrl.locationCtrl.location.lon;
+    this.userEdits.provincestate.String = this.app.userCtrl.locationCtrl.location.state
     this.userEdits.countryregion.String = 'US';
-    this.userEdits.admin2.String = this.app.region;
-    this.userEdits['locatonName'] = this.app.location;
+    this.userEdits.admin2.String = this.app.userCtrl.locationCtrl.location.admin2;
+    this.userEdits['locatonName'] = this.app.userCtrl.locationCtrl.location.locationName;
   }
 
   cancel(){
