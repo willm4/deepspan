@@ -34,7 +34,8 @@ export class RestService {
       })
     })
   }
-v
+
+  
   private getIPCFromServer(admin2: string = null, state: string = null, lat: any = null, lon: any = null){
     return new Promise((resolve,reject)=>{
       let body = {

@@ -56,6 +56,7 @@ export class AppService {
      })
    }
 
+
    public setIPC(){
      return new Promise((resolve,reject)=>{
       //  console.log('getting pic')
