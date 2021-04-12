@@ -54,11 +54,18 @@ export class BubblesService {
     let users = new Array<User>();
     return new Promise((resolve)=>{
       this.api.get(this.api.userGraph).then((response: any)=>{
-        response.forEach(user=>{
-          users.push(new User(user));
+        let promises = [];
+        response.forEach(u=>{
+          let user = new User(u);
+          let promise =  user.setGravarImg().then(()=>{
+            users.push(user);
+          });
+          promises.push(promise);
         });
-        this.users = users;
-        resolve();
+        Promise.all(promises).then(()=>{
+          this.users = users;
+          resolve();
+        })
       }, err=>{
         this.users = users;
         resolve();

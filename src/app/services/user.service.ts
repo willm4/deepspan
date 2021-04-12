@@ -80,6 +80,10 @@ export class UserService {
   }
 
 
+
+
+
+
   getUserImg(user:User){
     let avatarTxt = user.name && user.name.length > 0
     ? user.name.length >= 2
