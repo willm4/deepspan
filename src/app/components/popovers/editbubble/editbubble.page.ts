@@ -3,6 +3,8 @@ import { PopoverController, NavParams, ToastController } from '@ionic/angular';
 import { AppService } from 'src/app/services/app.service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { User } from 'src/app/classes/user';
+import { BubblesService } from 'src/app/services/bubbles.service';
+import { UserService } from 'src/app/services/user.service';
 @Component({
   selector: 'app-editbubble',
   templateUrl: './editbubble.page.html',
@@ -46,7 +48,7 @@ export class EditbubblePage implements OnInit {
   editIsNew: boolean = false;
   editIsZombie: boolean = false;
   node: any;
-  constructor(private popoverCtrl: PopoverController, private toastCtrl: ToastController, private params: NavParams, public app: AppService) { 
+  constructor(private popoverCtrl: PopoverController, private toastCtrl: ToastController, private params: NavParams, public bubbleCtrl: BubblesService, public userCtrl: UserService) { 
 
   }
 
@@ -59,13 +61,13 @@ export class EditbubblePage implements OnInit {
   }
 
   setCanEdit(user: any, node :any){
-    this.editIsMe = user.id == this.app.userCtrl.user.id;
-    this.editIsZombie = (this.findEdge(this.app.userCtrl.user.id, node.id) != -1) && (user.role.Int32 == -2)
+    this.editIsMe = user.id == this.userCtrl.user.id;
+    this.editIsZombie = (this.findEdge(this.userCtrl.user.id, node.id) != -1) && (user.role.Int32 == -2)
   }
 
   findEdge(id1, id2) {
-    let index = this.app.bubbleCtrl.bubbles.findIndex((element, index) => { if (((element.user1id == id1)&&(element.user2id == id2)) || ((element.user1id == id2)&&(element.user2id == id1))){ return true}}, id1); 
-    return (index == -1 ? -1 : this.app.bubbleCtrl.bubbles[index].id)
+    let index = this.bubbleCtrl.bubbles.findIndex((element, index) => { if (((element.user1id == id1)&&(element.user2id == id2)) || ((element.user1id == id2)&&(element.user2id == id1))){ return true}}, id1); 
+    return (index == -1 ? -1 : this.bubbleCtrl.bubbles[index].id)
   };
 
 
@@ -118,7 +120,7 @@ export class EditbubblePage implements OnInit {
   save(){
         if(!this.isEdit){
           if(this.userEdits.name && this.userEdits.email){
-            this.app.bubbleCtrl.addBubble(this.userEdits).then(response=>{
+            this.bubbleCtrl.addBubble(this.userEdits).then(response=>{
               this.promptToast("Bubble for " + this.userEdits.name + " added successfully!", 'success' );
               this.close(true);
             },err=>{
@@ -136,7 +138,7 @@ export class EditbubblePage implements OnInit {
           }
           else{
             this.userEdits.userstatus = this.userEdits.userStatusName.value
-            this.app.editUser(this.userEdits).then(response=>{
+            this.userCtrl.editUser(this.userEdits).then(response=>{
               this.promptToast(this.userEdits.name + ' updated successfully!', 'success' );
               this.userRaw = cloneDeep(this.userEdits);
               this.close(true);
@@ -156,13 +158,13 @@ export class EditbubblePage implements OnInit {
   }
 
   delete(){
-    let edgeid = this.findEdge(this.app.userCtrl.user.id, this.node.id);
+    let edgeid = this.findEdge(this.userCtrl.user.id, this.node.id);
     console.log(edgeid)
     if(edgeid == -1){
       this.promptToast("Only bubbles in your immediate pod can be deleted.", 'danger' );
     }
     else{
-      this.app.bubbleCtrl.removeBubble(edgeid).then(response=>{
+      this.bubbleCtrl.removeBubble(edgeid).then(response=>{
         this.promptToast(this.userRaw.name + ' removed successfully!', 'success' );
         this.close(true);
       }, err=>{
@@ -172,7 +174,7 @@ export class EditbubblePage implements OnInit {
   }
   close(hasChanges: boolean = false){
     if(hasChanges){
-      this.app.bubbleCtrl.refresh().then(()=>{
+      this.bubbleCtrl.refresh().then(()=>{
         this.dismissPopover(hasChanges);
       }, err=>{
         this.dismissPopover(hasChanges);

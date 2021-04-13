@@ -9,6 +9,8 @@ import {Md5} from 'ts-md5/dist/md5';
 })
 export class UserService {
 
+    ipc: number;
+
     userStatuses =  {
       HEALTH_UNKNOWN      : 0,
       HEALTH_SYMPTOMATIC  : 1,
@@ -266,6 +268,54 @@ export class UserService {
     });
   }
 
+  public editUser(user: any){
+    return new Promise((resolve,reject)=>{
+     let params = {id: user.id,
+        email:user.email
+       ,creatorid:user.creatorid
+       , name: user.name
+       , userstatus:user.userstatus
+       ,creatorestimate: user.creatorestimate};
+       if(user.id != this.user.id){
+         this.editInvitedUser(params).then((response:any)=>{
+           resolve()
+         }, err=>{
+           reject(err);
+         })
+       }
+       else{
+         console.log('editing partial prof')
+         this.editPartialProfile(params).then((response:any)=>{
+           resolve()
+         }, err=>{
+           reject(err);
+         })
+       }
+    })
+  }
+
+  public editInvitedUser(params:any){
+    return new Promise((resolve,reject)=>{
+      this.api.put(this.api.editInvited, params).then(response=>{
+        resolve(response);
+      }, err=>{
+        reject(err);
+      })
+    })
+  }
+
+  public editPartialProfile(params: any){
+    return new Promise((resolve,reject)=>{
+      this.api.put(this.api.editUser, params).then(response=>{
+        resolve(response);
+      }, err=>{
+        reject(err);
+      })
+    })
+  }
+
+
+
 
   public checkSession(){
       console.log('checking')
@@ -306,5 +356,51 @@ export class UserService {
         });
     });
   }
+
+  public setIPC(){
+    return new Promise((resolve,reject)=>{
+     this.locationCtrl.setLocation().then(()=>{
+       this.getIPC(this.locationCtrl.location.admin2, this.locationCtrl.location.provinceStateName, this.locationCtrl.location.lat, this.locationCtrl.location.lon).then((response:any)=>{
+         this.ipc = Math.round(response.ipc);
+         resolve();
+       },err=>{
+         reject("Error, couldn't set IPC");
+       })
+     }, err=>{
+       reject();
+     })
+    })
+  }
+
+
+  public getIPC(admin2: string, state: string, lat: any = null, lon: any = null){
+    return new Promise((resolve,reject)=>{
+      this.getIPCFromServer(admin2,state,lat,lon).then(response=>{
+        resolve(response);
+      },err=>{
+        reject(err);
+      })
+    })
+  }
+
+  
+  private getIPCFromServer(admin2: string = null, state: string = null, lat: any = null, lon: any = null){
+    return new Promise((resolve,reject)=>{
+      let body = {
+        countryregion: 'US', // COUNTRY
+        provincestate: state, // STATE
+        admin2: admin2, //TODO  
+        lat: lat,
+        lon: lon
+      };
+      this.api.post(this.api.ipc, body).then(response=>{
+        resolve(response);
+      }, err=>{
+        reject(err);
+      })
+    })
+  }
+
+
 
 }

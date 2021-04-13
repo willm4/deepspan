@@ -12,6 +12,7 @@ import { EditbubblePage } from 'src/app/components/popovers/editbubble/editbubbl
 import { User } from 'src/app/classes/user';
 import { BubblesService } from 'src/app/services/bubbles.service';
 import { Router, NavigationEnd, RouterEvent } from '@angular/router';
+import { UserService } from 'src/app/services/user.service';
 declare var vis: any;
 am4core.useTheme(am4themes_animated);
 
@@ -61,6 +62,8 @@ export class BubblesPage implements OnDestroy {
 
   constructor(public zone:NgZone
     , public modalCtrl: ModalController
+    , public userCtrl: UserService
+    , public bubbleCtrl: BubblesService
     , public app: AppService
     ,public popoverCtrl: PopoverController
     , private alertCtrl:AlertController
@@ -95,10 +98,10 @@ export class BubblesPage implements OnDestroy {
   }
 
   initialize(){
-    if(!this.app.ipc){
-      this.app.setIPC();
+    if(!this.userCtrl.ipc){
+      this.userCtrl.setIPC();
     }
-    if(this.app.bubbleCtrl.bubbles.length == 0 || this.app.bubbleCtrl.users.length == 0){
+    if(this.bubbleCtrl.bubbles.length == 0 || this.bubbleCtrl.users.length == 0){
       this.refreshBubbles()
     }
     else{
@@ -107,7 +110,7 @@ export class BubblesPage implements OnDestroy {
   }
 
   refreshBubbles(){
-    this.app.bubbleCtrl.refresh().then(response=>{
+    this.bubbleCtrl.refresh().then(response=>{
       this.app.statuses.push('refreshed bubble data');
       this.drawBubbles();
     }, err=>{
@@ -140,7 +143,7 @@ cleanGraph () {
   // console.log("==DFS")
   //DFS walk from user to mark up graph that is visible, everything unflagged is separated from user
   let stack = []
-  let n = this.indexfromnodeid(this.app.userCtrl.user.id)
+  let n = this.indexfromnodeid(this.userCtrl.user.id)
   // console.log("push: ", n)
   stack.push(n)
   while (stack.length > 0) {
@@ -196,8 +199,8 @@ cleanGraph () {
 
 
   resetBubbleData(){
-    this.nodes = this.app.bubbleCtrl.users.map(user => ({id: user.id, label: user.avatarLabel,   shape: "circularImage", image: user.img, color: "#"+ user.avatarBackground, border: "#" + user.avatarBackground}));
-    this.edges = this.app.bubbleCtrl.bubbles.map(bubble => ({id: bubble.id, from: bubble.user1id, to: bubble.user2id, arrows: 'to'}));
+    this.nodes = this.bubbleCtrl.users.map(user => ({id: user.id, label: user.avatarLabel,   shape: "circularImage", image: user.img, color: "#"+ user.avatarBackground, border: "#" + user.avatarBackground}));
+    this.edges = this.bubbleCtrl.bubbles.map(bubble => ({id: bubble.id, from: bubble.user1id, to: bubble.user2id, arrows: 'to'}));
     this.graphdata = {
         nodes: new vis.DataSet(this.nodes),
         edges: new vis.DataSet(this.edges)
@@ -260,11 +263,11 @@ cleanGraph () {
    async editNode(node: any){ // {id, name}
    let user = new User();
     if(node){
-      let users = this.app.bubbleCtrl.users.filter(u=>{
+      let users = this.bubbleCtrl.users.filter(u=>{
         return u.id == node.id
       });
       if(users && users.length > 0){
-        user = this.app.userCtrl.setExternalUserData(users[0]);
+        user = this.userCtrl.setExternalUserData(users[0]);
       }
     }
     if(node){
