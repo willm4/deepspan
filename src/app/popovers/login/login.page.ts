@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { AlertController, ToastController, NavController } from '@ionic/angular';
 import { AppService } from 'src/app/services/app.service';
 import { User } from 'src/app/classes/user';
+import { BubblesService } from 'src/app/services/bubbles.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +16,7 @@ export class LoginPage implements OnInit {
   currentPage: string = 'login';
   user: User = new User();
 
-  constructor(private app: AppService, private router: Router, private alertCtrl: AlertController, private toastCtrl: ToastController, private nav: NavController) { }
+  constructor(private bubbleCtrl: BubblesService, private userCtrl: UserService, private router: Router, private alertCtrl: AlertController, private toastCtrl: ToastController, private nav: NavController) { }
 
   ngOnInit() {
   }
@@ -29,7 +31,7 @@ export class LoginPage implements OnInit {
   }
 
   private goToRoot(){
-    this.app.bubbleCtrl.refresh().then(response=>{
+    this.bubbleCtrl.refresh().then(response=>{
       this.router.navigateByUrl('/tabs');
     }, err=>{
       console.log(err);
@@ -37,7 +39,7 @@ export class LoginPage implements OnInit {
   }
 
   public login(){
-    this.app.userCtrl.login(this.user).then(response=>{
+    this.userCtrl.login(this.user).then(response=>{
       this.goToRoot();
     }, err=>{
       this.promptLoginFailedAlert(err);
@@ -102,7 +104,7 @@ export class LoginPage implements OnInit {
           handler: (ev) => {
             console.log(ev)
            if(ev.email && ev.resetpw && ev.newpw){
-            this.app.userCtrl.resetPW(ev.email, ev.newpw, ev.resetpw).then(()=>{
+            this.userCtrl.resetPW(ev.email, ev.newpw, ev.resetpw).then(()=>{
               this.promptToast('Success! Password reset, you can now log in. ', 'success');
             }, err=>{
               this.promptToast('Error resetting password', 'danger');
@@ -145,7 +147,7 @@ export class LoginPage implements OnInit {
           handler: (ev) => {
             console.log(ev)
            if(ev.email){
-            this.app.userCtrl.forgotPW(ev.email).then(()=>{
+            this.userCtrl.forgotPW(ev.email).then(()=>{
               this.promptToast('Success! A temporary password has been sent to you. The temporary  password will be valid for 10 minutes. The original password will always continue to work until the password is successfully changed. ', 'success');
             }, err=>{
               this.promptToast('Error resetting password', 'danger');
@@ -163,7 +165,7 @@ export class LoginPage implements OnInit {
   }
 
   public signup(){
-    this.app.userCtrl.signup(this.user).then(response=>{
+    this.userCtrl.signup(this.user).then(response=>{
       this.goToRoot();
     }, err=>{
       this.promptSignupFailedAlert(err);

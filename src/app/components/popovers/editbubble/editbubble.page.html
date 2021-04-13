@@ -34,7 +34,7 @@
         <ion-item>
           <ion-label position="floating">STATUS</ion-label>
           <ion-select [disabled]="!editIsMe && !editIsZombie" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
-            <ion-select-option *ngFor="let s of app.userCtrl.userStatusDict" [value]="s">{{s.name}}</ion-select-option>
+            <ion-select-option *ngFor="let s of userCtrl.userStatusDict" [value]="s">{{s.name}}</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-col>

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AppService } from 'src/app/services/app.service';
 import { Action } from 'src/app/classes/action';
 import { ToastController } from '@ionic/angular';
+import { ActionService } from 'src/app/services/action.service';
+import { BubblesService } from 'src/app/services/bubbles.service';
 
 @Component({
   selector: 'app-actions',
@@ -14,7 +16,7 @@ export class ActionsPage {
   }
   lastUpdate: Date;
   notifications = [];
-  constructor(public app: AppService, private toastCtrl: ToastController) { }
+  constructor(public app: AppService, public actionCtrl: ActionService, public bubbleCtrl: BubblesService, private toastCtrl: ToastController) { }
 
 
   ionViewDidEnter(){
@@ -40,16 +42,12 @@ export class ActionsPage {
   }
 
   refreshActions(){
-    this.app.getActions().then(()=>{
-      this.app.actions.forEach(a=>{
-        let user = this.app.bubbleCtrl.users.filter(u=>{
+    this.actionCtrl.getActions().then(()=>{
+      this.actionCtrl.actions.forEach(a=>{
+        let user = this.bubbleCtrl.users.filter(u=>{
           return u.id === a.userref.Int32;
         });
         if(user.length > 0){
-          if(a.userref.Int32 === 1){
-            console.log(user.length);
-            console.log(a);
-          }
           a.setImg(user[0].img);
         }
       });
@@ -76,7 +74,7 @@ export class ActionsPage {
 
   // accept/decline
   replyAction(action: any, accept: boolean){
-    this.app.replyAction(action, accept).then(response=>{
+    this.actionCtrl.replyAction(action, accept).then(response=>{
       // TODO SHOW SUCCESS
      this.refreshActions();
     }, err=>{
@@ -86,7 +84,7 @@ export class ActionsPage {
 
   // RE-INVITE
   addLink(action){
-    this.app.addLink(action).then(response=>{
+    this.actionCtrl.addLink(action).then(response=>{
       this.promptToast(action.refname + " has been reinvited.", "success");
     }, err=>{
       this.promptToast("There was an error trying to reinvite " + action.refname  , "danger")
@@ -94,9 +92,8 @@ export class ActionsPage {
   }
 
   deleteAction(action: Action){
-    console.log('deleteing action')
-    let isInvite = action.actiontype == this.app.actionTypes.ACTION_INVITE_SENT;
-    this.app.deleteAction(action).then(()=>{
+    let isInvite = action.actiontype == this.actionCtrl.actionTypes.ACTION_INVITE_SENT;
+    this.actionCtrl.deleteAction(action).then(()=>{
       this.refreshActions();
       if(isInvite){
         this.promptToast("Invite for " + action.refname + " to join your bubble was revoked", "success")

@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { RestService } from 'src/app/services/rest.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import * as showdown from 'showdown';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';

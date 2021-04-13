@@ -4,6 +4,7 @@ import { AppService } from 'src/app/services/app.service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { User } from 'src/app/classes/user';
 import { AlertController, ToastController } from '@ionic/angular';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-profile',
@@ -15,27 +16,27 @@ export class ProfilePage implements OnInit {
   isEditing: boolean = false;
   userEdits: User = new User();
 
-  constructor(public app: AppService, private router: Router, private alertCtrl: AlertController, private toastCtrl: ToastController) { 
-    this.userEdits = cloneDeep(this.app.userCtrl.user);
+  constructor(public userCtrl: UserService, public app: AppService, private router: Router, private alertCtrl: AlertController, private toastCtrl: ToastController) { 
+    this.userEdits = cloneDeep(this.userCtrl.user);
   }
   
   ionViewDidEnter(){
-    this.userEdits = cloneDeep(this.app.userCtrl.user);
-    console.log(this.app.userCtrl.user)
+    this.userEdits = cloneDeep(this.userCtrl.user);
+    console.log(this.userCtrl.user)
   }
 
   edit(){
     this.isEditing = true;
-    this.userEdits = cloneDeep(this.app.userCtrl.user);
+    this.userEdits = cloneDeep(this.userCtrl.user);
   }
 
   setCurrentLocation(){
-    this.userEdits.lat.Float64 = this.app.userCtrl.locationCtrl.location.lat;
-    this.userEdits.lon.Float64 = this.app.userCtrl.locationCtrl.location.lon;
-    this.userEdits.provincestate.String = this.app.userCtrl.locationCtrl.location.state
+    this.userEdits.lat.Float64 = this.userCtrl.locationCtrl.location.lat;
+    this.userEdits.lon.Float64 = this.userCtrl.locationCtrl.location.lon;
+    this.userEdits.provincestate.String = this.userCtrl.locationCtrl.location.state
     this.userEdits.countryregion.String = 'US';
-    this.userEdits.admin2.String = this.app.userCtrl.locationCtrl.location.admin2;
-    this.userEdits['locatonName'] = this.app.userCtrl.locationCtrl.location.locationName;
+    this.userEdits.admin2.String = this.userCtrl.locationCtrl.location.admin2;
+    this.userEdits['locatonName'] = this.userCtrl.locationCtrl.location.locationName;
   }
 
   cancel(){
@@ -46,8 +47,8 @@ export class ProfilePage implements OnInit {
     this.isEditing = false;
     this.userEdits.userstatus = this.userEdits.userStatusName.value;
     console.log(this.userEdits);
-    this.app.userCtrl.editProfile(this.userEdits).then(()=>{
-      this.userEdits = cloneDeep(this.app.userCtrl.user);
+    this.userCtrl.editProfile(this.userEdits).then(()=>{
+      this.userEdits = cloneDeep(this.userCtrl.user);
     })
   }
 
@@ -101,7 +102,7 @@ export class ProfilePage implements OnInit {
           text: 'Ok',
           handler: (ev) => {
            if(ev.currentpw && ev.newpw){
-            this.app.userCtrl.newPW(ev.currentpw, ev.newpw).then(()=>{
+            this.userCtrl.newPW(ev.currentpw, ev.newpw).then(()=>{
               this.promptToast('Password reset!', 'success');
             }, err=>{
               this.promptToast('Error resetting password', 'danger');
@@ -127,7 +128,7 @@ export class ProfilePage implements OnInit {
   }
 
   logout(){
-    this.app.userCtrl.logout().then(()=>{
+    this.userCtrl.logout().then(()=>{
       this.router.navigateByUrl('/login')
     }, err=>{
       console.log('err signing out ' + err);
