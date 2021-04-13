@@ -39,7 +39,7 @@ export class AppService {
    }
 
 
-   public editInvitedUser(user: any){
+   public editUser(user: any){
      console.log('editing invited user')
      return new Promise((resolve,reject)=>{
       let params = {id: user.id,
@@ -48,11 +48,21 @@ export class AppService {
         , name: user.name
         , userstatus:user.userstatus
         ,creatorestimate: user.creatorestimate};
-        this.rest.editInvitedUser(params).then((response:any)=>{
-          resolve()
-        }, err=>{
-          reject(err);
-        })
+        if(user.id != this.userCtrl.user.id){
+          this.rest.editInvitedUser(params).then((response:any)=>{
+            resolve()
+          }, err=>{
+            reject(err);
+          })
+        }
+        else{
+          console.log('editing partial prof')
+          this.rest.editPartialProfile(params).then((response:any)=>{
+            resolve()
+          }, err=>{
+            reject(err);
+          })
+        }
      })
    }
 
@@ -94,6 +104,16 @@ export class AppService {
      })
    }
 
+   public replyAction(action, accept: boolean){
+     return new Promise((resolve,reject)=>{
+      this.rest.replyAction(action,accept).then(response=>{
+        resolve();
+      }), err=>{
+        reject(err);
+      };
+     });
+   }
+
    public deleteAction(action: Action){
      return new Promise((resolve,reject)=>{
       this.rest.deleteAction(action).then(()=>{
@@ -111,6 +131,16 @@ export class AppService {
      }, err=>{
        reject(err);
      })
+    })
+  }
+
+  public addLink(action: Action){
+    return new Promise((resolve,reject)=>{
+      this.rest.addLink(action).then(()=>{
+        resolve();
+      }, err=>{
+        reject(err);
+      })
     })
   }
 
