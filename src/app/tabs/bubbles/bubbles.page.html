@@ -23,32 +23,46 @@
             <span style="margin-bottom: 10px !important; font-size: 14px !important;">{{userCtrl.user.name}}'s Bubble</span>
           </ion-card-subtitle>
         </ion-card-header>
-        <div style="padding-bottom: 10px !important;">
-          
-        <ion-list lines="none">
-          <ion-item>
-            <ion-label>
-              {{userCtrl.locationCtrl.location.locationName}} INFECTION RATE
-            </ion-label>
-            <ion-note slot="end" color="medium">
-              <span *ngIf="userCtrl.ipc && userCtrl.locationCtrl.location.locationName">1 in {{userCtrl.ipc}}</span>
-              <ion-spinner *ngIf="!(userCtrl.ipc && userCtrl.locationCtrl.location.locationName)" name="dots"></ion-spinner>
-            </ion-note>
-          </ion-item>
-          <ion-item>
-            <ion-label>TOTAL BUBBLE SIZE</ion-label>
-            <ion-note slot="end" color="medium">{{userCtrl.user.membercount}}</ion-note>
-          </ion-item>
-          <ion-item >
-            <ion-label>BUBBLE ACCURACY</ion-label>
-            <ion-note slot="end" color="medium">
-              <span *ngIf="bubbleCtrl.accuracy">  {{bubbleCtrl.accuracy}}</span>
-              <ion-spinner *ngIf="!bubbleCtrl.accuracy" name="dots"></ion-spinner>
-            </ion-note>
-          </ion-item>
-        </ion-list>
+
+
+        <div class="header-content-container">
+          <div class="header-content-row">
+            <div>
+              <ion-label>
+                {{userCtrl.locationCtrl.location.locationName}} INFECTION RATE
+              </ion-label>
+            </div>
+            <div>
+              <ion-note slot="end" color="medium">
+                <span *ngIf="userCtrl.ipc && userCtrl.locationCtrl.location.locationName">1 in {{userCtrl.ipc}}</span>
+                <ion-spinner *ngIf="!(userCtrl.ipc && userCtrl.locationCtrl.location.locationName)" name="dots"></ion-spinner>
+              </ion-note>
+            </div>
+          </div>
+          <div class="header-content-row">
+            <div>
+              <ion-label>TOTAL BUBBLE SIZE</ion-label>
+            </div>
+            <div>
+              <ion-note slot="end" color="medium">{{userCtrl.user.membercount}}</ion-note>
+            </div>
+          </div>
+          <div class="header-content-row">
+            <div>
+              <ion-label>BUBBLE ACCURACY</ion-label>
+            </div>
+            <div>
+              <ion-note slot="end" color="medium">
+                <span *ngIf="bubbleCtrl.accuracy">  {{bubbleCtrl.accuracy}}</span>
+                <ion-spinner *ngIf="!bubbleCtrl.accuracy" name="dots"></ion-spinner>
+              </ion-note>
+            </div>
+          </div>
 
       </div>
+
+
+
       </ion-card>
     </div>
     <div #bubchartcontainer class="bubble-chart-container">
