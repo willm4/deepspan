@@ -42,39 +42,48 @@ export class EditbubblePage implements OnInit {
     "Don't Show Anything"
   ];
   bubid: number;
-  canEdit: boolean = false;
+  editIsMe: boolean = false;
+  editIsNew: boolean = false;
+  editIsZombie: boolean = false;
+  node: any;
   constructor(private popoverCtrl: PopoverController, private toastCtrl: ToastController, private params: NavParams, public app: AppService) { 
-    // this.init();
+
   }
 
   ngOnInit() {
     this.init();
   }
 
-  // ionViewDidEnter(){
-  //   this.init();
-  // }
-
   toggleHidden(){
     this.hideNode = !this.hideNode;
   }
+
+  setCanEdit(user: any, node :any){
+    this.editIsMe = user.id == this.app.userCtrl.user.id;
+    this.editIsZombie = (this.findEdge(this.app.userCtrl.user.id, node.id) != -1) && (user.role.Int32 == -2)
+  }
+
+  findEdge(id1, id2) {
+    let index = this.app.bubbleCtrl.bubbles.findIndex((element, index) => { if (((element.user1id == id1)&&(element.user2id == id2)) || ((element.user1id == id2)&&(element.user2id == id1))){ return true}}, id1); 
+    return (index == -1 ? -1 : this.app.bubbleCtrl.bubbles[index].id)
+  };
+
 
   init(){
     this.isEdit = false;
     let node = this.params.get('node');//{id, name}
     let user = this.params.get('user');
     if(node && user){
-      this.canEdit = user.userType != this.app.bubbleCtrl.userTypes.CURRENT_USER
+      this.node = node;
+      this.setCanEdit(user, node);
       this.bubid = node.id;
-      // console.log(this.bubid);
       this.img = node.image;
       this.userRaw = cloneDeep(user);
       this.userEdits = cloneDeep(user);
       this.isEdit = true;
     }
     else{
-      this.canEdit = true;
-      console.log('no node');
+      this.editIsMe = true;
     }
   }
 
@@ -121,22 +130,13 @@ export class EditbubblePage implements OnInit {
           }
         }
         else{
-          let data = this.getDataFromEdge();
-          if (!data.valid) {
-            let errColor= 'danger';
-            if(this.hideNode){
-              errColor = 'warning';
-            }
-            if(this.hasChanges()){
-              this.promptToast(data.invalidReason, errColor );
-            }
-            if(!this.hasChanges() || this.hideNode){
-              this.close();
-            }
+          if(!this.editIsMe && !this.editIsZombie){
+            console.log('closing');
+            this.close();
           }
           else{
             this.userEdits.userstatus = this.userEdits.userStatusName.value
-            this.app.editInvitedUser(this.userEdits).then(response=>{
+            this.app.editUser(this.userEdits).then(response=>{
               this.promptToast(this.userEdits.name + ' updated successfully!', 'success' );
               this.userRaw = cloneDeep(this.userEdits);
               this.close(true);
@@ -146,76 +146,23 @@ export class EditbubblePage implements OnInit {
               }
               console.log(err);
               this.promptToast("Error updating " + this.userRaw.name + '.', 'danger' );
-            })
+            });
           }
         }
     }
 
-
-
-  findEdge(id1, id2) {
-    let index = this.app.bubbleCtrl.bubbles.findIndex((element, index) => { if (((element.user1id == id1)&&(element.user2id == id2)) || ((element.user1id == id2)&&(element.user2id == id1))){ return true}}, id1); 
-    return (index == -1 ? -1 : this.app.bubbleCtrl.bubbles[index].id)
-  };
-
-  isDirect(id) {
-      return(this.app.bubbleCtrl.bubbles.some(e => ((e.user1id == this.app.userCtrl.user.id) && (e.user2id == id)) || ((e.user2id == this.app.userCtrl.user.id) && (e.user1id == id))))
-  };
-
-
-  getDataFromEdge(){
-    let data = {
-      bubble: null,
-      user: null,
-      valid: false,
-      invalidReason: ""
-    };
-    let edgeid = this.findEdge(this.app.userCtrl.user.id, this.bubid);
-    if(edgeid == -1){
-      data.invalidReason = "Action can't be completed. " + this.userRaw.name + " isn't in your immediate bubble."
-    }
-    else{
-      let bubMatches = this.app.bubbleCtrl.bubbles.filter(b=>{
-        return b.id == edgeid;
-      });
-      if(bubMatches.length == 0){
-        data.invalidReason = "Action cannot be completed, no bubbles found."
-      }
-      else{
-        let bub = bubMatches[0];
-        let bubID = bub.user2id == this.app.userCtrl.user.id ? bub.user1id : bub.user2id;
-        let userMatches = this.app.bubbleCtrl.users.filter(u=>{
-          return u.id == bubID
-        });
-        if(userMatches.length == 0){
-          data.invalidReason = "Action cannot be completed. no users found."
-        }
-        else{
-          let user = userMatches[0];
-          data.bubble = bub;
-          data.user = user;
-          data.valid = true;
-          if(user.role.Int32 != -2){
-            data.invalidReason = "Bubble can only be edited by " + this.userRaw.name;
-            data.valid = false;
-          }
-        }
-      }
-    }
-    return data;
+  canDelete(){
+    
   }
-  
 
   delete(){
-
-    let data = this.getDataFromEdge();
-    console.log(data);
-    if (!data.valid) {
-      this.promptToast(data.invalidReason, 'danger' );
+    let edgeid = this.findEdge(this.app.userCtrl.user.id, this.node.id);
+    console.log(edgeid)
+    if(edgeid == -1){
+      this.promptToast("Only bubbles in your immediate pod can be deleted.", 'danger' );
     }
-
     else{
-      this.app.bubbleCtrl.removeBubble(data.bubble.id).then(response=>{
+      this.app.bubbleCtrl.removeBubble(edgeid).then(response=>{
         this.promptToast(this.userRaw.name + ' removed successfully!', 'success' );
         this.close(true);
       }, err=>{
@@ -244,4 +191,8 @@ export class EditbubblePage implements OnInit {
   dismissPopover(hasChanges: boolean){
     this.popoverCtrl.dismiss({'hasChanges':hasChanges, hideNode: this.hideNode });
   }
+
+
+
+
 }

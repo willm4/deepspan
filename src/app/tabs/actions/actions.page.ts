@@ -59,19 +59,42 @@ export class ActionsPage {
   }
 
   updateAction(action, edgeStatus){
-    if(!action.bubbleref.Valid){
-      this.promptToast("Action can't be updated, user is no longer valid." , "danger")
+    if(edgeStatus == 0){ // RE-INVITE ACTION
+      this.addLink(action)
     }
-    else{
-      this.app.updateAction(action,edgeStatus).then(()=>{
-        this.refreshActions();
-      }, err=>{
-        this.promptToast("There was an error updating action: " + err , "danger")
-      })
+    //decline
+    else if (edgeStatus == 1){
+      this.replyAction(action, false);
+    }
+    //accept
+    else if (edgeStatus == 2){
+      this.replyAction(action,true);
     }
   }
 
+
+
+  // accept/decline
+  replyAction(action: any, accept: boolean){
+    this.app.replyAction(action, accept).then(response=>{
+      // TODO SHOW SUCCESS
+     this.refreshActions();
+    }, err=>{
+      // TODO SHOW TOAST
+    })
+  };
+
+  // RE-INVITE
+  addLink(action){
+    this.app.addLink(action).then(response=>{
+      this.promptToast(action.refname + " has been reinvited.", "success");
+    }, err=>{
+      this.promptToast("There was an error trying to reinvite " + action.refname  , "danger")
+    })
+  }
+
   deleteAction(action: Action){
+    console.log('deleteing action')
     let isInvite = action.actiontype == this.app.actionTypes.ACTION_INVITE_SENT;
     this.app.deleteAction(action).then(()=>{
       this.refreshActions();
@@ -88,10 +111,6 @@ export class ActionsPage {
     this.notifications.splice(index,1);
   }
 
-  reInvite(index){
-    this.dismiss(index);
- 
-  }
 
 
 

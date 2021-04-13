@@ -34,7 +34,8 @@ export class ApiService {
   public deleteBubble: string = this.path + "bubble/" // ADD BUBBLE ID
   public getBubblesWithDepth: string = this.getBubblesWithoutEmail + "/depth/" // ADD DEPTH ONTO THIS
   public addBubbles: string = this.path + "bubbles" // SEND ARRAY OF EMAILS TO LINK
-  public editInvited: string = this.path + "user/invited";
+  public editInvited: string = this.path + "user/invited/partial";
+  public editUser: string = this.path + "user/profile/partial"
 
   // GRAPH
   public bubbleGraph: string = this.getBubblesWithoutEmail + "/graph";
@@ -43,9 +44,11 @@ export class ApiService {
   // ACTIONS 
   public allActions: string = this.path + "actions/all"
   public deleteAction: string = this.path + "action"
-
+  public replyAction: string = this.path + "action/reply/"
   // INVITE
   public invite: string = this.path + "bubble/invite"
+  public reinvite: string = this.path + "bubbles"
+
   constructor(private http: HTTP, private httpClient: HttpClient, public platform: Platform, private storage: NativeStorage) { }
 
 

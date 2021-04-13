@@ -22,6 +22,16 @@ export class RestService {
     })
   }
 
+  public editPartialProfile(params: any){
+    return new Promise((resolve,reject)=>{
+      this.api.put(this.api.editUser, params).then(response=>{
+        resolve(response);
+      }, err=>{
+        reject(err);
+      })
+    })
+  }
+
 
   public getIPC(admin2: string, state: string, lat: any = null, lon: any = null){
     return new Promise((resolve,reject)=>{
@@ -88,6 +98,28 @@ export class RestService {
         edgestatus: edgeStatus
       };
       this.api.put(this.api.invite, params).then((response)=>{
+        resolve();
+      }, err=>{
+        reject(err);
+      })
+    })
+  }
+
+  replyAction(action: Action, accept: boolean){
+    return new Promise((resolve,reject)=>{
+      let params = '{"id": ' + action.id + '}'
+       this.api.post(this.api.replyAction + (accept ? "accept" : "reject"), params).then((response)=>{
+        resolve();
+      }, err=>{
+        reject(err);
+      })
+    })
+  }
+  
+  addLink(action: Action){
+    return new Promise((resolve,reject)=>{
+      let params = '{"members": [{"email": "' + action.refemail +'","name": "'+ action.refname + '"}]}'
+      this.api.post(this.api.reinvite, params).then((response)=>{
         resolve();
       }, err=>{
         reject(err);

@@ -17,7 +17,7 @@
       <ion-col>
         <ion-item>
           <ion-label position="floating">EMAIL</ion-label>
-          <ion-input [disabled]="!canEdit" clear-input="true"  placeholder="ENTER EMAIL..." type="email" [(ngModel)]="userEdits.email"></ion-input>
+          <ion-input [disabled]="!editIsMe && !editIsZombie" clear-input="true"  placeholder="ENTER EMAIL..." type="email" [(ngModel)]="userEdits.email"></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
@@ -25,7 +25,7 @@
       <ion-col>
         <ion-item>
           <ion-label position="floating">NAME</ion-label>
-          <ion-input [disabled]="!canEdit" clear-input="true"  placeholder="ENTER NAME..." type="string" [(ngModel)]="userEdits.name"></ion-input>
+          <ion-input [disabled]="!editIsMe && !editIsZombie" clear-input="true"  placeholder="ENTER NAME..." type="string" [(ngModel)]="userEdits.name"></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
@@ -33,7 +33,7 @@
       <ion-col>
         <ion-item>
           <ion-label position="floating">STATUS</ion-label>
-          <ion-select [disabled]="!canEdit" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
+          <ion-select [disabled]="!editIsMe && !editIsZombie" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
             <ion-select-option *ngFor="let s of app.userCtrl.userStatusDict" [value]="s">{{s.name}}</ion-select-option>
           </ion-select>
         </ion-item>
@@ -47,13 +47,13 @@
         </ion-item>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="canEdit">
-      <ion-col><ion-button color="success" expand="block" size="small" (click)="save()">SAVE</ion-button></ion-col>
-      <ion-col *ngIf="isEdit"><ion-button color="danger" expand="block" size="small" (click)="delete()">DELETE</ion-button></ion-col>
+    <ion-row>
+      <ion-col *ngIf="editIsMe || editIsZombie"><ion-button color="success" expand="block" size="small" (click)="save()">SAVE</ion-button></ion-col>
+      <ion-col *ngIf="!editIsMe"><ion-button color="danger" expand="block" size="small" (click)="delete()">DELETE</ion-button></ion-col>
     </ion-row>
     <ion-row>
       <ion-col><ion-button color="success" expand="block" size="small" fill="none" (click)="dismiss()">
-        {{canEdit ? 'Cancel' : 'Close'}}
+        {{(!editIsMe && !editIsZombie) ? 'Cancel' : 'Close'}}
       </ion-button></ion-col>
     </ion-row>
   </ion-grid> 
