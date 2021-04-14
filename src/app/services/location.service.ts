@@ -50,6 +50,22 @@ export class LocationService {
     });
   }
 
+  public getState(state){ // Android returns state as Washington, ios returns state as WA
+    if(state.length>2){
+      return state;
+    }else{
+      return this.states[state.toUpperCase()]
+    }
+  }
+
+  public getStateKeyByValue(value) {
+    if(value.length>2){
+      return Object.keys(this.states).find(key => this.states[key] === value);
+    }else{
+      return value;
+    }
+  }
+
   public setLocation(){
     return new Promise((resolve,reject)=>{
       this.getLocation().then(response=>{
@@ -86,18 +102,19 @@ export class LocationService {
     return new Promise((resolve)=>{
       this.geocoder.reverseGeocode(position.coords.latitude, position.coords.longitude).then((response:NativeGeocoderResult[])=>{
         if(response && response.length > 0){
-          
+
+          console.log("reversegeocoder " + JSON.stringify(response))
           let locationObj: NativeGeocoderResult = response[0];
           var location = "";
          if(locationObj.subAdministrativeArea){
-          result.admin2 = locationObj.subAdministrativeArea;
+          result.admin2 = locationObj.subAdministrativeArea.replace(" County", "");
          }
           if(locationObj.locality){
             location += locationObj.locality + ", ";
           }
           if(locationObj.administrativeArea){
-            result.provincestate = locationObj.administrativeArea;
-           location += locationObj.administrativeArea + ", ";
+            result.provincestate = this.getStateKeyByValue(locationObj.administrativeArea);
+           location += result.provincestate + ", ";
           }
           if(locationObj.countryCode){
             location += locationObj.countryCode;
