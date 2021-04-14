@@ -1,6 +1,61 @@
 .bubbles-content-container{
-    width: 100%; height:100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    width: 100%; height:100%; display: flex; 
+    flex-direction: column; align-items: center; 
+    // justify-content: center;
+    align-items: stretch;
 }
-#bubbles-chart{
-    width:100%; flex:1
+.bubbles-chart{
+    width:100%;
 }
+
+.bubble-chart-container{
+    width:100%;
+    min-height: 50vh;
+    flex: 1;
+    flex-grow: 1;
+}
+
+// .risk-progress {
+//     ion-progress-bar {
+//        --background: #989aa2;
+//        --buffer-background: #eb445a;
+//        --progress-background: #eb445a;
+//      }
+//    }
+
+.bubbles-chart .vis-network:focus,
+.bubbles-chart .vis-active:focus{
+    outline: none !important;
+    box-shadow: unset !important;
+  }
+
+  
+  .header-content-container{
+    padding-bottom: 7.5px !important;
+    padding-top: 7.5px;
+    width:100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-content-row{
+      display: flex;
+      padding-left: 7.5px;
+      padding-right: 7.5px;
+      min-height: 30px;
+      flex-direction: row;
+  }
+
+  .header-content-row > div{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+  }
+  .header-content-row > div:last-child{
+   align-items: flex-end;
+  }
+  .header-content-row >div:first-child{
+    flex:1;
+  }
+
+

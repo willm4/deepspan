@@ -4,7 +4,7 @@
     // justify-content: center;
     align-items: stretch;
 }
-#bubbles-chart{
+.bubbles-chart{
     width:100%;
 }
 
@@ -23,8 +23,8 @@
 //      }
 //    }
 
-#bubbles-chart .vis-network:focus,
-#bubbles-chart .vis-active:focus{
+.bubbles-chart .vis-network:focus,
+.bubbles-chart .vis-active:focus{
     outline: none !important;
     box-shadow: unset !important;
   }
