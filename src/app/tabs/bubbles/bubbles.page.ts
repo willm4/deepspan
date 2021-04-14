@@ -1,20 +1,15 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, NgZone, ElementRef, ViewChild } from '@angular/core';
 
 // amCharts imports
-import * as am4core from "@amcharts/amcharts4/core";
-import * as am4charts from "@amcharts/amcharts4/charts";
-import am4themes_animated from "@amcharts/amcharts4/themes/animated";
-import * as am4plugins_forceDirected from "@amcharts/amcharts4/plugins/forceDirected"; 
 import { ModalController, AlertController, ToastController, PopoverController } from '@ionic/angular';
 import { Bubble } from 'src/app/classes/bubble';
 import { AppService } from 'src/app/services/app.service';
 import { EditbubblePage } from 'src/app/components/popovers/editbubble/editbubble.page';
 import { User } from 'src/app/classes/user';
 import { BubblesService } from 'src/app/services/bubbles.service';
-import { Router, NavigationEnd, RouterEvent } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { UserService } from 'src/app/services/user.service';
 declare var vis: any;
-am4core.useTheme(am4themes_animated);
 
 @Component({
   selector: 'app-bubbles',
@@ -25,34 +20,10 @@ export class BubblesPage implements OnDestroy {
   nodes: Array<any> = new Array<any>();
   edges: Array<any> = new Array<any>();
   bubChartHeight: string = '100px';
-  connections = [
-    'Spouse/S.O',
-    'Family',
-    "Roommate",
-    "Non-Resident Family",
-    "Friend/Colleague"
-  ];
-  covidStatuses = [
-    "Unknown",
-    "Symptomatic",
-    "Infected",
-    "Previous Infection",
-    "Vaccinated"
-  ];
-  privacy = [
-    "Show only Bubble #",
-    "Show Full Bubble",
-    "Don't Show Anything"
-  ];
+
   @ViewChild("bubbleschart") bubbleschart: ElementRef;
   @ViewChild("bubchartcontainer") bubchartcontainer: ElementRef;
   chartHeight: number = 300;
-  chart: am4plugins_forceDirected.ForceDirectedTree;
-  editing: boolean = false;
-  bubbleEditType: string = 'add';
-  newBubble: Bubble = new Bubble();
-  bubbleEdit: Bubble = new Bubble();
-  hasData: boolean = false;
   bubbles: Array<Bubble> = new Array<Bubble>();
   gettingData: boolean = false;
   network: any;
@@ -66,13 +37,10 @@ export class BubblesPage implements OnDestroy {
     , public bubbleCtrl: BubblesService
     , public app: AppService
     ,public popoverCtrl: PopoverController
-    , private alertCtrl:AlertController
-    , private toastCtrl: ToastController
     , private router: Router) { 
       this.router.events.subscribe((event: NavigationEnd)=>{
         if(event.url && event.url.includes('/tabs') && this.router.getCurrentNavigation().extractedUrl){
           if(!this.gettingData){
-            this.app.statuses.push('EVENT URL ' + event.url)
             this.gettingData = true;
             setTimeout(()=>{
               this.initialize();
@@ -127,7 +95,6 @@ export class BubblesPage implements OnDestroy {
 
 indexfromnodeid(nodeid) {
   return (this.nodes.findIndex((element, index) => { if (element.id == nodeid){ return true}}, nodeid))
-  //return (this.nodes.filter((element, index) => { if (element.id == nodeid){ return true}}, nodeid)) 
 }
 
 
@@ -216,7 +183,7 @@ cleanGraph () {
               }
           }
       }
-  }
+    }
   }
   drawBubbles(resetData: boolean = true){
     if(resetData){
@@ -234,7 +201,6 @@ cleanGraph () {
      this.editNode(clickedNodes[0])
      //this.hideNode(ids[0]);
     });
-    this.hasData = true;
     this.app.statuses.push('bub chart height ' + this.bubchartcontainer.nativeElement.scrollHeight)
     let chartHeight = this.bubchartcontainer.nativeElement.scrollHeight;
     if(this.chartHeightCheckInterval ){
@@ -246,7 +212,6 @@ cleanGraph () {
     else{
       this.chartHeightCheckInterval = setInterval(()=>{
         chartHeight = this.bubchartcontainer.nativeElement.scrollHeight;
-        let bubChartHeight = this.bubbleschart.nativeElement.height;
         if(chartHeight && this.chartHeight > 0){
           clearInterval(this.chartHeightCheckInterval);
           this.bubChartHeight = chartHeight + 'px';
