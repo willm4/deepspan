@@ -23,6 +23,7 @@ export class ScenariosPage implements OnDestroy {
   nodes: Array<any> = new Array<any>();
   edges: Array<any> = new Array<any>();
   bubChartHeight: string = '100px';
+  isEditing: boolean = false;
 
   @ViewChild("scenarioschart") bubbleschart: ElementRef;
   @ViewChild("scenarioschartcontainer") bubchartcontainer: ElementRef;
@@ -54,6 +55,7 @@ export class ScenariosPage implements OnDestroy {
               this.gettingData = false;
             }, 5000)
           }
+          this.resetEdits();
         }
       })
   }
@@ -63,6 +65,14 @@ export class ScenariosPage implements OnDestroy {
     if(this.network){
       this.network.destroy();
     }
+  }
+
+  edit(){
+    this.isEditing = true;
+  }
+
+  resetEdits(){
+    this.isEditing = false;
   }
 
   ionViewDidEnter(){

@@ -52,10 +52,12 @@ export class User {
   avatarLabel: string = "";
   img: string =  "https://ui-avatars.com/api/?name=?";
   avatarBackground: string = "97C2FC"
+  primaryid: any;
 
   constructor(data: any = null) { 
     if(data){
       this.id = data.id;
+      this.primaryid = data.primaryid;
       this.ownerid = data.ownerid;
       this.creatorid = data.creatorid;
       this.email = data.email;
