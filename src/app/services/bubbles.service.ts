@@ -13,9 +13,9 @@ export class BubblesService {
   bubbles: Array<Bubble> = new Array<Bubble>();
   users: Array<User> = new Array<User>();
   size: number = 0;
-  accuracy: any;
-  
-
+  riskierSize: any;
+  totalSize: any; 
+  riskRate: any; 
   userTypes = {
     UNVALIDATED: 0,
     VALIDATED: 1,
@@ -55,6 +55,7 @@ export class BubblesService {
     return new Promise((resolve)=>{
       this.api.get(this.api.userGraph).then((response: any)=>{
         let promises = [];
+        console.log(response)
         response.forEach(u=>{
           let user = new User(u);
           let promise =  user.setGravarImg().then(()=>{
@@ -106,8 +107,8 @@ export class BubblesService {
               b.img   = u.img;
             }
           })
-        })
-        this.calcAccuracy();
+        });
+        this.calcBubbleSizes();
         resolve();
       },err=>{
         resolve();
@@ -115,13 +116,12 @@ export class BubblesService {
     })
   }
 
-  calcAccuracy(){
-    let initialValue = 0
-    let usersValidated = this.users.reduce( function(total, current) {
-        return total + (current.role.Int32 >= 0 ? 1 : 0)
-    }, initialValue);
-    this.accuracy = (usersValidated/this.users.length).toFixed(2);
+  calcBubbleSizes(){
+    this.totalSize = this.users.reduce((prev, next) => prev + ((!next.primaryid.Valid || (next.primaryid.Int32 == next.id)) ? 1 : 0), 0) ;
+    this.riskierSize   = this.users.reduce((prev, next) => prev + (((!next.primaryid.Valid || (next.primaryid.Int32 == next.id)) && (next.userstatus == 0)) ? 1 : 0), 0);
+    this.riskRate    = "1 in " + ((this.totalSize > 0) ? (this.totalSize / this.riskierSize).toFixed(1).toString() : "0");
   }
+
 
   getBubblesClone(){
     return cloneDeep(this.bubbles);

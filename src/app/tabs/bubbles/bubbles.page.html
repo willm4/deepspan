@@ -41,20 +41,34 @@
           </div>
           <div class="header-content-row">
             <div>
-              <ion-label>TOTAL BUBBLE SIZE</ion-label>
+              <ion-label>TOTAL SIZE</ion-label>
             </div>
             <div>
-              <ion-note slot="end" color="medium">{{userCtrl.user.membercount}}</ion-note>
+              <ion-note slot="end" color="medium">
+                <span *ngIf="bubbleCtrl.totalSize">  {{bubbleCtrl.totalSize}}</span>
+                <ion-spinner *ngIf="!bubbleCtrl.totalSize" name="dots"></ion-spinner>
+              </ion-note>
             </div>
           </div>
           <div class="header-content-row">
             <div>
-              <ion-label>BUBBLE ACCURACY</ion-label>
+              <ion-label>RISKIER SIZE</ion-label>
             </div>
             <div>
               <ion-note slot="end" color="medium">
-                <span *ngIf="bubbleCtrl.accuracy">  {{bubbleCtrl.accuracy}}</span>
-                <ion-spinner *ngIf="!bubbleCtrl.accuracy" name="dots"></ion-spinner>
+                <span *ngIf="bubbleCtrl.riskierSize">  {{bubbleCtrl.riskierSize}}</span>
+                <ion-spinner *ngIf="!bubbleCtrl.riskierSize" name="dots"></ion-spinner>
+              </ion-note>
+            </div>
+          </div>
+          <div class="header-content-row">
+            <div>
+              <ion-label>BUBBLE INFECTION RATE RISK</ion-label>
+            </div>
+            <div>
+              <ion-note slot="end" color="medium">
+                <span *ngIf="bubbleCtrl.riskRate">  {{bubbleCtrl.riskRate}}</span>
+                <ion-spinner *ngIf="!bubbleCtrl.riskRate" name="dots"></ion-spinner>
               </ion-note>
             </div>
           </div>
