@@ -226,6 +226,7 @@ cleanGraph () {
 
 
    async editNode(node: any){ // {id, name}
+   console.log(node)
    let user = new User();
     if(node){
       let users = this.bubbleCtrl.users.filter(u=>{

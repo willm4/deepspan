@@ -2,11 +2,11 @@
 
 <ion-header>
   <ion-toolbar color="secondary">
-    <ion-buttons slot="start">
+    <!-- <ion-buttons slot="start">
       <ion-button  (click)="addBubble()">
         <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
       </ion-button>
-    </ion-buttons>
+    </ion-buttons> -->
     <ion-title>SCENARIOUS</ion-title>
     <ion-buttons slot="end">
       <ion-button  (click)="refreshBubbles()">
@@ -48,6 +48,7 @@
             <div>
               <ion-note slot="end" color="medium">
                 <span *ngIf="bubbleCtrl.totalSize">  {{bubbleCtrl.totalSize}}</span>
+                <span *ngIf="projected"> -> {{projected.total}}</span>
                 <ion-spinner *ngIf="!bubbleCtrl.totalSize" name="dots"></ion-spinner>
               </ion-note>
             </div>
@@ -59,6 +60,7 @@
             <div>
               <ion-note slot="end" color="medium">
                 <span *ngIf="bubbleCtrl.riskierSize">  {{bubbleCtrl.riskierSize}}</span>
+                <span *ngIf="projected"> -> {{projected.riskier}}</span>
                 <ion-spinner *ngIf="!bubbleCtrl.riskierSize" name="dots"></ion-spinner>
               </ion-note>
             </div>
@@ -70,6 +72,7 @@
             <div>
               <ion-note slot="end" color="medium">
                 <span *ngIf="bubbleCtrl.riskRate">  {{bubbleCtrl.riskRate}}</span>
+                <span *ngIf="projected"> -> {{projected.riskRate}}</span>
                 <ion-spinner *ngIf="!bubbleCtrl.riskRate" name="dots"></ion-spinner>
               </ion-note>
             </div>
@@ -77,11 +80,11 @@
 
           <div class="header-content-row">
             <div style="display: flex; flex-direction: column;">
-              <ion-input placeholder="Enter email..."></ion-input>
+              <ion-input placeholder="Enter email..." [(ngModel)]="newEmail"></ion-input>
               <div style="display: flex; flex-direction: row; align-self: flex-start;">
-                <ion-button size="small" color="success">Add</ion-button>
-                <ion-button size="small" color="danger">Subtract</ion-button>
-                <ion-button size="small" color="secondary">Reset</ion-button>
+                <ion-button size="small" color="success" (click)="addCount()">Add</ion-button>
+                <ion-button size="small" color="danger" (click)="subtractCount()">Subtract</ion-button>
+                <ion-button size="small" color="secondary" (click)="resetEdits()">Reset</ion-button>
               </div>
             </div>
           </div>

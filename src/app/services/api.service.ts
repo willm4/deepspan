@@ -49,6 +49,10 @@ export class ApiService {
   public invite: string = this.path + "bubble/invite"
   public reinvite: string = this.path + "bubbles"
 
+  // SCENARIOS
+  public addProjected: string = this.path  + "users/graph/add";
+  public subtractProjected: string = this.path  + "users/graph/subtract";
+
   constructor(private http: HTTP, private httpClient: HttpClient, public platform: Platform, private storage: NativeStorage) { }
 
 
@@ -139,7 +143,7 @@ export class ApiService {
           axios.post(path,params,header).then(response =>{
               resolve(response.data);
             }, err=>{
-              reject(err)
+              reject(err.message)
               console.log(err)
             });
         }

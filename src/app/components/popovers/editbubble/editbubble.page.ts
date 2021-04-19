@@ -24,6 +24,21 @@ export class EditbubblePage implements OnInit {
   img: any = null;
   hideNode: boolean = false;
   
+  disabled: any = {
+    name: true,
+    email: true,
+    status: true,
+    estimate: true,
+    add: true,
+    delete: true,
+    update: true,
+    merge: false,
+    clear: false,
+    hide: false,
+    unhide: false,
+    scenario: false
+  }
+
   connections = [
     'Spouse/S.O',
     'Family',
@@ -47,6 +62,7 @@ export class EditbubblePage implements OnInit {
   editIsMe: boolean = false;
   editIsNew: boolean = false;
   editIsZombie: boolean = false;
+  editIsDirect: boolean = false;
   node: any;
   constructor(private popoverCtrl: PopoverController, private toastCtrl: ToastController, private params: NavParams, public bubbleCtrl: BubblesService, public userCtrl: UserService) { 
 
@@ -60,9 +76,26 @@ export class EditbubblePage implements OnInit {
     this.hideNode = !this.hideNode;
   }
 
-  setCanEdit(user: any, node :any){
-    this.editIsMe = user.id == this.userCtrl.user.id;
-    this.editIsZombie = (this.findEdge(this.userCtrl.user.id, node.id) != -1) && (user.role.Int32 == -2)
+  setCanEdit(user: any, node: any, isScenario: boolean = false){
+    this.editIsNew = false;
+    this.editIsMe = this.userCtrl.user.id == node.id;
+    console.log(user)
+    this.editIsZombie =  (node.id != -1) && (user.role.Int32 == -2) && (user.creatorid.Valid) && (user.creatorid.Int32 == this.userCtrl.user.id)
+    this.editIsDirect = (this.bubbleCtrl.bubbles.some(e => ((e.user1id == this.userCtrl.user.id) && (e.user2id == user.id)) || ((e.user2id == this.userCtrl.user.id) && (e.user1id == user.id))))
+    this.disabled.scenario = isScenario;
+    if(!isScenario){
+      this.setDisabledFields();
+    }
+  }
+
+  setDisabledFields(){
+    this.disabled.name = !this.editIsNew && !this.editIsMe && !this.editIsZombie;
+    this.disabled.email    = !this.editIsNew && !this.editIsMe;
+    this.disabled.status = !this.editIsNew && !this.editIsMe && !this.editIsZombie;
+    this.disabled.estimate = !this.editIsNew && !this.editIsZombie;
+    this.disabled.add = !this.editIsNew && (this.editIsMe || this.editIsDirect)
+    this.disabled.delete = !this.editIsDirect || this.editIsMe;
+    this.disabled.update = !this.editIsMe && !this.editIsZombie;
   }
 
   findEdge(id1, id2) {
@@ -73,19 +106,24 @@ export class EditbubblePage implements OnInit {
 
   init(){
     this.isEdit = false;
+    let isScenario = this.params.get('isScenario');
     let node = this.params.get('node');//{id, name}
     let user = this.params.get('user');
     if(node && user){
       this.node = node;
-      this.setCanEdit(user, node);
       this.bubid = node.id;
       this.img = node.image;
       this.userRaw = cloneDeep(user);
       this.userEdits = cloneDeep(user);
       this.isEdit = true;
+      this.setCanEdit(user, node, isScenario);
     }
     else{
-      this.editIsMe = true;
+      this.editIsMe = false;
+      this.editIsNew = true;
+      this.editIsDirect = false;
+      this.editIsZombie = false;
+      this.setDisabledFields();
     }
   }
 
@@ -118,7 +156,10 @@ export class EditbubblePage implements OnInit {
   }
 
   save(){
-        if(!this.isEdit){
+        if(this.disabled.scenario){
+          this.close();
+        }
+        else if(!this.isEdit){
           if(this.userEdits.name && this.userEdits.email){
             this.bubbleCtrl.addBubble(this.userEdits).then(response=>{
               this.promptToast("Bubble for " + this.userEdits.name + " added successfully!", 'success' );
@@ -157,11 +198,31 @@ export class EditbubblePage implements OnInit {
     
   }
 
+  add(){
+    this.bubbleCtrl.addBubble(this.userRaw).then(response=>{
+      this.promptToast("Bubble for " + this.userEdits.name + " added successfully!", 'success' );
+      this.close(true);
+    }, err=>{
+      this.promptToast("Error: Bubble can't be added, please try again. ", 'danger' );
+    })
+  }
+
+  subtract(){
+    this.delete();
+    // console.log('subtracting')
+    // this.bubbleCtrl.subtractCount(this.userRaw.email).then(response=>{
+    //   this.promptToast(this.userRaw.name + ' removed successfully!', 'success' );
+    //   this.close(true); 
+    // }, err=>{
+    //   this.promptToast('Error removing ' + this.userRaw.name, 'danger' );
+    // })
+  }
+
   delete(){
     let edgeid = this.findEdge(this.userCtrl.user.id, this.node.id);
     console.log(edgeid)
     if(edgeid == -1){
-      this.promptToast("Only bubbles in your immediate pod can be deleted.", 'danger' );
+      this.subtract();
     }
     else{
       this.bubbleCtrl.removeBubble(edgeid).then(response=>{
