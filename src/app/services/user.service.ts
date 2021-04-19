@@ -45,7 +45,7 @@ export class UserService {
 
     public user: User = new User();
     public servicetoken: string = "";
-    public build: any = "2.5";
+    public build: any = "2.8";
   constructor(private api: ApiService,public nativeStorage: NativeStorage, public locationCtrl: LocationService) { }
 
 
@@ -270,12 +270,13 @@ export class UserService {
 
   public editUser(user: any){
     return new Promise((resolve,reject)=>{
-     let params = {id: user.id,
-        email:user.email
-       ,creatorid:user.creatorid
-       , name: user.name
-       , userstatus:user.userstatus
-       ,creatorestimate: user.creatorestimate};
+    //  let params = {id: user.id,
+    //     email:user.email
+    //    ,creatorid:user.creatorid
+    //    , name: user.name
+    //    , userstatus:user.userstatus
+    //    ,creatorestimate: user.creatorestimate};
+       let params = '{"id": ' + user.id + ', "email": "' + user.email +'","name": "'+ user.name + '","userstatus": '+ user.userstatus + ',"creatorestimate": { "Int32": ' + user.creatorestimate.Int32 +  ', "Valid":true}}'
        if(user.id != this.user.id){
          this.editInvitedUser(params).then((response:any)=>{
            resolve()

@@ -17,7 +17,7 @@
       <ion-col>
         <ion-item>
           <ion-label position="floating">EMAIL</ion-label>
-          <ion-input [disabled]="!editIsMe && !editIsZombie" clear-input="true"  placeholder="ENTER EMAIL..." type="email" [(ngModel)]="userEdits.email"></ion-input>
+          <ion-input [disabled]="disabled.email" clear-input="true"  placeholder="ENTER EMAIL..." type="email" [(ngModel)]="userEdits.email"></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
@@ -25,7 +25,7 @@
       <ion-col>
         <ion-item>
           <ion-label position="floating">NAME</ion-label>
-          <ion-input [disabled]="!editIsMe && !editIsZombie" clear-input="true"  placeholder="ENTER NAME..." type="string" [(ngModel)]="userEdits.name"></ion-input>
+          <ion-input [disabled]="disabled.name" clear-input="true"  placeholder="ENTER NAME..." type="string" [(ngModel)]="userEdits.name"></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
@@ -33,13 +33,21 @@
       <ion-col>
         <ion-item>
           <ion-label position="floating">STATUS</ion-label>
-          <ion-select [disabled]="!editIsMe && !editIsZombie" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
+          <ion-select [disabled]="disabled.status" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
             <ion-select-option *ngFor="let s of userCtrl.userStatusDict" [value]="s">{{s.name}}</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-col>
     </ion-row>
     <ion-row>
+      <ion-col>
+        <ion-item>
+          <ion-label position="floating">ESTIMATE</ion-label>
+          <ion-input [disabled]="disabled.estimate" type="number" [(ngModel)]="userEdits.creatorestimate.Int32"></ion-input>
+        </ion-item>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="!editIsNew">
       <ion-col>
         <ion-item lines="none">
           <ion-label>Hide Bubble</ion-label>
@@ -48,12 +56,14 @@
       </ion-col>
     </ion-row>
     <ion-row>
-      <ion-col *ngIf="editIsMe || editIsZombie"><ion-button color="success" expand="block" size="small" (click)="save()">SAVE</ion-button></ion-col>
-      <ion-col *ngIf="!editIsMe"><ion-button color="danger" expand="block" size="small" (click)="delete()">DELETE</ion-button></ion-col>
+      <ion-col *ngIf="!disabled.update"><ion-button color="success" expand="block" size="small" (click)="save()">UPDATE</ion-button></ion-col>
+      <ion-col *ngIf="editIsNew || disabled.scenario"><ion-button color="success" expand="block" size="small" (click)="save()">SAVE</ion-button></ion-col>
+      <ion-col *ngIf="!disabled.add && !editIsNew"><ion-button color="success" expand="block" size="small" (click)="add()">ADD</ion-button></ion-col>
+      <ion-col *ngIf="!disabled.delete"><ion-button color="warning" expand="block" size="small" (click)="delete()">DELETE</ion-button></ion-col>
     </ion-row>
     <ion-row>
       <ion-col><ion-button color="success" expand="block" size="small" fill="none" (click)="dismiss()">
-        {{(!editIsMe && !editIsZombie) ? 'Cancel' : 'Close'}}
+        {{(!editIsMe && !editIsZombie && !disabled.scenario) ? 'Cancel' : 'Close'}}
       </ion-button></ion-col>
     </ion-row>
   </ion-grid> 

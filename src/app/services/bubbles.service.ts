@@ -39,7 +39,10 @@ export class BubblesService {
 
   public addBubble(bubble: any){
     return new Promise((resolve,reject)=>{
-      let params = {members: [{email: bubble.email, name: bubble.name, userstatus: bubble.userStatusName.value}]};
+      // let params = {members: [{email: bubble.email, name: bubble.name, userstatus: bubble.userStatusName.value}]};
+      console.log(bubble)
+      let params = '{"members": [{"email": "' + bubble.email +'","name": "'+ bubble.name + '","userstatus": '+ bubble.userStatusName.value + ',"creatorestimate": { "Int32": ' + bubble.creatorestimate.Int32 +  ', "Valid":true}}]}'
+      console.log(params)
       this.api.post(this.api.addBubbles, params).then(response=>{
         this.refresh().then(()=>{
           resolve();
@@ -96,6 +99,16 @@ export class BubblesService {
     })
   }
 
+  async addCount(email: any = null){
+    let params =  '{"email": "' + email + '"}'
+    return await this.api.post(this.api.addProjected, params);
+  }
+
+  async subtractCount(email: any = null){
+    let params =  '{"email": "' + email + '"}'
+    return await this.api.post(this.api.subtractProjected, params);
+  }
+
   refresh(){
     return new Promise((resolve)=>{
       this.getData().then(()=>{
@@ -108,7 +121,10 @@ export class BubblesService {
             }
           })
         });
-        this.calcBubbleSizes();
+        let bubbleSizes = this.calcBubbleSizes(this.users);
+        this.totalSize = bubbleSizes.totalSize;
+        this.riskierSize = bubbleSizes.riskierSize;
+        this.riskRate = bubbleSizes.riskRate;
         resolve();
       },err=>{
         resolve();
@@ -116,12 +132,23 @@ export class BubblesService {
     })
   }
 
-  calcBubbleSizes(){
-    this.totalSize = this.users.reduce((prev, next) => prev + ((!next.primaryid.Valid || (next.primaryid.Int32 == next.id)) ? 1 : 0), 0) ;
-    this.riskierSize   = this.users.reduce((prev, next) => prev + (((!next.primaryid.Valid || (next.primaryid.Int32 == next.id)) && (next.userstatus == 0)) ? 1 : 0), 0);
-    this.riskRate    = "1 in " + ((this.totalSize > 0) ? (this.totalSize / this.riskierSize).toFixed(1).toString() : "0");
+  emailValid(email) {
+    const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
   }
 
+
+  calcBubbleSizes(users: Array<User>){
+    let result = {
+      totalSize: null,
+      riskierSize: null,
+      riskRate: null
+    }
+    result.totalSize =    users.reduce((prev, next) => prev + ((!next.primaryid.Valid || (next.primaryid.Int32 == next.id)) ? 1 : 0), 0) ;
+    result.riskierSize   = users.reduce((prev, next) => prev + (((!next.primaryid.Valid || (next.primaryid.Int32 == next.id)) && (next.userstatus == 0)) ? 1 : 0), 0);
+    result.riskRate    = "1 in " + ((result.totalSize > 0) ? (result.totalSize / result.riskierSize).toFixed(1).toString() : "0");
+    return result;
+  }
 
   getBubblesClone(){
     return cloneDeep(this.bubbles);

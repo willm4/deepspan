@@ -41,10 +41,13 @@ export class User {
   locationName: string = '';
   provincestate:any;
   countryregion: any;
-  userstatus: any;
-  creatorestimate: any;
+  userstatus: any = 0;
+  creatorestimate: any = {
+      Int32: 0,
+      Valid: true
+  };
   userStatusName: any = {
-    value: 0,
+    value: this.userstatus,
     name: "UNKNOWN"
   };
   ownerid: any;

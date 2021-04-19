@@ -23,7 +23,6 @@ export class ScenariosPage implements OnDestroy {
   nodes: Array<any> = new Array<any>();
   edges: Array<any> = new Array<any>();
   bubChartHeight: string = '100px';
-  isEditing: boolean = false;
 
   @ViewChild("scenarioschart") bubbleschart: ElementRef;
   @ViewChild("scenarioschartcontainer") bubchartcontainer: ElementRef;
@@ -33,7 +32,9 @@ export class ScenariosPage implements OnDestroy {
   network: any;
   graphdata: any;
   options: any;
+  projected: any;
   chartHeightCheckInterval;
+  newEmail: string = null;
 
   constructor(public zone:NgZone
     , public modalCtrl: ModalController
@@ -67,13 +68,71 @@ export class ScenariosPage implements OnDestroy {
     }
   }
 
-  edit(){
-    this.isEditing = true;
+  async promptToast(message: string, color: string){
+    const toast = await this.toastCtrl.create({
+      message: message,
+      duration: 2000,
+      color: color,
+      position: 'bottom',
+      buttons: [ {
+          text: 'OK',
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        }
+      ]
+    });
+    toast.present();
+  }
+
+
+  addCount(){
+    if(!this.bubbleCtrl.emailValid(this.newEmail)){
+      this.promptToast("Please enter a valid email.", "danger");
+    }
+    else{
+      this.bubbleCtrl.addCount(this.newEmail).then((data:any)=>{
+        this.promptToast(this.newEmail + " added!", "success");
+        this.newEmail = null;
+        this.handleProposed(data);
+      }, err=>{
+        //this.promptToast("Error adding " + this.newEmail + " " + err, "danger");
+        console.log(err);
+      })
+    }
+  }
+
+  subtractCount(){
+    if(!this.bubbleCtrl.emailValid(this.newEmail)){
+      this.promptToast("Please enter a valid email.", "danger");
+    }
+    else{
+      this.bubbleCtrl.subtractCount(this.newEmail).then((data:any)=>{
+        this.promptToast(this.newEmail + " removed!", "success");
+        this.newEmail = null;
+        this.handleProposed(data);
+        console.log('success')
+      }, err=>{
+        //this.promptToast("Error removing " + this.newEmail, "danger");
+        console.log('err')
+      })
+    }
+
+
+  }
+
+  handleProposed(data:any){
+    let projected = data;
+    projected["riskRate"] = "1 in " + ((data.total > 0) ? (data.total / data.riskier).toFixed(1).toString() : "0");
+    this.projected = projected;
   }
 
   resetEdits(){
-    this.isEditing = false;
+    this.newEmail = null;
+    this.projected = null;
   }
+
 
   ionViewDidEnter(){
     this.initialize();
@@ -92,6 +151,7 @@ export class ScenariosPage implements OnDestroy {
   }
 
   refreshBubbles(){
+    this.resetEdits();
     this.bubbleCtrl.refresh().then(response=>{
       this.app.statuses.push('refreshed bubble data');
       this.drawBubbles();
@@ -237,7 +297,8 @@ export class ScenariosPage implements OnDestroy {
        showBackdrop: true,
        componentProps:{
          node: node,
-         user: user
+         user: user,
+         isScenario: true
        }
      });
      await popover.present();
