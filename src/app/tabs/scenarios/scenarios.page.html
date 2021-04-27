@@ -2,13 +2,11 @@
 
 <ion-header>
   <ion-toolbar color="secondary">
-    <!-- <ion-buttons slot="start">
-      <ion-button  (click)="addBubble()">
-        <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons> -->
     <ion-title>SCENARIOUS</ion-title>
     <ion-buttons slot="end">
+      <ion-button  (click)="viewHidden()">
+        <ion-icon name="eye-off-outline"></ion-icon> {{hidden.length}}
+      </ion-button>
       <ion-button  (click)="refreshBubbles()">
         <ion-icon slot="icon-only" name="refresh-circle-outline"></ion-icon>
       </ion-button>
@@ -82,9 +80,9 @@
             <div style="display: flex; flex-direction: column;">
               <ion-input placeholder="Enter email..." [(ngModel)]="newEmail"></ion-input>
               <div style="display: flex; flex-direction: row; align-self: flex-start;">
-                <ion-button size="small" color="success" (click)="addCount()">Add</ion-button>
-                <ion-button size="small" color="danger" (click)="subtractCount()">Subtract</ion-button>
-                <ion-button size="small" color="secondary" (click)="resetEdits()">Reset</ion-button>
+                <ion-button size="small" color="success"   fill="clear" (click)="addCount()">ADD</ion-button>
+                <ion-button size="small" color="danger"    fill="clear" (click)="subtractCount()">SUBTRACT</ion-button>
+                <ion-button size="small" color="secondary" fill="clear" (click)="resetEdits()">REST</ion-button>
               </div>
             </div>
           </div>

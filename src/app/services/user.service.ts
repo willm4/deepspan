@@ -4,6 +4,7 @@ import { ApiService } from './api.service';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
 import { LocationService } from './location.service';
 import {Md5} from 'ts-md5/dist/md5';
+import * as cloneDeep from 'lodash/cloneDeep';
 @Injectable({
   providedIn: 'root'
 })
@@ -45,11 +46,39 @@ export class UserService {
 
     public user: User = new User();
     public servicetoken: string = "";
-    public build: any = "2.8";
+    public build: any = "3.1";
   constructor(private api: ApiService,public nativeStorage: NativeStorage, public locationCtrl: LocationService) { }
 
 
-  // PRIVATE 
+  unmerge(){
+    return new Promise((resolve,reject)=>{
+      this.api.delete(this.api.merge).then(response=>{
+        console.log('unmerged')
+        resolve();
+      }, err=>{
+        reject(err);
+      })
+    })
+  }
+
+  private setIsMerged(nodes){
+    let merged = [];
+    if(nodes){
+       nodes.forEach(n=>{
+        if(n.merged.length > 0 && n.id == this.user.id){
+          merged = n.merged;
+        }
+      })
+    }
+    this.user.merged = merged;
+  }
+  public getUserForEdits(nodes){
+    // set 
+    this.setIsMerged(nodes);
+    return cloneDeep(this.user);
+
+  }
+
   private clearStorage(){
     this.nativeStorage.clear();
     localStorage.clear();
@@ -123,6 +152,7 @@ export class UserService {
   }
 
   private setUser(user: User){
+    console.log(user)
     this.user = this.setExternalUserData(user);
   } 
 

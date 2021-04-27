@@ -7,7 +7,8 @@ const routes: Routes = [
     path: 'tabs',
     component: TabsPage,
     children: [
-      {
+
+           {
         path: 'bubbles',
         loadChildren: () => import('./bubbles/bubbles.module').then( m => m.BubblesPageModule)
       },
@@ -22,12 +23,12 @@ const routes: Routes = [
       {
         path: 'profile',
         loadChildren: () => import('./profile/profile.module').then( m => m.ProfilePageModule)
-      },
-      {
-        path: '',
-        redirectTo: '/tabs/bubbles',
-        pathMatch: 'full'
       }
+      // {
+      //   path: '',
+      //   redirectTo: '/tabs/bubbles',
+      //   pathMatch: 'full'
+      // }
     ]
   },
   {

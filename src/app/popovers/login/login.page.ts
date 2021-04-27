@@ -32,7 +32,7 @@ export class LoginPage implements OnInit {
 
   private goToRoot(){
     this.bubbleCtrl.refresh().then(response=>{
-      this.router.navigateByUrl('/tabs');
+      this.router.navigate(['/tabs/bubbles'], {queryParams: {'refresh': true}});
     }, err=>{
       console.log(err);
     })
@@ -73,6 +73,7 @@ export class LoginPage implements OnInit {
           label: 'Email',
           name: 'email',
           id: 'email',
+          cssClass: 'medium',
           type: 'email',
           placeholder: 'Enter email for your account'
         },
@@ -80,6 +81,7 @@ export class LoginPage implements OnInit {
           label: 'Temporary Password',
           name: 'resetpw',
           id: 'resetpw',
+          cssClass: 'medium',
           type: 'password',
           placeholder: 'Enter temporary password'
         },
@@ -87,6 +89,7 @@ export class LoginPage implements OnInit {
           label: 'New Password',
           name: 'newpw',
           id: 'newpw',
+          cssClass: 'medium',
           type: 'password',
           placeholder: 'Enter new password'
         }
@@ -130,6 +133,7 @@ export class LoginPage implements OnInit {
           label: 'Email',
           name: 'email',
           id: 'email',
+          cssClass: 'medium',
           type: 'email',
           placeholder: 'Enter email for your account'
         }

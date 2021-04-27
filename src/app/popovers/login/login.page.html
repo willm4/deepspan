@@ -4,18 +4,21 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <div class="f-center">
+<ion-content scroll-x="false" scroll-y="false">
+  <div class="f-center-login" style="padding:16px;">
     <div style="width:100%; flex-direction:row; text-align: center;" *ngIf="currentPage == 'login'">
       <ion-item>
         <ion-label color="secondary"position="floating">EMAIL</ion-label>
-        <ion-input clear-input="true" color="secondary"[(ngModel)]="user.email"></ion-input>
+        <ion-input clear-input="true" color="medium"[(ngModel)]="user.email"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label color="secondary"position="floating">PASSWORD</ion-label>
-        <ion-input clear-input="true" color="secondary" type="password" [(ngModel)]="user.password"></ion-input>
+        <ion-input clear-input="true" color="medium" type="password" [(ngModel)]="user.password"></ion-input>
       </ion-item>
-      <div style="padding-top: 50px;">
+      <div style="padding-top: 25px;">
+        <ion-button  expand="block" fill="clear" color="secondary" (click)="login()">LOGIN</ion-button>
+      </div>
+      <div style="padding-top: 25px;">
         <ion-text size="small" color="medium">Don't have an account? </ion-text>
       </div>
       <ion-button color="secondary" fill="clear" size="small" (click)="switchPage('signup')">SIGN UP</ion-button>
@@ -28,25 +31,27 @@
     <div style="width:100%; flex-direction:row; text-align: center;" *ngIf="currentPage == 'signup'">
       <ion-item>
         <ion-label color="secondary"position="floating">NAME</ion-label>
-        <ion-input clear-input="true" color="secondary"[(ngModel)]="user.name"></ion-input>
+        <ion-input clear-input="true" color="medium"[(ngModel)]="user.name"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label color="secondary"position="floating">EMAIL</ion-label>
-        <ion-input clear-input="true" color="secondary"[(ngModel)]="user.email"></ion-input>
+        <ion-input clear-input="true" color="medium"[(ngModel)]="user.email"></ion-input>
       </ion-item>
       <ion-item>
         <ion-label color="secondary"position="floating">PASSWORD</ion-label>
-        <ion-input clear-input="true" color="secondary" type="password" [(ngModel)]="user.password"></ion-input>
+        <ion-input clear-input="true" color="medium" type="password" [(ngModel)]="user.password"></ion-input>
       </ion-item>
-      <div style="padding-top: 50px;">
+      <div style="padding-top: 25px;">
+        <ion-button expand="block" fill="clear" color="secondary" (click)="signup()">SIGN UP</ion-button>
+      </div>
+      <div style="padding-top: 25px;">
         <ion-text size="small" color="medium">Already have an account? </ion-text>
       </div>
       <ion-button color="secondary" fill="clear" size="small" (click)="switchPage('login')">LOGIN</ion-button>
     </div>
   </div>
 </ion-content>
-
+<!-- 
 <ion-footer class="ion-padding" color="light">
-  <ion-button *ngIf="currentPage == 'login'" expand="block" fill="clear" color="secondary" (click)="login()">LOGIN</ion-button>
-  <ion-button *ngIf="currentPage == 'signup'" expand="block" fill="clear" color="secondary" (click)="signup()">SIGN UP</ion-button>
-</ion-footer>
+
+</ion-footer> -->

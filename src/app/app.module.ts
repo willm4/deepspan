@@ -14,12 +14,13 @@ import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder } from '@ionic-native/native-geocoder/ngx';
 import { EditbubblePageModule } from './components/popovers/editbubble/editbubble.module';
+import { HiddenPageModule } from './popovers/hidden/hidden.module';
 
 
 @NgModule({
   declarations: [AppComponent],
   entryComponents: [],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, EditbubblePageModule],
+  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, HttpClientModule, EditbubblePageModule, HiddenPageModule],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   , HTTP
   , HttpClient

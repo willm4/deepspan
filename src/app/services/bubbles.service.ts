@@ -21,9 +21,122 @@ export class BubblesService {
     VALIDATED: 1,
     CURRENT_USER: 2
   }
-  
+
   constructor(private api: ApiService) { }
 
+
+  
+
+  private getMerged(primary, nodes){
+    let merged = [];
+    if(primary > 0){
+      nodes.forEach(n => {
+        if(n.primaryid == primary && n.primaryid != n.id){
+          merged.push(n);
+        }
+      });
+    }
+    return merged;
+  }
+
+  private primary(node) {
+    if (node.primaryid.Valid) {
+        return (node.primaryid.Int32)
+    } else {
+        return(-1) 
+    }
+  }
+
+  private generateNode(user: User){
+    return {id: user.id, label: user.avatarLabel,   shape: "circularImage", image: user.img, color: "#"+ user.avatarBackground, border: "#" + user.avatarBackground, primaryid: this.primary(user), merged: []}
+  }
+
+  public getNodes(){
+    let nodes = this.users.map(user => (this.generateNode(user)));
+    nodes.forEach((n:any)=>{
+      if(n.primaryid > 0){
+        n.merged = this.getMerged(n.primaryid, nodes);
+      }
+    });
+    return nodes
+  }
+
+  public getEdges(){
+    return this.bubbles.map(bubble => ({id: bubble.id, from: bubble.user1id, to: bubble.user2id, arrows: 'to'}));
+  }
+
+  public getPrimaries(nodes){
+    var primaries = new Set()
+    for (var i=0; i < nodes.length; i++) {
+        if ((nodes[i].primaryid > 0) && (nodes[i].id == nodes[i].primaryid)) {
+            primaries.add(nodes[i]);
+        }
+    }
+    return primaries;
+  }
+
+  private indexfromnodeid(nodes,nodeid) {
+    return (nodes.findIndex((element, index) => { if (element.id == nodeid){ return true}}, nodeid))
+  }
+
+
+  public cleanGraph (nodes,edges, userid) {
+    for (var i = 0; i < nodes.length; i++){
+      let obj = nodes[i];
+        if(obj){
+          obj.flag = false
+          nodes[i] = obj;
+        }
+    }
+    let stack = []
+    let n = this.indexfromnodeid(nodes,userid)
+    stack.push(n)
+    while (stack.length > 0) {
+        n = stack.pop()
+        if (!nodes[n].flag) {
+            nodes[n].flag = true
+            for (var e = 0; e < edges.length; e++) {
+              let edge = edges[e];
+              if(edge){
+                let nto = this.indexfromnodeid(nodes,edge.to)
+                let nfrom = this.indexfromnodeid(nodes,edge.from)
+                if ((edge.from == nodes[n].id) && (!nodes[nto].hidden)) {
+                    stack.push(nto)
+                } else if ((edge.to == nodes[n].id) && (!nodes[nfrom].hidden)) {
+                    stack.push(nfrom)
+                }
+              }
+            }
+        }
+    }
+    for (i = 0; i < nodes.length; i++){
+        let obj = nodes[i]
+        if (obj && !obj.flag) {                
+            obj.hidden = true
+        }
+    }
+    return {
+      nodes: nodes,
+      edges: edges
+    }
+  }
+
+  public getOptions(){
+    return {
+      nodes:{
+          borderWidth: 5,
+          font: '15px SFPRO #222428',
+          color: {
+              background: '#50c8ff',
+              highlight: {
+                  background: '#62ceff'
+              }
+          }
+      }
+    }
+  }
+
+  
 
   public removeBubble(id: number){ // user id
     return new Promise((resolve,reject)=>{
@@ -37,12 +150,26 @@ export class BubblesService {
     })
   }
 
+   submitMerge(email: any, password: any){
+    let params = JSON.stringify({
+      email: email,
+      password: password
+    });
+    return new Promise((resolve,reject)=>{
+      this.api.post(this.api.merge, params).then(()=>{
+        resolve();
+      }, err=>{
+        console.log(err);
+        reject(err);
+      })
+    })
+  }
+
   public addBubble(bubble: any){
     return new Promise((resolve,reject)=>{
       // let params = {members: [{email: bubble.email, name: bubble.name, userstatus: bubble.userStatusName.value}]};
-      console.log(bubble)
       let params = '{"members": [{"email": "' + bubble.email +'","name": "'+ bubble.name + '","userstatus": '+ bubble.userStatusName.value + ',"creatorestimate": { "Int32": ' + bubble.creatorestimate.Int32 +  ', "Valid":true}}]}'
-      console.log(params)
+      
       this.api.post(this.api.addBubbles, params).then(response=>{
         this.refresh().then(()=>{
           resolve();
@@ -58,7 +185,6 @@ export class BubblesService {
     return new Promise((resolve)=>{
       this.api.get(this.api.userGraph).then((response: any)=>{
         let promises = [];
-        console.log(response)
         response.forEach(u=>{
           let user = new User(u);
           let promise =  user.setGravarImg().then(()=>{
@@ -66,6 +192,7 @@ export class BubblesService {
           });
           promises.push(promise);
         });
+        console.log('setting users')
         Promise.all(promises).then(()=>{
           this.users = users;
           resolve();

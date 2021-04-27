@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { PopoverController, NavParams, ToastController } from '@ionic/angular';
+import { PopoverController, NavParams, ToastController, AlertController } from '@ionic/angular';
 import { AppService } from 'src/app/services/app.service';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { User } from 'src/app/classes/user';
@@ -63,13 +63,67 @@ export class EditbubblePage implements OnInit {
   editIsNew: boolean = false;
   editIsZombie: boolean = false;
   editIsDirect: boolean = false;
+  merged: boolean = false;
   node: any;
-  constructor(private popoverCtrl: PopoverController, private toastCtrl: ToastController, private params: NavParams, public bubbleCtrl: BubblesService, public userCtrl: UserService) { 
+  isMerged: boolean = false;
+  constructor(private popoverCtrl: PopoverController
+    , private toastCtrl: ToastController
+    , private params: NavParams
+    , public bubbleCtrl: BubblesService
+    , public userCtrl: UserService
+    , private alertCtrl: AlertController) { 
 
   }
 
   ngOnInit() {
     this.init();
+  }
+
+  async openMerge(){
+    const alert = await this.alertCtrl.create({
+      cssClass: 'my-custom-class',
+      header: 'Merge ' + this.userRaw.name,
+      inputs: [
+        {
+          name: 'email',
+          type: 'email',
+          placeholder:'Enter email',
+          disabled: true,
+          value: this.userRaw.email
+        },
+        {
+          name: 'password',
+          type: 'password',
+          placeholder:'Enter password'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: (blah) => {
+          }
+        }, {
+          text: 'Merge',
+          handler: (data) => {
+            if(data.password){
+              this.bubbleCtrl.submitMerge(this.userRaw.email, data.password).then(()=>{
+                this.promptToast('Merge with ' + this.userRaw.email + " successful!", "success");
+                this.merged = true;
+              }, err=>{
+                this.promptToast("Merge failed - server error", "danger")
+              })
+            }
+            else{
+              this.promptToast("Merge failed - password missing", "danger")
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
   toggleHidden(){
@@ -79,7 +133,6 @@ export class EditbubblePage implements OnInit {
   setCanEdit(user: any, node: any, isScenario: boolean = false){
     this.editIsNew = false;
     this.editIsMe = this.userCtrl.user.id == node.id;
-    console.log(user)
     this.editIsZombie =  (node.id != -1) && (user.role.Int32 == -2) && (user.creatorid.Valid) && (user.creatorid.Int32 == this.userCtrl.user.id)
     this.editIsDirect = (this.bubbleCtrl.bubbles.some(e => ((e.user1id == this.userCtrl.user.id) && (e.user2id == user.id)) || ((e.user2id == this.userCtrl.user.id) && (e.user1id == user.id))))
     this.disabled.scenario = isScenario;
@@ -89,13 +142,14 @@ export class EditbubblePage implements OnInit {
   }
 
   setDisabledFields(){
-    this.disabled.name = !this.editIsNew && !this.editIsMe && !this.editIsZombie;
-    this.disabled.email    = !this.editIsNew && !this.editIsMe;
-    this.disabled.status = !this.editIsNew && !this.editIsMe && !this.editIsZombie;
-    this.disabled.estimate = !this.editIsNew && !this.editIsZombie;
-    this.disabled.add = !this.editIsNew && (this.editIsMe || this.editIsDirect)
-    this.disabled.delete = !this.editIsDirect || this.editIsMe;
-    this.disabled.update = !this.editIsMe && !this.editIsZombie;
+    this.disabled.name     = this.isMerged || (!this.editIsNew && !this.editIsMe && !this.editIsZombie);
+    this.disabled.email    = this.isMerged || (!this.editIsNew && !this.editIsMe);
+    this.disabled.status   = this.isMerged || (!this.editIsNew && !this.editIsMe && !this.editIsZombie);
+    this.disabled.estimate = this.isMerged || (!this.editIsNew && !this.editIsZombie);
+    this.disabled.add      = this.isMerged || (!this.editIsNew && (this.editIsMe || this.editIsDirect))
+    this.disabled.delete   = this.isMerged || (!this.editIsDirect || this.editIsMe);
+    this.disabled.update   = this.isMerged || (!this.editIsMe && !this.editIsZombie);
+    this.disabled.merge    = this.isMerged || (this.editIsNew || this.disabled.scenario || this.editIsMe);
   }
 
   findEdge(id1, id2) {
@@ -104,27 +158,62 @@ export class EditbubblePage implements OnInit {
   };
 
 
+  async openMerged(node: any){ // {id, name}
+  let user = new User();
+   if(node){
+     let users = this.bubbleCtrl.users.filter(u=>{
+       return u.id == node.id
+     });
+     if(users && users.length > 0){
+       user = this.userCtrl.setExternalUserData(users[0]);
+     }
+   }
+   if(node){
+     node.merged = [];
+     const popover = await this.popoverCtrl.create({
+       component: EditbubblePage,
+       showBackdrop: true,
+       componentProps:{
+         node: node,
+         user: user,
+         isMerged: true
+       }
+     });
+     await popover.present();
+     await popover.onDidDismiss().then((response: any)=>{
+
+     })
+   }
+ }
+
+
   init(){
     this.isEdit = false;
+    this.merged = false;
     let isScenario = this.params.get('isScenario');
     let node = this.params.get('node');//{id, name}
     let user = this.params.get('user');
+    if(this.params.get('isMerged')){
+      this.isMerged = this.params.get('isMerged')
+    }
     if(node && user){
       this.node = node;
       this.bubid = node.id;
-      this.img = node.image;
+      //this.img = node.image;
       this.userRaw = cloneDeep(user);
       this.userEdits = cloneDeep(user);
       this.isEdit = true;
       this.setCanEdit(user, node, isScenario);
     }
     else{
+      //this.img = 'https://ui-avatars.com/api/?background=D9D9D9'
       this.editIsMe = false;
       this.editIsNew = true;
       this.editIsDirect = false;
       this.editIsZombie = false;
       this.setDisabledFields();
     }
+    this.updateImg();
   }
 
   async promptToast(message: string, color: string){
@@ -137,12 +226,30 @@ export class EditbubblePage implements OnInit {
           text: 'OK',
           role: 'cancel',
           handler: () => {
-            console.log('Cancel clicked');
           }
         }
       ]
     });
     toast.present();
+  }
+
+  updateImg(){
+    if(this.node && !this.node.image.includes('https://ui-avatars.com')){
+      this.img = this.node.image
+    }
+    else{
+      let avatarLabel = this.userEdits.name && this.userEdits.name.length > 0
+      ? this.userEdits.name.replace(/ .*/,'')
+      : '?';
+      let avatarTxt = this.userEdits.name && this.userEdits.name.length > 0
+      ? this.userEdits.name.length >= 2
+        ? this.userEdits.name.split(' ').slice(0,2).join('+')
+        : avatarLabel
+      : '?'
+      this.img = 'https://ui-avatars.com/api/?name=' + avatarTxt + '&background=' + (this.node ? this.node.color.substring(1) : 'D9D9D9')
+    }
+    console.log('changed')
+    
   }
 
   canSave(){
@@ -165,7 +272,7 @@ export class EditbubblePage implements OnInit {
               this.promptToast("Bubble for " + this.userEdits.name + " added successfully!", 'success' );
               this.close(true);
             },err=>{
-              this.promptToast("Oops, there was an error adding the bubble. Please try again. ", 'danger' );
+              this.promptToast("Oops, there was an error  bubble. Please try again. " + err, 'danger' );
             })
           }
           else{
@@ -174,7 +281,6 @@ export class EditbubblePage implements OnInit {
         }
         else{
           if(!this.editIsMe && !this.editIsZombie){
-            console.log('closing');
             this.close();
           }
           else{
@@ -187,7 +293,6 @@ export class EditbubblePage implements OnInit {
               if(this.hideNode){
                 this.close();
               }
-              console.log(err);
               this.promptToast("Error updating " + this.userRaw.name + '.', 'danger' );
             });
           }
@@ -220,7 +325,6 @@ export class EditbubblePage implements OnInit {
 
   delete(){
     let edgeid = this.findEdge(this.userCtrl.user.id, this.node.id);
-    console.log(edgeid)
     if(edgeid == -1){
       this.subtract();
     }
@@ -252,6 +356,7 @@ export class EditbubblePage implements OnInit {
   }
 
   dismissPopover(hasChanges: boolean){
+    hasChanges = hasChanges || this.merged;
     this.popoverCtrl.dismiss({'hasChanges':hasChanges, hideNode: this.hideNode });
   }
 
