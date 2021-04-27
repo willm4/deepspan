@@ -2,6 +2,11 @@
   <ion-toolbar color="secondary">
     <img slot="start" style="border-radius: 50%; width:32px; height:32px; margin-left:4px; margin-right: 4px;" [src]="userCtrl.user.img">
     <ion-title>PROFILE</ion-title>
+    <ion-buttons slot="end">
+      <ion-button  (click)="refresh()">
+        <ion-icon slot="icon-only" name="refresh-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
@@ -9,8 +14,8 @@
   <ion-list lines="none">
     <ion-list-header color="light">
       <ion-label class="list-header-margin">PROFILE</ion-label>
-      <ion-button class="list-header-margin" *ngIf="!isEditing" size="small" (click)="edit()">EDIT</ion-button>
-      <ion-button class="list-header-margin" *ngIf="isEditing" size="small" (click)="cancel()">CANCEL</ion-button>
+      <ion-button class="list-header-margin" *ngIf="!isEditing" size="small"color="secondary" (click)="edit()">EDIT</ion-button>
+      <ion-button class="list-header-margin" *ngIf="isEditing" size="small" color="medium" (click)="cancel()">CANCEL</ion-button>
       <ion-button class="list-header-margin" *ngIf="isEditing" size="small" color="success" (click)="save()">SAVE</ion-button>
     </ion-list-header>
     <ion-item>
@@ -31,7 +36,7 @@
       </ion-select>
     </ion-item>
     <ion-item>
-      <ion-button o class="list-header-margin" size="small" (click)="resetPassword()">RESET PASSWORD</ion-button>
+      <ion-button class="list-header-margin" size="small"  fill="clear" color="secondary" (click)="resetPassword()">RESET PASSWORD</ion-button>
     </ion-item>
     <!-- <ion-item>
       <ion-label>LOCATION</ion-label>
@@ -80,8 +85,19 @@
       <ion-label>LOGGED IN AS</ion-label>
       <ion-note slot="end" color="medium">{{userCtrl.user.email}}</ion-note>
     </ion-item>
+    <ion-item *ngIf="userCtrl.user.merged && userCtrl.user.merged.length > 0">
+      <ion-label>MERGED WITH</ion-label>
+      <ion-note *ngIf="userCtrl.user.merged && userCtrl.user.merged.length > 0" slot="end" color="medium" style="display: flex; flex-direction:row;">
+        <div style="padding-left: 5px; padding-right:5px;" *ngFor="let m of userCtrl.user.merged">
+          <img (click)="openMerged(m)"  style="height:25px; width:25px; border-radius:50%" [src]="m.image">
+        </div>
+      </ion-note>
+      <ion-button *ngIf="userCtrl.user.merged && userCtrl.user.merged.length > 0" slot="end" size="small" fill="clear" color="secondary" (click)="openUndoMerge()">
+        <ion-icon name="settings-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
     <ion-item style="text-align: center;">
-      <ion-button color="danger" expand="block" style="width:100%;" fill="clear" (click)="logout()"><ion-icon name="log-out-outline"></ion-icon> LOGOUT</ion-button>
+      <ion-button color="secondary" fill="clear" expand="block" style="width:100%;" fill="clear" (click)="logout()"><ion-icon name="log-out-outline"></ion-icon> LOGOUT</ion-button>
     </ion-item>
   </ion-list>
 </ion-content>

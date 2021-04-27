@@ -9,8 +9,9 @@ import { UserService } from 'src/app/services/user.service';
 import { BubblesService } from 'src/app/services/bubbles.service';
 import { EditbubblePage } from 'src/app/components/popovers/editbubble/editbubble.page';
 import { User } from 'src/app/classes/user';
+import { HiddenPage } from 'src/app/popovers/hidden/hidden.page';
 declare var vis: any;
-
+import * as cloneDeep from 'lodash/cloneDeep';
 
 
 @Component({
@@ -23,6 +24,7 @@ export class ScenariosPage implements OnDestroy {
   nodes: Array<any> = new Array<any>();
   edges: Array<any> = new Array<any>();
   bubChartHeight: string = '100px';
+  hidden: Array<any> = new Array<any>(); 
 
   @ViewChild("scenarioschart") bubbleschart: ElementRef;
   @ViewChild("scenarioschartcontainer") bubchartcontainer: ElementRef;
@@ -45,20 +47,7 @@ export class ScenariosPage implements OnDestroy {
     , public popoverCtrl:PopoverController
     , private alertCtrl:AlertController
     , private toastCtrl: ToastController) { 
-      this.router.events.subscribe((event: NavigationEnd)=>{
-        if(event.url && event.url.includes('/tabs') && this.router.getCurrentNavigation().extractedUrl){
-          if(!this.gettingData){
-            this.gettingData = true;
-            setTimeout(()=>{
-              this.initialize();
-            }, 2000)
-            setTimeout(()=>{
-              this.gettingData = false;
-            }, 5000)
-          }
-          this.resetEdits();
-        }
-      })
+        this.resetEdits();
   }
 
   ngOnDestroy(){
@@ -97,7 +86,7 @@ export class ScenariosPage implements OnDestroy {
         this.newEmail = null;
         this.handleProposed(data);
       }, err=>{
-        //this.promptToast("Error adding " + this.newEmail + " " + err, "danger");
+        this.promptToast("Error adding " + this.newEmail + ". err: 'email not found' ", "danger");
         console.log(err);
       })
     }
@@ -124,6 +113,7 @@ export class ScenariosPage implements OnDestroy {
 
   handleProposed(data:any){
     let projected = data;
+    console.log(data)
     projected["riskRate"] = "1 in " + ((data.total > 0) ? (data.total / data.riskier).toFixed(1).toString() : "0");
     this.projected = projected;
   }
@@ -146,6 +136,7 @@ export class ScenariosPage implements OnDestroy {
       this.refreshBubbles()
     }
     else{
+      this.hidden = new Array<any>();
       this.drawBubbles();
     }
   }
@@ -153,7 +144,7 @@ export class ScenariosPage implements OnDestroy {
   refreshBubbles(){
     this.resetEdits();
     this.bubbleCtrl.refresh().then(response=>{
-      this.app.statuses.push('refreshed bubble data');
+      this.hidden = new Array<any>();
       this.drawBubbles();
     }, err=>{
       console.log(err);
@@ -162,105 +153,86 @@ export class ScenariosPage implements OnDestroy {
 
   hideNode(i) { 
     let obj = this.graphdata.nodes.get(i);
-    obj.hidden = true
+    obj.hidden = true;
+    this.hidden.push(obj);
     this.graphdata.nodes[i] = obj;
     this.cleanGraph();
   }
 
-  indexfromnodeid(nodeid) {
-    return (this.nodes.findIndex((element, index) => { if (element.id == nodeid){ return true}}, nodeid))
+  unhideNode(i) { 
+    let obj = this.graphdata.nodes.get(i);
+    obj.hidden = false
+    console.log(obj);
+    this.graphdata.nodes[i] = obj;
+    this.cleanGraph();
   }
 
   cleanGraph () {
-    // console.log("==Reset Visited Flags")
-    for (var i = 0; i < this.nodes.length; i++){
-      let obj = this.nodes[i];
-        if(obj){
-          obj.flag = false
-          this.nodes[i] = obj;
-        }
-    }
-    // console.log("==DFS")
-    //DFS walk from user to mark up graph that is visible, everything unflagged is separated from user
-    let stack = []
-    let n = this.indexfromnodeid(this.userCtrl.user.id)
-    // console.log("push: ", n)
-    stack.push(n)
-    while (stack.length > 0) {
-        n = stack.pop()
-        // console.log("pop: ", n, ", ", this.nodes[n].label)
-        if (!this.nodes[n].flag) {
-            this.nodes[n].flag = true
-            // console.log("visited: ", n, ", ", this.nodes[n].label)
-            for (var e = 0; e < this.edges.length; e++) {
-              let edge = this.edges[e];
-              if(edge){
-                let nto = this.indexfromnodeid(edge.to)
-                let nfrom = this.indexfromnodeid(edge.from)
-                if ((edge.from == this.nodes[n].id) && (!this.nodes[nto].hidden)) {
-                    // console.log("To push: ", nto, ", ", this.nodes[nto].label)
-                    stack.push(nto)
-                } else if ((edge.to == this.nodes[n].id) && (!this.nodes[nfrom].hidden)) {
-                    // console.log(nodes"From push: ", nfrom, ", ", this.nodes[nfrom].label)
-                    stack.push(nfrom)
-                }
-              }
-            }
-        }
-    }
-    // console.log("==Clean Pass")
-    //second pass to clean all unflagged
-    for (i = 0; i < this.nodes.length; i++){
-        let obj = this.nodes[i]
-        // console.log("nodestat: ", obj.label, " = ",obj.flag ? "flagged" : "unflagged")
-        if (obj && !obj.flag) {                
-            obj.hidden = true
-        }
-    }
+    let cleanData = this.bubbleCtrl.cleanGraph(this.nodes,this.edges,this.userCtrl.user.id);
     this.graphdata = {
-      nodes: new vis.DataSet(this.nodes),
-      edges: new vis.DataSet(this.edges)
+      nodes: new vis.DataSet(cleanData.nodes),
+      edges: new vis.DataSet(cleanData.edges)
     };
     this.drawBubbles(false);
   }
+  
+  clusterbyprimary() {
+    var primaries = new Set()
+    for (var i=0; i < this.nodes.length; i++) {
+        if ((this.nodes[i].primaryid > 0) && (this.nodes[i].id == this.nodes[i].primaryid)) {
+            primaries.add(this.nodes[i]);
+        }
+    }
 
+    var clusterOptionsByData;
+    for (let primary of primaries) {
+        let pstr = primary['primaryid'].toString() + " #"  //vis.js needs this
+        let node = cloneDeep(primary);
+        node.id = pstr;
+        clusterOptionsByData = {
+          joinCondition:  (childOptions)=> {
+              return childOptions.primaryid == primary['primaryid'];
+          },
+          clusterNodeProperties: node
+        };
+        this.network.cluster(clusterOptionsByData);
+    }
+  
+  }
+    
   resetBubbleData(){
-    this.nodes = this.bubbleCtrl.users.map(user => ({id: user.id, label: user.avatarLabel,   shape: "circularImage", image: user.img, color: "#"+ user.avatarBackground, border: "#" + user.avatarBackground}));
-    this.edges = this.bubbleCtrl.bubbles.map(bubble => ({id: bubble.id, from: bubble.user1id, to: bubble.user2id, arrows: 'to'}));
+    this.hidden = new Array<any>();
+    this.nodes = this.bubbleCtrl.getNodes();
+    this.edges = this.bubbleCtrl.getEdges()
     this.graphdata = {
         nodes: new vis.DataSet(this.nodes),
         edges: new vis.DataSet(this.edges)
     };
-    this.options = {
-      nodes:{
-          borderWidth: 5,
-          font: '15px SFPRO #222428',
-          color: {
-              background: '#50c8ff',
-              highlight: {
-                  background: '#62ceff'
-              }
-          }
-      }
-    }
+    this.options = this.bubbleCtrl.getOptions();
   }
+
   drawBubbles(resetData: boolean = true){
-    if(resetData){
+    if(resetData || this.nodes.length == 0){
       this.resetBubbleData();
     }
     if(this.network){
       this.network.destroy();
     }
     this.network = new vis.Network(this.bubbleschart.nativeElement, this.graphdata, this.options);
+    this.clusterbyprimary();
 
-  
-    this.network.on( 'click', (properties)=> {
+    this.network.on( 'selectNode', (properties)=> {
       var ids = properties.nodes;
-      var clickedNodes = this.graphdata.nodes.get(ids);
-     this.editNode(clickedNodes[0])
+      if(ids && ids.length > 0){
+        let id = ids[0];
+        if(typeof id == 'string'){
+          id = Number(id.replace(' #', ""));
+        }
+        let clickedNode = this.graphdata.nodes.get(id);
+        this.editNode(clickedNode)
+      }
      //this.hideNode(ids[0]);
     });
-    this.app.statuses.push('bub chart height ' + this.bubchartcontainer.nativeElement.scrollHeight)
     let chartHeight = this.bubchartcontainer.nativeElement.scrollHeight;
     if(this.chartHeightCheckInterval ){
       clearInterval(this.chartHeightCheckInterval );
@@ -303,36 +275,42 @@ export class ScenariosPage implements OnDestroy {
      });
      await popover.present();
      await popover.onDidDismiss().then((response: any)=>{
-       console.log(response.data);
-       if(response.data.hasChanges){
-         if(response.data.hideNode){
-           this.hideNode(node.id)
-         }
-         else{
-           this.drawBubbles();
-         }
-       }
-       else if(response.data.hideNode){
+       if(response.data && response.data.hideNode){
          this.hideNode(node.id)
        }
      })
    }
  }
 
- async addBubble(){
-   const popover = await this.popoverCtrl.create({
-     component: EditbubblePage,
-     showBackdrop: true,
-     componentProps:{
-     }
-   });
-   await popover.present();
-   await popover.onDidDismiss().then((response: any)=>{
-     if(response.data.hasChanges){
-       this.drawBubbles();
-     }
-   })
- }
+ async viewHidden(){
+  const popover = await this.popoverCtrl.create({
+    component: HiddenPage,
+    showBackdrop: true,
+    componentProps:{
+      hidden: cloneDeep(this.hidden)
+    }
+  });
+  await popover.present();
+  await popover.onDidDismiss().then((response: any)=>{
+    console.log(response.data);
+    if(response.data && response.data.hasChanges){
+      let newHidden = new Array<any>();
+      let hidden = response.data.hidden;
+      for(var i = 0; i < hidden.length; i++){
+        if(!hidden[i].hidden){
+          this.unhideNode(hidden[i].id);
+        }
+        else{
+          newHidden.push(hidden[i]);
+        }
+      }
+      console.log(newHidden)
+      this.hidden = newHidden;
+      this.drawBubbles();
+    }
+  })
+}
+
 
 
 

@@ -2,11 +2,14 @@
   <ion-toolbar color="secondary">
     <ion-buttons slot="start">
       <ion-button  (click)="addBubble()">
-        <ion-icon slot="icon-only" name="add-circle-outline"></ion-icon>
+        <ion-icon name="add-circle-outline"></ion-icon> 
       </ion-button>
     </ion-buttons>
     <ion-title>BUBBLES</ion-title>
     <ion-buttons slot="end">
+      <ion-button  (click)="viewHidden()">
+        <ion-icon name="eye-off-outline"></ion-icon> {{hidden.length}}
+      </ion-button>
       <ion-button  (click)="refreshBubbles()">
         <ion-icon slot="icon-only" name="refresh-circle-outline"></ion-icon>
       </ion-button>

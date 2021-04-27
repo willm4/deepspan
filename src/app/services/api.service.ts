@@ -5,7 +5,7 @@ import { HttpClient, HttpHeaders } from  '@angular/common/http';
 import { Platform } from '@ionic/angular';
 import axios from 'axios';
 import { NativeStorage } from '@ionic-native/native-storage/ngx';
-
+declare var $ : any;
 @Injectable({
   providedIn: 'root'
 })
@@ -53,6 +53,8 @@ export class ApiService {
   public addProjected: string = this.path  + "users/graph/add";
   public subtractProjected: string = this.path  + "users/graph/subtract";
 
+  // MERGE
+  public merge: string = this.path + 'primary';
   constructor(private http: HTTP, private httpClient: HttpClient, public platform: Platform, private storage: NativeStorage) { }
 
 
@@ -126,6 +128,18 @@ export class ApiService {
         }
         else{
           this.http.setDataSerializer("json");
+          // let IS_JSON = true;
+          // try
+          // {
+          //         var json = JSON.parse(params);
+          // }
+          // catch(err)
+          // {
+          //         IS_JSON = false;
+          // } 
+          // if(IS_JSON){
+          //   params = JSON.parse(params);
+          // }
           this.http.put(path, params, header).then(response=>{
             resolve(response.data);
           }, err=>{
@@ -143,12 +157,24 @@ export class ApiService {
           axios.post(path,params,header).then(response =>{
               resolve(response.data);
             }, err=>{
-              reject(err.message)
-              console.log(err)
+              reject(err.error)
+              console.log(err.error)
             });
         }
         else{
           this.http.setDataSerializer("json");
+          // let IS_JSON = true;
+          // try
+          // {
+          //         var json = JSON.parse(params);
+          // }
+          // catch(err)
+          // {
+          //         IS_JSON = false;
+          // } 
+          // if(IS_JSON){
+          //   params = JSON.parse(params);
+          // }
           this.http.post( path, params, header).then(response=>{
             resolve(JSON.parse(response.data));
           }, err=>{

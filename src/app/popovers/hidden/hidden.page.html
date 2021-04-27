@@ -1,0 +1,25 @@
+<ion-grid>
+  <ion-row>
+    <ion-col style="text-align: center;"><b>HIDDEN BUBBLES</b></ion-col>
+  </ion-row>
+  <ion-row *ngIf="!(hidden && hidden.length > 0)">
+    <ion-col style="text-align: center;"><ion-note color="medium">there are currently no hidden bubbles</ion-note></ion-col>
+  </ion-row>
+  <ion-list lines="none" *ngIf="hidden && hidden.length > 0">
+    <ion-item *ngFor="let h of hidden">
+      <ion-avatar slot="start">
+        <img [src]="h.image">
+      </ion-avatar>
+      <ion-label color="medium">{{h.label}}</ion-label>
+      <!-- <ion-buttons slot="end">
+        <ion-button [color]="h.hidden ? 'medium' : 'primary'">
+          <ion-icon size="large" [name]="h.hidden ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+        </ion-button>
+      </ion-buttons> -->
+    </ion-item>
+  </ion-list>
+  <ion-row>
+    <ion-col *ngIf="hidden && hidden.length > 0"><ion-button color="secondary" fill="clear" expand="block" size="small" (click)="close(true,true)">UNHIDE NODES</ion-button></ion-col>
+    <ion-col><ion-button color="medium" fill="clear" expand="block" size="small" (click)="close()">{{!(hidden && hidden.length > 0) ? 'Close' : 'Cancel'}}</ion-button></ion-col>
+  </ion-row>
+</ion-grid>

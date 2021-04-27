@@ -22,6 +22,10 @@ const routes: Routes = [
     path: 'editbubble',
     loadChildren: () => import('./components/popovers/editbubble/editbubble.module').then( m => m.EditbubblePageModule)
   },
+  {
+    path: 'hidden',
+    loadChildren: () => import('./popovers/hidden/hidden.module').then( m => m.HiddenPageModule)
+  },
 ];
 @NgModule({
   imports: [

@@ -56,6 +56,7 @@ export class User {
   img: string =  "https://ui-avatars.com/api/?name=?";
   avatarBackground: string = "97C2FC"
   primaryid: any;
+  merged: Array<any> = new Array<any>();
 
   constructor(data: any = null) { 
     if(data){
@@ -81,6 +82,7 @@ export class User {
       this.userstatus = data.userstatus;
       this.creatorestimate = data.creatorestimate;
       this.img = data.img;
+      this.merged = data.merged;
       this.avatarLabel = this.name && this.name.length > 0
       ? this.name.replace(/ .*/,'')
       : '';

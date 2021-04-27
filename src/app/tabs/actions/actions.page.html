@@ -11,7 +11,9 @@
 
 <ion-content>
   <div *ngIf="!actionCtrl.actions">No actions found. Refresh to check actions.</div>
+
 <ion-list>
+  
 
   <ion-item-sliding *ngFor="let a of actionCtrl.actions; let i = index">
 
@@ -24,19 +26,19 @@
           <h3>{{a.text}}</h3>
         </div>
         <div style="display: flex; flex-direction: row;">
-          <ion-button color="success" size="small"  *ngIf="a.actiontype == actionCtrl.actionTypes.ACTION_INVITE_RECEIVED" (click)="updateAction(a,2 )">ACCEPT</ion-button>
-          <ion-button color="light" size="small"  *ngIf="a.actiontype == actionCtrl.actionTypes.ACTION_INVITE_RECEIVED" (click)="updateAction(a, 1)">DECLINE</ion-button>
-          <ion-button color="light" size="small" *ngIf="a.actiontype == actionCtrl.actionTypes.ACTION_INVITE_SENT" (click)="updateAction(a,0)">REINVITE</ion-button>
+          <ion-button color="secondary" fill="clear" size="small"  *ngIf="a.actiontype == actionCtrl.actionTypes.ACTION_INVITE_RECEIVED" (click)="updateAction(a,2 )">ACCEPT</ion-button>
+          <ion-button color="danger"  fill="clear" size="small"  *ngIf="a.actiontype == actionCtrl.actionTypes.ACTION_INVITE_RECEIVED" (click)="updateAction(a, 1)">DECLINE</ion-button>
+          <ion-button color="secondary"   fill="clear" size="small" *ngIf="a.actiontype == actionCtrl.actionTypes.ACTION_INVITE_SENT" (click)="updateAction(a,0)">REINVITE</ion-button>
         </div>
       </ion-label>
       <ion-note slot="end" style="font-size:xx-small;">
         {{a.dateLabel}}
       </ion-note>
-      <ion-button slot="end" color="dark" fill="none" size="small" *ngIf="a.actiontype != actionCtrl.actionTypes.ACTION_INVITE_RECEIVED" (click)="deleteAction(a)">X</ion-button>
+      <ion-button slot="end" color="medium" fill="clear" size="small" *ngIf="a.actiontype != actionCtrl.actionTypes.ACTION_INVITE_RECEIVED" (click)="deleteAction(a)">X</ion-button>
     </ion-item>
 
     <ion-item-options side="end" *ngIf="a.actiontype != actionCtrl.actionTypes.ACTION_INVITE_RECEIVED">
-      <ion-item-option color="light"  (click)="deleteAction(a)">{{a.actiontype == actionCtrl.actionTypes.ACTION_INVITE_SENT ? 'UNDO' : 'DISMISS'}}</ion-item-option>
+      <ion-item-option color="medium" fill="clear"  (click)="deleteAction(a)">{{a.actiontype == actionCtrl.actionTypes.ACTION_INVITE_SENT ? 'UNDO' : 'DISMISS'}}</ion-item-option>
     </ion-item-options>
   </ion-item-sliding>
 

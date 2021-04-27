@@ -2,8 +2,17 @@
   <ion-grid>
     <ion-row>
       <ion-col style="text-align: center;">
-        <img *ngIf="isEdit" [src]="img" style="height:50px; width:50px; border-radius: 50% ">
+        <img  [src]="img" style="height:50px; width:50px; border-radius: 50% ">
         <h3 style="margin-top: 0px !important; padding-top:0px !important;"><b>{{isEdit ? userRaw.name : 'ADD NEW BUBBLE'}}</b></h3>
+        <div *ngIf="!editIsNew && node.merged.length > 0" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+          <!-- <ion-text size="small" color="medium">MERGED WITH</ion-text> -->
+          <div style="display: flex; flex-direction: row; padding-top: 5px;" >
+            <div *ngFor="let m of node.merged" style="display: flex; flex-direction: column; align-items: center; padding-left:10px; padding-right: 10px;" (click)="openMerged(m)">
+              <img *ngIf="isEdit" [src]="m.image" style="height:25px; width:25px; border-radius: 50% ">
+              <div style="font-size: 10px !important">{{m.label}}</div>
+            </div>
+          </div>
+        </div>
       </ion-col>
     </ion-row>
   </ion-grid>
@@ -16,54 +25,57 @@
     <ion-row>
       <ion-col>
         <ion-item>
-          <ion-label position="floating">EMAIL</ion-label>
-          <ion-input [disabled]="disabled.email" clear-input="true"  placeholder="ENTER EMAIL..." type="email" [(ngModel)]="userEdits.email"></ion-input>
+          <ion-label position="floating" [color]="disabled.email ? 'primary' : 'secondary'">EMAIL</ion-label>
+          <ion-input [disabled]="disabled.email" [color]="disabled.email ? 'dark': 'medium'" clear-input="true"  placeholder="ENTER EMAIL..." type="email" [(ngModel)]="userEdits.email"></ion-input>
+        </ion-item> 
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-item>
+          <ion-label position="floating" [color]="disabled.name ? 'primary' : 'secondary'">NAME</ion-label>
+          <ion-input (ionChange)="updateImg()" [disabled]="disabled.name" [color]="disabled.name ? 'dark': 'medium'" color="medium" clear-input="true"  placeholder="ENTER NAME..." type="string" [(ngModel)]="userEdits.name"></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col>
         <ion-item>
-          <ion-label position="floating">NAME</ion-label>
-          <ion-input [disabled]="disabled.name" clear-input="true"  placeholder="ENTER NAME..." type="string" [(ngModel)]="userEdits.name"></ion-input>
-        </ion-item>
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col>
-        <ion-item>
-          <ion-label position="floating">STATUS</ion-label>
-          <ion-select [disabled]="disabled.status" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
-            <ion-select-option *ngFor="let s of userCtrl.userStatusDict" [value]="s">{{s.name}}</ion-select-option>
+          <ion-label position="floating" [color]="disabled.status ? 'primary' : 'secondary'">STATUS</ion-label>
+          <ion-select [disabled]="disabled.status" [color]="disabled.status ? 'dark': 'medium'" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
+            <ion-select-option *ngFor="let s of userCtrl.userStatusDict" color="medium" [value]="s">{{s.name}}</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-col>
-    </ion-row>
-    <ion-row>
       <ion-col>
         <ion-item>
-          <ion-label position="floating">ESTIMATE</ion-label>
-          <ion-input [disabled]="disabled.estimate" type="number" [(ngModel)]="userEdits.creatorestimate.Int32"></ion-input>
+          <ion-label position="floating" [color]="disabled.estimate ? 'primary' : 'secondary'">ESTIMATE</ion-label>
+          <ion-input [disabled]="disabled.estimate" [color]="disabled.estimate ? 'dark': 'medium'" color="medium" type="number" [(ngModel)]="userEdits.creatorestimate.Int32"></ion-input>
         </ion-item>
       </ion-col>
     </ion-row>
-    <ion-row *ngIf="!editIsNew">
+
+    <ion-row *ngIf="!(editIsNew || isMerged)">
       <ion-col>
         <ion-item lines="none">
-          <ion-label>Hide Bubble</ion-label>
-          <ion-checkbox slot="end" [(ngModel)]="hideNode"></ion-checkbox>
+          <ion-label color="secondary">HIDE BUBBLE</ion-label>
+          <ion-checkbox slot="end" color="medium" [(ngModel)]="hideNode"></ion-checkbox>
         </ion-item>
       </ion-col>
     </ion-row>
-    <ion-row>
-      <ion-col *ngIf="!disabled.update"><ion-button color="success" expand="block" size="small" (click)="save()">UPDATE</ion-button></ion-col>
-      <ion-col *ngIf="editIsNew || disabled.scenario"><ion-button color="success" expand="block" size="small" (click)="save()">SAVE</ion-button></ion-col>
-      <ion-col *ngIf="!disabled.add && !editIsNew"><ion-button color="success" expand="block" size="small" (click)="add()">ADD</ion-button></ion-col>
-      <ion-col *ngIf="!disabled.delete"><ion-button color="warning" expand="block" size="small" (click)="delete()">DELETE</ion-button></ion-col>
+    <ion-row *ngIf="!disabled.scenario">
+      <ion-col *ngIf="!disabled.update || !(editIsNew || disabled.scenario || isMerged)"><ion-button color="success" fill="clear" expand="block" size="small" (click)="save()">UPDATE</ion-button></ion-col>
+      <ion-col *ngIf="!disabled.merge"><ion-button color="secondary" fill="clear" expand="block" size="small" (click)="openMerge()">MERGE</ion-button></ion-col>
+      <ion-col *ngIf="editIsNew || disabled.scenario"><ion-button color="success" fill="clear" expand="block" size="small" (click)="save()">SAVE</ion-button></ion-col>
+      <ion-col *ngIf="!disabled.add && !editIsNew"><ion-button color="success" fill="clear" expand="block" size="small" (click)="add()">ADD</ion-button></ion-col>
+      <ion-col *ngIf="!disabled.delete"><ion-button color="danger" fill="clear" expand="block" size="small" (click)="delete()">DELETE</ion-button></ion-col>
+    </ion-row>
+    <ion-row *ngIf="disabled.scenario">
+     <ion-col> <ion-button color="secondary" fill="clear" expand="block" size="small" (click)="save()">UPDATE</ion-button></ion-col>
     </ion-row>
     <ion-row>
-      <ion-col><ion-button color="success" expand="block" size="small" fill="none" (click)="dismiss()">
-        {{(!editIsMe && !editIsZombie && !disabled.scenario) ? 'Cancel' : 'Close'}}
+      <ion-col><ion-button color="medium" expand="block" size="small" fill="clear" (click)="dismiss()">
+        {{(!editIsMe && !editIsZombie && !disabled.scenario) ? 'CANCEL' : 'CLOSE'}}
       </ion-button></ion-col>
     </ion-row>
   </ion-grid> 
