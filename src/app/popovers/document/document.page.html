@@ -10,13 +10,35 @@
 </ion-header>
 
 <ion-content class="ion-padding">
-  <div class="f-center">
+  <div class="f-center" *ngIf="type != 'about'">
     <ion-spinner *ngIf="loading"></ion-spinner>
     <div *ngIf="!loading && !content">
       <ion-text color="medium">Oops...there was an error getting the content.</ion-text>
     </div>
-    <div style="height:100%; width:100%;" *ngIf="!loading && content" [innerHtml]="content">
-     
+    <div style="height:100%; width:100%;" *ngIf="!loading && content" [innerHtml]="content"></div>
+    
+  </div>
+
+  <div style="width:100%; display:flex; flex-direction:column; text-align: center; justify-content: center; margin-top: 15%;" *ngIf="type == 'about'">
+    <div style="width:50%; margin:0 auto; margin-bottom: 20px;">
+      <img src="assets/icon.png" style="border-radius: 20%;">
+    </div>
+    <div style="padding-top: 10px;">
+      <ion-text class="f-xxl">LIFEBUBBLES</ion-text>
+    </div>
+    <div style="padding-top: 10px;">
+      <ion-text class="f-xs">VERSION {{userCtrl.build}}</ion-text>
+    </div>
+    <div style="padding-top: 10px;">
+      <ion-text class="f-xs">COPYRIGHT © 2020</ion-text>
+    </div>
+    <div style="padding-top: 10px;">
+      <ion-text class="f-xs">Silver Novus Research LLC</ion-text>
+    </div>
+    <div style="padding-top: 10px;">
+      <a (click)="goToSNRWebsite()" class="f-xs">www.silvernovus.com</a>
     </div>
   </div>
+
+
 </ion-content>

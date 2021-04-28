@@ -4,6 +4,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import * as showdown from 'showdown';
 import { InAppBrowser } from '@ionic-native/in-app-browser/ngx';
 import { DocumentsService } from 'src/app/services/documents.service';
+import { UserService } from 'src/app/services/user.service';
 
 @Component({
   selector: 'app-document',
@@ -14,22 +15,22 @@ export class DocumentPage implements OnInit {
 
   title: string = "";
   content: any = "";
+  type: any;
   loading: boolean = true;
 
-  constructor(private router: Router, private route: ActivatedRoute, private docCtrl: DocumentsService, public sanitizer: DomSanitizer, private inappBrowser: InAppBrowser) { 
-   let type = this.route.snapshot.paramMap.get('type');
-    this.setView(type)
+  constructor(private router: Router, private route: ActivatedRoute, private docCtrl: DocumentsService, public sanitizer: DomSanitizer, private inappBrowser: InAppBrowser, public userCtrl: UserService) { 
+   this.type = this.route.snapshot.paramMap.get('type');
+    this.setView()
   }
 
-  setView(type: string){
-    this.setTitle(type);
-    this.getContent(type);
+  setView(){
+    this.setTitle();
+    this.getContent();
   }
 
-  getContent(type: string){
-    this.docCtrl.getDocument(type).then((response:string)=>{
+  getContent(){
+    this.docCtrl.getDocument(this.type).then((response:string)=>{
       this.setContent(response);
-      console.log('setting content')
     }, err=>{
       this.loading = false;
     })
@@ -92,8 +93,8 @@ export class DocumentPage implements OnInit {
 
 
 
-  setTitle(type: string){
-    switch(type){
+  setTitle(){
+    switch(this.type){
       case 'terms':
         this.title = "TERMS AND CONDITIONS";
         break;
@@ -118,6 +119,11 @@ export class DocumentPage implements OnInit {
   goBack(){
     this.router.navigateByUrl('/tabs/profile')
   }
+  goToSNRWebsite(){
+    this.inappBrowser.create("www.silvernovus.com", '_system')
+  }
+
+
 
 
 }
