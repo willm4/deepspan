@@ -42,8 +42,8 @@
       <ion-col>
         <ion-item>
           <ion-label position="floating" [color]="disabled.status ? 'primary' : 'secondary'">STATUS</ion-label>
-          <ion-select [disabled]="disabled.status" [color]="disabled.status ? 'dark': 'medium'" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
-            <ion-select-option *ngFor="let s of userCtrl.userStatusDict" color="medium" [value]="s">{{s.name}}</ion-select-option>
+          <ion-select [disabled]="disabled.status" [(ngModel)]="userEdits.userStatusName" [placeholder]="userEdits.userStatusName.name" okText="Okay" cancelText="Dismiss">
+            <ion-select-option *ngFor="let s of userCtrl.userStatusDict"  [value]="s">{{s.name}}</ion-select-option>
           </ion-select>
         </ion-item>
       </ion-col>

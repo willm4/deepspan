@@ -46,7 +46,7 @@ export class UserService {
 
     public user: User = new User();
     public servicetoken: string = "";
-    public build: any = "3.1";
+    public build: any = "3.2";
   constructor(private api: ApiService,public nativeStorage: NativeStorage, public locationCtrl: LocationService) { }
 
 

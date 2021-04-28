@@ -128,18 +128,18 @@ export class ApiService {
         }
         else{
           this.http.setDataSerializer("json");
-          // let IS_JSON = true;
-          // try
-          // {
-          //         var json = JSON.parse(params);
-          // }
-          // catch(err)
-          // {
-          //         IS_JSON = false;
-          // } 
-          // if(IS_JSON){
-          //   params = JSON.parse(params);
-          // }
+          let IS_JSON = true;
+          try
+          {
+                  var json = JSON.parse(params);
+          }
+          catch(err)
+          {
+                  IS_JSON = false;
+          } 
+          if(IS_JSON){
+            params = JSON.parse(params);
+          }
           this.http.put(path, params, header).then(response=>{
             resolve(response.data);
           }, err=>{
@@ -163,18 +163,18 @@ export class ApiService {
         }
         else{
           this.http.setDataSerializer("json");
-          // let IS_JSON = true;
-          // try
-          // {
-          //         var json = JSON.parse(params);
-          // }
-          // catch(err)
-          // {
-          //         IS_JSON = false;
-          // } 
-          // if(IS_JSON){
-          //   params = JSON.parse(params);
-          // }
+          let IS_JSON = true;
+          try
+          {
+                  var json = JSON.parse(params);
+          }
+          catch(err)
+          {
+                  IS_JSON = false;
+          } 
+          if(IS_JSON){
+            params = JSON.parse(params);
+          }
           this.http.post( path, params, header).then(response=>{
             resolve(JSON.parse(response.data));
           }, err=>{
