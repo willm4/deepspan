@@ -292,7 +292,6 @@ export class ScenariosPage implements OnDestroy {
   });
   await popover.present();
   await popover.onDidDismiss().then((response: any)=>{
-    console.log(response.data);
     if(response.data && response.data.hasChanges){
       let newHidden = new Array<any>();
       let hidden = response.data.hidden;

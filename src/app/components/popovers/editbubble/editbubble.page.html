@@ -58,24 +58,21 @@
     <ion-row *ngIf="!(editIsNew || isMerged)">
       <ion-col>
         <ion-item lines="none">
-          <ion-label color="secondary">HIDE BUBBLE</ion-label>
+          <ion-label color="medium">HIDE BUBBLE</ion-label>
           <ion-checkbox slot="end" color="medium" [(ngModel)]="hideNode"></ion-checkbox>
         </ion-item>
       </ion-col>
     </ion-row>
     <ion-row *ngIf="!disabled.scenario">
-      <ion-col *ngIf="!disabled.update || !(editIsNew || disabled.scenario || isMerged)"><ion-button color="success" fill="clear" expand="block" size="small" (click)="save()">UPDATE</ion-button></ion-col>
+      <ion-col *ngIf="!(!editIsMe && !editIsZombie && !disabled.scenario)"><ion-button color="success" fill="clear" expand="block" size="small" (click)="save()">UPDATE</ion-button></ion-col>
       <ion-col *ngIf="!disabled.merge"><ion-button color="secondary" fill="clear" expand="block" size="small" (click)="openMerge()">MERGE</ion-button></ion-col>
       <ion-col *ngIf="editIsNew || disabled.scenario"><ion-button color="success" fill="clear" expand="block" size="small" (click)="save()">SAVE</ion-button></ion-col>
       <ion-col *ngIf="!disabled.add && !editIsNew"><ion-button color="success" fill="clear" expand="block" size="small" (click)="add()">ADD</ion-button></ion-col>
       <ion-col *ngIf="!disabled.delete"><ion-button color="danger" fill="clear" expand="block" size="small" (click)="delete()">DELETE</ion-button></ion-col>
     </ion-row>
-    <ion-row *ngIf="disabled.scenario">
-     <ion-col> <ion-button color="secondary" fill="clear" expand="block" size="small" (click)="save()">UPDATE</ion-button></ion-col>
-    </ion-row>
     <ion-row>
       <ion-col><ion-button color="medium" expand="block" size="small" fill="clear" (click)="dismiss()">
-        {{(!editIsMe && !editIsZombie && !disabled.scenario) ? 'CANCEL' : 'CLOSE'}}
+        CLOSE
       </ion-button></ion-col>
     </ion-row>
   </ion-grid> 

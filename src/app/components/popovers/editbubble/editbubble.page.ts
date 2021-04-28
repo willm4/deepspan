@@ -131,11 +131,11 @@ export class EditbubblePage implements OnInit {
   }
 
   setCanEdit(user: any, node: any, isScenario: boolean = false){
-    this.editIsNew = false;
-    this.editIsMe = this.userCtrl.user.id == node.id;
-    this.editIsZombie =  (node.id != -1) && (user.role.Int32 == -2) && (user.creatorid.Valid) && (user.creatorid.Int32 == this.userCtrl.user.id)
-    this.editIsDirect = (this.bubbleCtrl.bubbles.some(e => ((e.user1id == this.userCtrl.user.id) && (e.user2id == user.id)) || ((e.user2id == this.userCtrl.user.id) && (e.user1id == user.id))))
     this.disabled.scenario = isScenario;
+    this.editIsNew = false;
+    this.editIsMe = (this.userCtrl.user.id == node.id) && !this.disabled.scenario;
+    this.editIsZombie =  ((node.id != -1) && (user.role.Int32 == -2) && (user.creatorid.Valid) && (user.creatorid.Int32 == this.userCtrl.user.id)) && !this.disabled.scenario
+    this.editIsDirect = (this.bubbleCtrl.bubbles.some(e => ((e.user1id == this.userCtrl.user.id) && (e.user2id == user.id)) || ((e.user2id == this.userCtrl.user.id) && (e.user1id == user.id))))
     if(!isScenario){
       this.setDisabledFields();
     }
@@ -148,7 +148,7 @@ export class EditbubblePage implements OnInit {
     this.disabled.estimate = this.isMerged || (!this.editIsNew && !this.editIsZombie);
     this.disabled.add      = this.isMerged || (!this.editIsNew && (this.editIsMe || this.editIsDirect))
     this.disabled.delete   = this.isMerged || (!this.editIsDirect || this.editIsMe);
-    this.disabled.update   = this.isMerged || (!this.editIsMe && !this.editIsZombie);
+    this.disabled.update   = !(!this.editIsMe && !this.editIsZombie && !this.disabled.scenario)
     this.disabled.merge    = this.isMerged || (this.editIsNew || this.disabled.scenario || this.editIsMe);
   }
 
@@ -351,13 +351,12 @@ export class EditbubblePage implements OnInit {
   }
 
   dismiss(){
-    this.hideNode = false;
     this.dismissPopover(false);
   }
 
   dismissPopover(hasChanges: boolean){
     hasChanges = hasChanges || this.merged;
-    this.popoverCtrl.dismiss({'hasChanges':hasChanges, hideNode: this.hideNode });
+    this.popoverCtrl.dismiss({'hasChanges':hasChanges, 'hideNode': this.hideNode });
   }
 
 

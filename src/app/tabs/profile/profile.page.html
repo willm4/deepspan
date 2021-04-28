@@ -38,30 +38,24 @@
     <ion-item>
       <ion-button class="list-header-margin" size="small"  fill="clear" color="secondary" (click)="resetPassword()">RESET PASSWORD</ion-button>
     </ion-item>
-    <!-- <ion-item>
-      <ion-label>LOCATION</ion-label>
-      <ion-note *ngIf="!isEditing" slot="end" color="medium">{{userCtrl.user.locationName ? userCtrl.user.locationName : 'N/A'}}</ion-note>
-      <ion-note *ngIf="isEditing" slot="end" color="medium">{{userEdits.locationName ? userEdits.locationName : 'N/A'}}</ion-note>
-      <ion-button slot="end" size="small" fill="outline" *ngIf="isEditing" (click)="setCurrentLocation()"><ion-icon slot="start" name="location-outline"></ion-icon>LOCATE</ion-button>
-    </ion-item> -->
     <ion-list-header color="light">
       <ion-label class="list-header-margin">TERMS</ion-label>
     </ion-list-header>
-    <ion-item>
+    <ion-item (click)="viewDoc('terms')">
       <ion-label>TERMS AND CONDITIONS</ion-label>
-      <ion-button slot="end" size="small" fill="clear" color="medium" (click)="viewDoc('terms')">
+      <ion-button slot="end" size="small" fill="clear" color="medium">
         <ion-icon name="chevron-forward-outline"></ion-icon>
       </ion-button>
     </ion-item>
-    <ion-item>
+    <ion-item (click)="viewDoc('privacy')">
       <ion-label>PRIVACY POLICY</ion-label>
-      <ion-button slot="end" size="small" fill="clear" color="medium" (click)="viewDoc('privacy')">
+      <ion-button slot="end" size="small" fill="clear" color="medium">
         <ion-icon name="chevron-forward-outline"></ion-icon>
       </ion-button>
     </ion-item>
-    <ion-item>
+    <ion-item (click)="viewDoc('eula')">
       <ion-label>LICENSES</ion-label>
-      <ion-button slot="end" size="small" fill="clear" color="medium" (click)="viewDoc('eula')">
+      <ion-button slot="end" size="small" fill="clear" color="medium">
         <ion-icon name="chevron-forward-outline"></ion-icon>
       </ion-button>
     </ion-item>
@@ -70,7 +64,7 @@
     </ion-list-header>
     <ion-item>
       <ion-label>VERSION</ion-label>
-      <ion-note slot="end" color="medium">{{app.build}}</ion-note>
+      <ion-note slot="end" color="medium">{{userCtrl.build}}</ion-note>
     </ion-item>
     <ion-item>
       <ion-label>ABOUT</ion-label>
@@ -93,7 +87,7 @@
         </div>
       </ion-note>
       <ion-button *ngIf="userCtrl.user.merged && userCtrl.user.merged.length > 0" slot="end" size="small" fill="clear" color="secondary" (click)="openUndoMerge()">
-        <ion-icon name="settings-outline"></ion-icon>
+        UNMERGE
       </ion-button>
     </ion-item>
     <ion-item style="text-align: center;">
