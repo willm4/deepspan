@@ -23,7 +23,7 @@ export class EditbubblePage implements OnInit {
   userEdits = new User()
   img: any = null;
   hideNode: boolean = false;
-  
+
   disabled: any = {
     name: true,
     email: true,
@@ -71,7 +71,7 @@ export class EditbubblePage implements OnInit {
     , private params: NavParams
     , public bubbleCtrl: BubblesService
     , public userCtrl: UserService
-    , private alertCtrl: AlertController) { 
+    , private alertCtrl: AlertController) {
 
   }
 
@@ -103,6 +103,7 @@ export class EditbubblePage implements OnInit {
           role: 'cancel',
           cssClass: 'secondary',
           handler: (blah) => {
+            console.log(blah)
           }
         }, {
           text: 'Merge',
@@ -110,7 +111,8 @@ export class EditbubblePage implements OnInit {
             if(data.password){
               this.bubbleCtrl.submitMerge(this.userRaw.email, data.password).then(()=>{
                 this.promptToast('Merge with ' + this.userRaw.email + " successful!", "success");
-                this.merged = true;
+                this.dismissPopover(true)
+
               }, err=>{
                 this.promptToast("Merge failed - server error", "danger")
               })
@@ -124,6 +126,13 @@ export class EditbubblePage implements OnInit {
     });
 
     await alert.present();
+
+    // await alert.onDidDismiss().then(()=>{
+    //   if(this.merged){
+    //     this.dismissPopover(true)
+    //   }
+    // })
+
   }
 
   toggleHidden(){
@@ -153,7 +162,7 @@ export class EditbubblePage implements OnInit {
   }
 
   findEdge(id1, id2) {
-    let index = this.bubbleCtrl.bubbles.findIndex((element, index) => { if (((element.user1id == id1)&&(element.user2id == id2)) || ((element.user1id == id2)&&(element.user2id == id1))){ return true}}, id1); 
+    let index = this.bubbleCtrl.bubbles.findIndex((element, index) => { if (((element.user1id == id1)&&(element.user2id == id2)) || ((element.user1id == id2)&&(element.user2id == id1))){ return true}}, id1);
     return (index == -1 ? -1 : this.bubbleCtrl.bubbles[index].id)
   };
 
@@ -180,9 +189,6 @@ export class EditbubblePage implements OnInit {
        }
      });
      await popover.present();
-     await popover.onDidDismiss().then((response: any)=>{
-
-     })
    }
  }
 
@@ -249,7 +255,7 @@ export class EditbubblePage implements OnInit {
       this.img = 'https://ui-avatars.com/api/?name=' + avatarTxt + '&background=' + (this.node ? this.node.color.substring(1) : 'D9D9D9')
     }
     console.log('changed')
-    
+
   }
 
   canSave(){
@@ -300,7 +306,7 @@ export class EditbubblePage implements OnInit {
     }
 
   canDelete(){
-    
+
   }
 
   add(){
@@ -317,7 +323,7 @@ export class EditbubblePage implements OnInit {
     // console.log('subtracting')
     // this.bubbleCtrl.subtractCount(this.userRaw.email).then(response=>{
     //   this.promptToast(this.userRaw.name + ' removed successfully!', 'success' );
-    //   this.close(true); 
+    //   this.close(true);
     // }, err=>{
     //   this.promptToast('Error removing ' + this.userRaw.name, 'danger' );
     // })

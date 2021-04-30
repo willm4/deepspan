@@ -22,7 +22,7 @@ export class BubblesPage implements OnDestroy {
   nodes: Array<any> = new Array<any>();
   edges: Array<any> = new Array<any>();
   bubChartHeight: string = '100px';
-  hidden: Array<any> = new Array<any>(); 
+  hidden: Array<any> = new Array<any>();
 
   @ViewChild("bubbleschart") bubbleschart: ElementRef;
   @ViewChild("bubchartcontainer") bubchartcontainer: ElementRef;
@@ -41,7 +41,7 @@ export class BubblesPage implements OnDestroy {
     , public app: AppService
     ,public popoverCtrl: PopoverController
     , private router: Router
-    , private route: ActivatedRoute) { 
+    , private route: ActivatedRoute) {
 
       this.route.queryParams
       .subscribe(params=>{
@@ -84,7 +84,7 @@ export class BubblesPage implements OnDestroy {
     })
   }
 
-  hideNode(i) { 
+  hideNode(i) {
     let obj = this.graphdata.nodes.get(i);
     obj.hidden = true
     this.hidden.push(obj);
@@ -92,7 +92,7 @@ export class BubblesPage implements OnDestroy {
     this.cleanGraph();
 }
 
-  unhideNode(i) { 
+  unhideNode(i) {
     let obj = this.graphdata.nodes.get(i);
     obj.hidden = false;
     console.log(obj);
@@ -152,7 +152,8 @@ cleanGraph () {
     this.network = new vis.Network(this.bubbleschart.nativeElement, this.graphdata, this.options);
     this.clusterbyprimary();
 
-    this.network.on( 'selectNode', (properties)=> {
+    this.network.on( 'selectNode', (properties)=>{
+      console.log(properties)
       var ids = properties.nodes;
       if(ids && ids.length > 0){
         let id = ids[0];
@@ -207,7 +208,8 @@ cleanGraph () {
       });
       await popover.present();
       await popover.onDidDismiss().then((response: any)=>{
-        if(response.data && response.data.hasChanges){
+        if(response && response.data && response.data.hasChanges){
+          console.log(response.data);
           if(response.data.hideNode){
             this.hideNode(node.id)
           }

@@ -14,8 +14,8 @@ export class BubblesService {
   users: Array<User> = new Array<User>();
   size: number = 0;
   riskierSize: any;
-  totalSize: any; 
-  riskRate: any; 
+  totalSize: any;
+  riskRate: any;
   userTypes = {
     UNVALIDATED: 0,
     VALIDATED: 1,
@@ -25,7 +25,7 @@ export class BubblesService {
   constructor(private api: ApiService) { }
 
 
-  
+
 
   private getMerged(primary, nodes){
     let merged = [];
@@ -43,7 +43,7 @@ export class BubblesService {
     if (node.primaryid.Valid) {
         return (node.primaryid.Int32)
     } else {
-        return(-1) 
+        return(-1)
     }
   }
 
@@ -111,7 +111,7 @@ export class BubblesService {
     }
     for (i = 0; i < nodes.length; i++){
         let obj = nodes[i]
-        if (obj && !obj.flag) {                
+        if (obj && !obj.flag) {
             obj.hidden = true
         }
     }
@@ -136,7 +136,7 @@ export class BubblesService {
     }
   }
 
-  
+
 
   public removeBubble(id: number){ // user id
     return new Promise((resolve,reject)=>{
@@ -157,7 +157,9 @@ export class BubblesService {
     });
     return new Promise((resolve,reject)=>{
       this.api.post(this.api.merge, params).then(()=>{
-        resolve();
+        this.refresh().then(()=>{
+          resolve();
+        })
       }, err=>{
         console.log(err);
         reject(err);
@@ -169,7 +171,7 @@ export class BubblesService {
     return new Promise((resolve,reject)=>{
       // let params = {members: [{email: bubble.email, name: bubble.name, userstatus: bubble.userStatusName.value}]};
       let params = '{"members": [{"email": "' + bubble.email +'","name": "'+ bubble.name + '","userstatus": '+ bubble.userStatusName.value + ',"creatorestimate": { "Int32": ' + bubble.creatorestimate.Int32 +  ', "Valid":true}}]}'
-      
+
       this.api.post(this.api.addBubbles, params).then(response=>{
         this.refresh().then(()=>{
           resolve();
@@ -298,13 +300,13 @@ export class BubblesService {
         "children": []
       })
     });
-    
+
     let level2 = this.bubbles.filter(x=>{
       return x.depth == 2;
     });
-    
-   
-    
+
+
+
     response.children.forEach(x=>{
       let children = level2.filter(c=>{
         return c.user1id == x.user2id;
@@ -324,7 +326,7 @@ export class BubblesService {
       })
      }
     })
-    
+
     return [response];
   }
 
