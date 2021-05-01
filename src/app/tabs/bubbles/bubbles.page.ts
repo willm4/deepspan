@@ -22,7 +22,7 @@ export class BubblesPage implements OnDestroy {
   nodes: Array<any> = new Array<any>();
   edges: Array<any> = new Array<any>();
   bubChartHeight: string = '100px';
-  hidden: Array<any> = new Array<any>();
+  hidden: Array<any>;
 
   @ViewChild("bubbleschart") bubbleschart: ElementRef;
   @ViewChild("bubchartcontainer") bubchartcontainer: ElementRef;
@@ -42,6 +42,7 @@ export class BubblesPage implements OnDestroy {
     ,public popoverCtrl: PopoverController
     , private router: Router
     , private route: ActivatedRoute) {
+      this.hidden = this.bubbleCtrl.hidden;
 
       this.route.queryParams
       .subscribe(params=>{
@@ -70,14 +71,14 @@ export class BubblesPage implements OnDestroy {
       this.refreshBubbles()
     }
     else{
-      this.hidden = new Array<any>();
+      this.hidden = this.bubbleCtrl.hidden; //JAck, shouldn't be refreshing hidden
       this.drawBubbles();
     }
   }
 
   refreshBubbles(){
     this.bubbleCtrl.refresh().then(response=>{
-      this.hidden = new Array<any>();
+      //this.hidden = new Array<any>(); JAck, shouldn't be refreshing hidden
       this.drawBubbles();
     }, err=>{
       console.log(err);
@@ -132,7 +133,7 @@ cleanGraph () {
 
 
   resetBubbleData(){
-    this.hidden = new Array<any>();
+    //this.hidden = new Array<any>(); // Jack shouldn't reset hidden
     this.nodes = this.bubbleCtrl.getNodes();
     this.edges = this.bubbleCtrl.getEdges()
     this.graphdata = {

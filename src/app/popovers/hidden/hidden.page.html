@@ -11,6 +11,7 @@
         <img [src]="h.image">
       </ion-avatar>
       <ion-label color="medium">{{h.label}}</ion-label>
+      <ion-button color="secondary" fill="clear" expand="block" size="small" (click)="unhideSingleNode(h.id)">unhide</ion-button>
       <!-- <ion-buttons slot="end">
         <ion-button [color]="h.hidden ? 'medium' : 'primary'">
           <ion-icon size="large" [name]="h.hidden ? 'eye-off-outline' : 'eye-outline'"></ion-icon>

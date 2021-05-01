@@ -1,9 +1,11 @@
+import { UserService } from 'src/app/services/user.service';
 import { Injectable } from '@angular/core';
 import { Bubble } from '../classes/bubble';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { User } from '../classes/user';
 import {Md5} from 'ts-md5/dist/md5';
 import { ApiService } from './api.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -16,13 +18,14 @@ export class BubblesService {
   riskierSize: any;
   totalSize: any;
   riskRate: any;
+  hidden: Array<any> = new Array<any>();
   userTypes = {
     UNVALIDATED: 0,
     VALIDATED: 1,
     CURRENT_USER: 2
   }
 
-  constructor(private api: ApiService) { }
+  constructor(private userServ: UserService, private api: ApiService) { }
 
 
 
@@ -186,20 +189,28 @@ export class BubblesService {
     let users = new Array<User>();
     return new Promise((resolve)=>{
       this.api.get(this.api.userGraph).then((response: any)=>{
+
         let promises = [];
-        response.forEach(u=>{
-          let user = new User(u);
-          let promise =  user.setGravarImg().then(()=>{
-            users.push(user);
+        if(response){
+          response.forEach(u=>{
+            let user = new User(u);
+            let promise =  user.setGravarImg().then(()=>{
+              users.push(user);
+            });
+            promises.push(promise);
           });
-          promises.push(promise);
-        });
+        } else {
+          let user = new User(this.userServ.user);
+          users.push(user); // jack added
+        }
         console.log('setting users')
         Promise.all(promises).then(()=>{
+          console.log("promises fullfilled");
           this.users = users;
           resolve();
         })
       }, err=>{
+        console.log("error was " + JSON.stringify(err));
         this.users = users;
         resolve();
       })
@@ -210,11 +221,17 @@ export class BubblesService {
     let bubbles = new Array<Bubble>();
     return new Promise((resolve)=>{
       this.api.get(this.api.bubbleGraph).then((response: any)=>{
-        response.forEach(b=>{
-          bubbles.push(new Bubble(b));
-        });
-        this.bubbles = bubbles;
-        resolve();
+        if(response){
+          console.log("get bubbles " + JSON.stringify(response));
+          response.forEach(b=>{
+            bubbles.push(new Bubble(b));
+          });
+          this.bubbles = bubbles;
+          resolve();
+        } else {
+          bubbles.push(new Bubble())
+
+        }
       }, err=>{
         this.bubbles = bubbles;
         resolve();
