@@ -73,7 +73,7 @@ export class UserService {
     this.user.merged = merged;
   }
   public getUserForEdits(nodes){
-    // set 
+    // set
     this.setIsMerged(nodes);
     return cloneDeep(this.user);
 
@@ -154,7 +154,7 @@ export class UserService {
   private setUser(user: User){
     console.log(user)
     this.user = this.setExternalUserData(user);
-  } 
+  }
 
   private getUserStatusName(user: User){
     return this.userStatusDict.filter(u=>{
@@ -177,7 +177,7 @@ export class UserService {
         reject(err);
       })
     })
-  } 
+  }
 
   public forgotPW(email: string){
     return new Promise((resolve,reject)=>{
@@ -196,7 +196,7 @@ export class UserService {
     return new Promise((resolve,reject)=>{
       let params = {
         email: email,
-        password: password, 
+        password: password,
         resetpassword: resetpassword
       };
       this.api.post(this.api.setNewPW, params).then(()=>{
@@ -205,7 +205,7 @@ export class UserService {
         reject();
       })
     })
-  } 
+  }
 
   public newPW(currentpw: string, newpw: string){
     return new Promise((resolve,reject)=>{
@@ -285,11 +285,11 @@ export class UserService {
           let user = new User();
           user.email = params.email;
           user.password = params.password;
-              // TODO: get same as login -- missing service token 
+              // TODO: get same as login -- missing service token
           this.login(user).then((userdata: any)=>{
             resolve();
           }, err=>{
-            reject();
+            reject(err);
           })
         }, err=>{
           reject(err);
@@ -414,13 +414,13 @@ export class UserService {
     })
   }
 
-  
+
   private getIPCFromServer(admin2: string = null, state: string = null, lat: any = null, lon: any = null){
     return new Promise((resolve,reject)=>{
       let body = {
         countryregion: 'US', // COUNTRY
         provincestate: state, // STATE
-        admin2: admin2, //TODO  
+        admin2: admin2, //TODO
         lat: lat,
         lon: lon
       };

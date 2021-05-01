@@ -12,7 +12,7 @@ declare var $ : any;
 export class ApiService {
 
   private path: string = "https://bubblenet.appspot.com/api/";
-  
+
   // USER
   public login: string = this.path + "login";
   public logout: string = this.path + "logout";
@@ -24,7 +24,7 @@ export class ApiService {
   public setNewPW: string = this.path + "password/new"
   // IPC
   public ipc: string = this.path +  "ipc";
-  
+
   // DOCUMENTS -- TODO
   public doc: string = this.path + "document/"
 
@@ -41,7 +41,7 @@ export class ApiService {
   public bubbleGraph: string = this.getBubblesWithoutEmail + "/graph";
   public userGraph: string = this.path + "users/graph";
 
-  // ACTIONS 
+  // ACTIONS
   public allActions: string = this.path + "actions/all"
   public deleteAction: string = this.path + "action"
   public replyAction: string = this.path + "action/reply/"
@@ -136,7 +136,7 @@ export class ApiService {
           catch(err)
           {
                   IS_JSON = false;
-          } 
+          }
           if(IS_JSON){
             params = JSON.parse(params);
           }
@@ -156,10 +156,12 @@ export class ApiService {
         if(this.isPWA()){
           axios.post(path,params,header).then(response =>{
               resolve(response.data);
-            }, err=>{
-              reject(err.error)
-              console.log(err.error)
-            });
+          }).catch(error =>
+            reject(error.response.data.message))
+            // }, err=>{
+            //   reject(err.error)
+            //   console.log("in api service, the error message is " + err.error)
+            // });
         }
         else{
           this.http.setDataSerializer("json");
@@ -171,7 +173,7 @@ export class ApiService {
           catch(err)
           {
                   IS_JSON = false;
-          } 
+          }
           if(IS_JSON){
             params = JSON.parse(params);
           }

@@ -63,7 +63,7 @@ export class LoginPage implements OnInit {
     });
     toast.present();
   }
-  
+
   async resetPW(){
     const alert = await this.alertCtrl.create({
       cssClass: 'my-custom-class',
@@ -183,17 +183,16 @@ export class LoginPage implements OnInit {
   private promptSignupFailedAlert(err: string){
     this.promptErrAlert("SIGN UP FAILED", err);
   }
-  
-  private async promptErrAlert(title: string, msg: string){
+
+  private promptErrAlert(title: string, msg: string){
     console.log(msg);
-    const alert = await this.alertCtrl.create({
+    this.alertCtrl.create({
       header: title,
       subHeader: '',
       message: msg,
       buttons: ['CLOSE']
-    });
-
-    await alert.present();
+    }).then(res =>
+      res.present())
   }
 
 }
