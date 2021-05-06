@@ -18,14 +18,14 @@ export class BubblesService {
   riskierSize: any;
   totalSize: any;
   riskRate: any;
-  hidden: Array<any> = new Array<any>();
+  hidden: Array<any> = new Array<any>(); // Jack - added hidden array here so we can keep track of what was hidden even we chane tabs
   userTypes = {
     UNVALIDATED: 0,
     VALIDATED: 1,
     CURRENT_USER: 2
   }
 
-  constructor(private userServ: UserService, private api: ApiService) { }
+  constructor(private api: ApiService) { }
 
 
 
@@ -191,7 +191,7 @@ export class BubblesService {
       this.api.get(this.api.userGraph).then((response: any)=>{
 
         let promises = [];
-        if(response){
+        if(response){ //Jack - only add if there is a response so it doesn't crash (may want to have let the user know what the error was)
           response.forEach(u=>{
             let user = new User(u);
             let promise =  user.setGravarImg().then(()=>{
@@ -199,9 +199,6 @@ export class BubblesService {
             });
             promises.push(promise);
           });
-        } else {
-          let user = new User(this.userServ.user);
-          users.push(user); // jack added
         }
         console.log('setting users')
         Promise.all(promises).then(()=>{
@@ -221,16 +218,13 @@ export class BubblesService {
     let bubbles = new Array<Bubble>();
     return new Promise((resolve)=>{
       this.api.get(this.api.bubbleGraph).then((response: any)=>{
-        if(response){
+        if(response){ //Jack - only add if there is a response so it doesn't crash (may want to have let the user know what the error was)
           console.log("get bubbles " + JSON.stringify(response));
           response.forEach(b=>{
             bubbles.push(new Bubble(b));
           });
           this.bubbles = bubbles;
           resolve();
-        } else {
-          bubbles.push(new Bubble())
-
         }
       }, err=>{
         this.bubbles = bubbles;

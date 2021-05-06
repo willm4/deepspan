@@ -9,6 +9,8 @@ import { BubblesService } from 'src/app/services/bubbles.service';
 })
 export class HiddenPage implements OnInit {
 
+//Jack - injected bubble service so the bubble service can handle who is hidden (however if we want hidden to remain after app is closed we will need to pass to server)
+
   hidden: Array<any> = new Array<any>();
   constructor(private params: NavParams, private popoverCtrl: PopoverController, public bubbleCtrl: BubblesService) { }
 
