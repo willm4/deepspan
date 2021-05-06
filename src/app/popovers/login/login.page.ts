@@ -34,14 +34,16 @@ export class LoginPage implements OnInit {
     this.bubbleCtrl.refresh().then(response=>{
       this.router.navigate(['/tabs/bubbles'], {queryParams: {'refresh': true}});
     }, err=>{
-      console.log(err);
+      console.log("couldn't refresh: " + err);
     })
   }
 
   public login(){
     this.userCtrl.login(this.user).then(response=>{
+      console.log("loggin in worked")
       this.goToRoot();
     }, err=>{
+      console.log("error logging in")
       this.promptLoginFailedAlert(err);
     })
   }

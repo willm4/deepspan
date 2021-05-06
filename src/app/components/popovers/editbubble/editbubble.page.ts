@@ -166,6 +166,9 @@ export class EditbubblePage implements OnInit {
     return (index == -1 ? -1 : this.bubbleCtrl.bubbles[index].id)
   };
 
+  openUndoMerge(){
+
+  }
 
   async openMerged(node: any){ // {id, name}
   let user = new User();

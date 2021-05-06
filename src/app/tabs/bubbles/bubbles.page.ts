@@ -77,11 +77,12 @@ export class BubblesPage implements OnDestroy {
   }
 
   refreshBubbles(){
+    console.log("bubbles page, refreshing bubbles")
     this.bubbleCtrl.refresh().then(response=>{
       //this.hidden = new Array<any>(); JAck, shouldn't be refreshing hidden
       this.drawBubbles();
     }, err=>{
-      console.log(err);
+      console.log("couldn't refrsh bubbles: " + err);
     })
   }
 
@@ -144,6 +145,7 @@ cleanGraph () {
   }
 
   drawBubbles(resetData: boolean = true){
+    console.log("drawing bubbles")
     if(resetData || this.nodes.length == 0){
       this.resetBubbleData();
     }

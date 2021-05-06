@@ -192,6 +192,7 @@ export class BubblesService {
 
         let promises = [];
         if(response){ //Jack - only add if there is a response so it doesn't crash (may want to have let the user know what the error was)
+          console.log(JSON.stringify(response))
           response.forEach(u=>{
             let user = new User(u);
             let promise =  user.setGravarImg().then(()=>{
@@ -199,6 +200,8 @@ export class BubblesService {
             });
             promises.push(promise);
           });
+        } else {
+          console.log("no users")
         }
         console.log('setting users')
         Promise.all(promises).then(()=>{
@@ -225,8 +228,14 @@ export class BubblesService {
           });
           this.bubbles = bubbles;
           resolve();
+        } else{
+          this.bubbles.push(new Bubble())
+          console.log("no bubbles")
+          resolve();
+
         }
       }, err=>{
+        console.log("err no bubbles: " + err)
         this.bubbles = bubbles;
         resolve();
       })
@@ -234,6 +243,7 @@ export class BubblesService {
   }
 
   public getData(){
+    console.log("bubble service, getting data")
     return new Promise((resolve)=>{
       resolve(Promise.all([this.getBubbles(), this.getUsers()]));
     })
@@ -250,7 +260,8 @@ export class BubblesService {
   }
 
   refresh(){
-    return new Promise((resolve)=>{
+    console.log("bubble service: refreshing bubbles");
+    return new Promise((resolve, reject)=>{
       this.getData().then(()=>{
         this.bubbles.forEach(b=>{
           this.users.forEach(u=>{
@@ -267,7 +278,8 @@ export class BubblesService {
         this.riskRate = bubbleSizes.riskRate;
         resolve();
       },err=>{
-        resolve();
+        console.log("refresh rejected: " + err)
+        reject();
       })
     })
   }
