@@ -24,7 +24,7 @@ export class ScenariosPage implements OnDestroy {
   nodes: Array<any> = new Array<any>();
   edges: Array<any> = new Array<any>();
   bubChartHeight: string = '100px';
-  hidden: Array<any> = new Array<any>(); 
+  hidden: Array<any> = new Array<any>();
 
   @ViewChild("scenarioschart") bubbleschart: ElementRef;
   @ViewChild("scenarioschartcontainer") bubchartcontainer: ElementRef;
@@ -46,7 +46,7 @@ export class ScenariosPage implements OnDestroy {
     , public router: Router
     , public popoverCtrl:PopoverController
     , private alertCtrl:AlertController
-    , private toastCtrl: ToastController) { 
+    , private toastCtrl: ToastController) {
         this.resetEdits();
   }
 
@@ -151,7 +151,7 @@ export class ScenariosPage implements OnDestroy {
     })
   }
 
-  hideNode(i) { 
+  hideNode(i) {
     let obj = this.graphdata.nodes.get(i);
     obj.hidden = true;
     this.hidden.push(obj);
@@ -159,7 +159,7 @@ export class ScenariosPage implements OnDestroy {
     this.cleanGraph();
   }
 
-  unhideNode(i) { 
+  unhideNode(i) {
     let obj = this.graphdata.nodes.get(i);
     obj.hidden = false
     console.log(obj);
@@ -175,7 +175,7 @@ export class ScenariosPage implements OnDestroy {
     };
     this.drawBubbles(false);
   }
-  
+
   clusterbyprimary() {
     var primaries = new Set()
     for (var i=0; i < this.nodes.length; i++) {
@@ -197,9 +197,9 @@ export class ScenariosPage implements OnDestroy {
         };
         this.network.cluster(clusterOptionsByData);
     }
-  
+
   }
-    
+
   resetBubbleData(){
     this.hidden = new Array<any>();
     this.nodes = this.bubbleCtrl.getNodes();
@@ -253,34 +253,36 @@ export class ScenariosPage implements OnDestroy {
     }
   }
 
-  async editNode(node: any){ // {id, name}
-  let user = new User();
-   if(node){
-     let users = this.bubbleCtrl.users.filter(u=>{
-       return u.id == node.id
-     });
-     if(users && users.length > 0){
-       user = this.userCtrl.setExternalUserData(users[0]);
-     }
-   }
-   if(node){
-     const popover = await this.popoverCtrl.create({
-       component: EditbubblePage,
-       showBackdrop: true,
-       componentProps:{
-         node: node,
-         user: user,
-         isScenario: true
-       }
-     });
-     await popover.present();
-     await popover.onDidDismiss().then((response: any)=>{
-       if(response.data && response.data.hideNode){
-         this.hideNode(node.id)
-       }
-     })
-   }
- }
+    async editNode(node: any){ // {id, name}
+    let user = new User();
+    if(node){
+      let users = this.bubbleCtrl.users.filter(u=>{
+        return u.id == node.id
+      });
+      if(users && users.length > 0){
+        user = this.userCtrl.setExternalUserData(users[0]);
+      }
+    }
+    if(node){
+      this.newEmail = user.email
+      //Jack - comment out below for no more popup
+      const popover = await this.popoverCtrl.create({
+        component: EditbubblePage,
+        showBackdrop: true,
+        componentProps:{
+          node: node,
+          user: user,
+          isScenario: true
+        }
+      });
+      await popover.present();
+      await popover.onDidDismiss().then((response: any)=>{
+        if(response.data && response.data.hideNode){
+          this.hideNode(node.id)
+        }
+      })
+    }
+  }
 
  async viewHidden(){
   const popover = await this.popoverCtrl.create({
@@ -314,7 +316,7 @@ export class ScenariosPage implements OnDestroy {
 
 
 
-  
+
 
 
 
