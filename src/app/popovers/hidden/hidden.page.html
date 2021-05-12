@@ -20,7 +20,7 @@
     </ion-item>
   </ion-list>
   <ion-row>
-    <ion-col *ngIf="hidden && hidden.length > 0"><ion-button color="secondary" fill="clear" expand="block" size="small" (click)="close(true,true)">UNHIDE NODES</ion-button></ion-col>
-    <ion-col><ion-button color="medium" fill="clear" expand="block" size="small" (click)="close()">{{!(hidden && hidden.length > 0) ? 'Close' : 'Cancel'}}</ion-button></ion-col>
+    <ion-col *ngIf="hidden && hidden.length > 0"><ion-button color="secondary" fill="clear" expand="block" size="small" (click)="close(true,true)">UNHIDE All NODES</ion-button></ion-col>
+    <ion-col><ion-button color="medium" fill="clear" expand="block" size="small" (click)="close(didUnhide, false)">{{'Close'}}</ion-button></ion-col> <!--Jack - took out {{!(hidden && hidden.length > 0) ? 'Close' : 'Cancel'}} -->
   </ion-row>
 </ion-grid>

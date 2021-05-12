@@ -22,7 +22,7 @@ export class BubblesPage implements OnDestroy {
   nodes: Array<any> = new Array<any>();
   edges: Array<any> = new Array<any>();
   bubChartHeight: string = '100px';
-  hidden: Array<any>;
+  //hidden: Array<any>;
 
   @ViewChild("bubbleschart") bubbleschart: ElementRef;
   @ViewChild("bubchartcontainer") bubchartcontainer: ElementRef;
@@ -42,7 +42,7 @@ export class BubblesPage implements OnDestroy {
     ,public popoverCtrl: PopoverController
     , private router: Router
     , private route: ActivatedRoute) {
-      this.hidden = this.bubbleCtrl.hidden;
+      //this.hidden = this.bubbleCtrl.hidden; // Jack
 
       this.route.queryParams
       .subscribe(params=>{
@@ -71,7 +71,7 @@ export class BubblesPage implements OnDestroy {
       this.refreshBubbles()
     }
     else{
-      this.hidden = this.bubbleCtrl.hidden; //JAck, shouldn't be refreshing hidden
+      //this.hidden = this.bubbleCtrl.hidden; //JAck, shouldn't be refreshing hidden
       this.drawBubbles();
     }
   }
@@ -89,17 +89,39 @@ export class BubblesPage implements OnDestroy {
   hideNode(i) {
     let obj = this.graphdata.nodes.get(i);
     obj.hidden = true
-    this.hidden.push(obj);
-    this.graphdata.nodes[i] = obj;
-    this.cleanGraph();
+    //this.hidden.push(obj); Jack
+    this.bubbleCtrl.hidden.push(obj)
+    //this.graphdata.nodes[i] = obj;
+    //this.cleanGraph();
+    this.graphdata.nodes.update(obj);
 }
 
-  unhideNode(i) {
+  unhideNode(i) { //Jack - probabably no need for this
     let obj = this.graphdata.nodes.get(i);
     obj.hidden = false;
     console.log(obj);
-    this.graphdata.nodes[i] = obj;
-    this.cleanGraph();
+    //this.graphdata.nodes[i] = obj;
+    //this.cleanGraph();
+    this.graphdata.nodes.update(obj);
+  }
+
+  unhideGraphNodes(){
+    console.log("entered unhideGraphNodes");
+    let unhideList = new Array<any>();
+    this.graphdata.nodes.forEach(element => {
+      if(element && element.hidden){
+        let wasUnhidden = true;
+        this.bubbleCtrl.hidden.forEach(hiddenNode => {
+          if(element.id == hiddenNode.id){
+            wasUnhidden = false;
+          }
+        })
+        if(wasUnhidden){
+          unhideList.push({id: element.id, hidden: false});
+        }
+      }
+    });
+    this.graphdata.nodes.update(unhideList);
   }
 
 cleanGraph () {
@@ -132,9 +154,7 @@ cleanGraph () {
     }
 }
 
-
-  resetBubbleData(){
-    //this.hidden = new Array<any>(); // Jack shouldn't reset hidden
+  setBubbleData(){
     this.nodes = this.bubbleCtrl.getNodes();
     this.edges = this.bubbleCtrl.getEdges()
     this.graphdata = {
@@ -144,15 +164,33 @@ cleanGraph () {
     this.options = this.bubbleCtrl.getOptions();
   }
 
+  resetBubbleData(){
+    //this.hidden = new Array<any>(); // Jack shouldn't reset hidden
+    console.log("Reseting Bubble data")
+    this.nodes = this.bubbleCtrl.getNodes();
+    this.edges = this.bubbleCtrl.getEdges()
+
+    if (this.graphdata && this.graphdata.nodes && this.graphdata.edges){
+      this.graphdata.nodes.update(this.nodes)
+      this.graphdata.edges.update(this.edges)
+    } else {
+      this.setBubbleData();
+    }
+
+  }
+
   drawBubbles(resetData: boolean = true){
     console.log("drawing bubbles")
     if(resetData || this.nodes.length == 0){
       this.resetBubbleData();
     }
     if(this.network){
-      this.network.destroy();
+      //this.network.destroy();
+    } else {
+      this.setBubbleData();
+      this.network = new vis.Network(this.bubbleschart.nativeElement, this.graphdata, this.options);
     }
-    this.network = new vis.Network(this.bubbleschart.nativeElement, this.graphdata, this.options);
+
     this.clusterbyprimary();
 
     this.network.on( 'selectNode', (properties)=>{
@@ -234,25 +272,27 @@ cleanGraph () {
       component: HiddenPage,
       showBackdrop: true,
       componentProps:{
-        hidden: cloneDeep(this.hidden)
+        isBubblesTab: true
+        //hidden: cloneDeep(this.hidden) //Jack - changed from this.hidden
       }
     });
     await popover.present();
     await popover.onDidDismiss().then((response: any)=>{
       if(response.data && response.data.hasChanges){
-        let newHidden = new Array<any>();
-        let hidden = response.data.hidden;
-        for(var i = 0; i < hidden.length; i++){
-          if(!hidden[i].hidden){
-            this.unhideNode(hidden[i].id);
-          }
-          else{
-            newHidden.push(hidden[i]);
-          }
-        }
-        console.log(newHidden)
-        this.hidden = newHidden;
-        this.drawBubbles();
+        // let newHidden = new Array<any>();
+        // let hidden = response.data.hidden;
+        // for(var i = 0; i < hidden.length; i++){
+        //   if(!hidden[i].hidden){
+        //     this.unhideNode(hidden[i].id);
+        //   }
+        //   else{
+        //     newHidden.push(hidden[i]);
+        //   }
+        // }
+        // console.log(newHidden)
+        // this.bubbleCtrl.hidden = newHidden;
+        //this.drawBubbles();
+        this.unhideGraphNodes();
       }
     })
   }
@@ -269,7 +309,7 @@ cleanGraph () {
     await popover.present();
     await popover.onDidDismiss().then((response: any)=>{
       if(response.data.hasChanges){
-        this.drawBubbles();
+        this.drawBubbles(true);
       }
     })
   }

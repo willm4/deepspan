@@ -19,6 +19,7 @@ export class BubblesService {
   totalSize: any;
   riskRate: any;
   hidden: Array<any> = new Array<any>(); // Jack - added hidden array here so we can keep track of what was hidden even we chane tabs
+  hiddenScenarios: Array<any> = new Array<any>();
   userTypes = {
     UNVALIDATED: 0,
     VALIDATED: 1,
