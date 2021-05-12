@@ -1,9 +1,11 @@
+import { UserService } from 'src/app/services/user.service';
 import { Injectable } from '@angular/core';
 import { Bubble } from '../classes/bubble';
 import * as cloneDeep from 'lodash/cloneDeep';
 import { User } from '../classes/user';
 import {Md5} from 'ts-md5/dist/md5';
 import { ApiService } from './api.service';
+
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +16,10 @@ export class BubblesService {
   users: Array<User> = new Array<User>();
   size: number = 0;
   riskierSize: any;
-  totalSize: any; 
-  riskRate: any; 
+  totalSize: any;
+  riskRate: any;
+  hidden: Array<any> = new Array<any>(); // Jack - added hidden array here so we can keep track of what was hidden even we chane tabs
+  hiddenScenarios: Array<any> = new Array<any>();
   userTypes = {
     UNVALIDATED: 0,
     VALIDATED: 1,
@@ -25,7 +29,7 @@ export class BubblesService {
   constructor(private api: ApiService) { }
 
 
-  
+
 
   private getMerged(primary, nodes){
     let merged = [];
@@ -43,7 +47,7 @@ export class BubblesService {
     if (node.primaryid.Valid) {
         return (node.primaryid.Int32)
     } else {
-        return(-1) 
+        return(-1)
     }
   }
 
@@ -111,7 +115,7 @@ export class BubblesService {
     }
     for (i = 0; i < nodes.length; i++){
         let obj = nodes[i]
-        if (obj && !obj.flag) {                
+        if (obj && !obj.flag) {
             obj.hidden = true
         }
     }
@@ -136,7 +140,7 @@ export class BubblesService {
     }
   }
 
-  
+
 
   public removeBubble(id: number){ // user id
     return new Promise((resolve,reject)=>{
@@ -157,7 +161,9 @@ export class BubblesService {
     });
     return new Promise((resolve,reject)=>{
       this.api.post(this.api.merge, params).then(()=>{
-        resolve();
+        this.refresh().then(()=>{
+          resolve();
+        })
       }, err=>{
         console.log(err);
         reject(err);
@@ -169,7 +175,7 @@ export class BubblesService {
     return new Promise((resolve,reject)=>{
       // let params = {members: [{email: bubble.email, name: bubble.name, userstatus: bubble.userStatusName.value}]};
       let params = '{"members": [{"email": "' + bubble.email +'","name": "'+ bubble.name + '","userstatus": '+ bubble.userStatusName.value + ',"creatorestimate": { "Int32": ' + bubble.creatorestimate.Int32 +  ', "Valid":true}}]}'
-      
+
       this.api.post(this.api.addBubbles, params).then(response=>{
         this.refresh().then(()=>{
           resolve();
@@ -184,20 +190,28 @@ export class BubblesService {
     let users = new Array<User>();
     return new Promise((resolve)=>{
       this.api.get(this.api.userGraph).then((response: any)=>{
+
         let promises = [];
-        response.forEach(u=>{
-          let user = new User(u);
-          let promise =  user.setGravarImg().then(()=>{
-            users.push(user);
+        if(response){ //Jack - only add if there is a response so it doesn't crash (may want to have let the user know what the error was)
+          console.log(JSON.stringify(response))
+          response.forEach(u=>{
+            let user = new User(u);
+            let promise =  user.setGravarImg().then(()=>{
+              users.push(user);
+            });
+            promises.push(promise);
           });
-          promises.push(promise);
-        });
+        } else {
+          console.log("no users")
+        }
         console.log('setting users')
         Promise.all(promises).then(()=>{
+          console.log("promises fullfilled");
           this.users = users;
           resolve();
         })
       }, err=>{
+        console.log("error was " + JSON.stringify(err));
         this.users = users;
         resolve();
       })
@@ -208,12 +222,21 @@ export class BubblesService {
     let bubbles = new Array<Bubble>();
     return new Promise((resolve)=>{
       this.api.get(this.api.bubbleGraph).then((response: any)=>{
-        response.forEach(b=>{
-          bubbles.push(new Bubble(b));
-        });
-        this.bubbles = bubbles;
-        resolve();
+        if(response){ //Jack - only add if there is a response so it doesn't crash (may want to have let the user know what the error was)
+          console.log("get bubbles " + JSON.stringify(response));
+          response.forEach(b=>{
+            bubbles.push(new Bubble(b));
+          });
+          this.bubbles = bubbles;
+          resolve();
+        } else{
+          this.bubbles.push(new Bubble())
+          console.log("no bubbles")
+          resolve();
+
+        }
       }, err=>{
+        console.log("err no bubbles: " + err)
         this.bubbles = bubbles;
         resolve();
       })
@@ -221,6 +244,7 @@ export class BubblesService {
   }
 
   public getData(){
+    console.log("bubble service, getting data")
     return new Promise((resolve)=>{
       resolve(Promise.all([this.getBubbles(), this.getUsers()]));
     })
@@ -237,7 +261,8 @@ export class BubblesService {
   }
 
   refresh(){
-    return new Promise((resolve)=>{
+    console.log("bubble service: refreshing bubbles");
+    return new Promise((resolve, reject)=>{
       this.getData().then(()=>{
         this.bubbles.forEach(b=>{
           this.users.forEach(u=>{
@@ -254,7 +279,8 @@ export class BubblesService {
         this.riskRate = bubbleSizes.riskRate;
         resolve();
       },err=>{
-        resolve();
+        console.log("refresh rejected: " + err)
+        reject();
       })
     })
   }
@@ -298,13 +324,13 @@ export class BubblesService {
         "children": []
       })
     });
-    
+
     let level2 = this.bubbles.filter(x=>{
       return x.depth == 2;
     });
-    
-   
-    
+
+
+
     response.children.forEach(x=>{
       let children = level2.filter(c=>{
         return c.user1id == x.user2id;
@@ -324,7 +350,7 @@ export class BubblesService {
       })
      }
     })
-    
+
     return [response];
   }
 

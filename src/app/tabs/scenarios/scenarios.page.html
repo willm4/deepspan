@@ -5,7 +5,7 @@
     <ion-title>SCENARIOUS</ion-title>
     <ion-buttons slot="end">
       <ion-button  (click)="viewHidden()">
-        <ion-icon name="eye-off-outline"></ion-icon> {{hidden.length}}
+        <ion-icon name="eye-off-outline"></ion-icon> {{bubbleCtrl.hiddenScenarios.length}}
       </ion-button>
       <ion-button  (click)="refreshBubbles()">
         <ion-icon slot="icon-only" name="refresh-circle-outline"></ion-icon>
@@ -26,7 +26,7 @@
 
 
         <div class="header-content-container">
-          <div class="header-content-row">
+          <!-- <div class="header-content-row"> Jack- I don't think we need, it makes the bubbles window small
             <div>
               <ion-label>
                 {{userCtrl.locationCtrl.location.locationName}} INFECTION RATE
@@ -38,7 +38,7 @@
                 <ion-spinner *ngIf="!(userCtrl.ipc && userCtrl.locationCtrl.location.locationName)" name="dots"></ion-spinner>
               </ion-note>
             </div>
-          </div>
+          </div> -->
           <div class="header-content-row">
             <div>
               <ion-label>TOTAL SIZE</ion-label>
@@ -80,7 +80,7 @@
             <div style="display: flex; flex-direction: column;">
               <ion-input placeholder="Enter email..." [(ngModel)]="newEmail"></ion-input>
               <div style="display: flex; flex-direction: row; align-self: flex-start;">
-                <ion-button size="small" color="success"   fill="clear" (click)="addCount()">ADD</ion-button>
+                <ion-button size="small" color="success"   fill="clear" (click)="addCount()">ADD BACK</ion-button>
                 <ion-button size="small" color="danger"    fill="clear" (click)="subtractCount()">SUBTRACT</ion-button>
                 <ion-button size="small" color="medium" fill="clear" (click)="resetEdits()">RESET</ion-button>
               </div>

@@ -34,14 +34,16 @@ export class LoginPage implements OnInit {
     this.bubbleCtrl.refresh().then(response=>{
       this.router.navigate(['/tabs/bubbles'], {queryParams: {'refresh': true}});
     }, err=>{
-      console.log(err);
+      console.log("couldn't refresh: " + err);
     })
   }
 
   public login(){
     this.userCtrl.login(this.user).then(response=>{
+      console.log("loggin in worked")
       this.goToRoot();
     }, err=>{
+      console.log("error logging in")
       this.promptLoginFailedAlert(err);
     })
   }
@@ -63,7 +65,7 @@ export class LoginPage implements OnInit {
     });
     toast.present();
   }
-  
+
   async resetPW(){
     const alert = await this.alertCtrl.create({
       cssClass: 'my-custom-class',
@@ -183,17 +185,16 @@ export class LoginPage implements OnInit {
   private promptSignupFailedAlert(err: string){
     this.promptErrAlert("SIGN UP FAILED", err);
   }
-  
-  private async promptErrAlert(title: string, msg: string){
+
+  private promptErrAlert(title: string, msg: string){
     console.log(msg);
-    const alert = await this.alertCtrl.create({
+    this.alertCtrl.create({
       header: title,
       subHeader: '',
       message: msg,
       buttons: ['CLOSE']
-    });
-
-    await alert.present();
+    }).then(res =>
+      res.present())
   }
 
 }
