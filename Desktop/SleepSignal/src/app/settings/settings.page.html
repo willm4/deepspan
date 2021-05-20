@@ -1,0 +1,59 @@
+<ion-content [fullscreen]="true">
+  <ion-list lines="none">
+    <ion-list-header>
+      <ion-label color="secondary">
+        BioMetrics
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-label slot="start">Height</ion-label>
+      <ion-note slot="end" color="secondary">{{currentHeight}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label slot="start">Weight</ion-label>
+      <ion-note slot="end" color="secondary">{{currentWeight}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label slot="start">Gender</ion-label>
+      <ion-note slot="end" color="secondary">{{gender}}</ion-note>
+    </ion-item>
+    <ion-list-header>
+      <ion-label>
+        <ion-text color="secondary">Activity</ion-text>
+        <p>Last 24 hours</p>
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-label slot="start">Steps </ion-label>
+      <ion-note slot="end" color="secondary">{{stepcount}}</ion-note>
+    </ion-item>
+    <ion-item>
+      <ion-label slot="start">Distance </ion-label>
+      <ion-note slot="end" color="secondary">{{distance}}</ion-note>
+    </ion-item>
+    <!-- <ion-item>
+      <ion-label slot="start">Sleep </ion-label>
+      <ion-note slot="end" color="secondary">{{sleep}}</ion-note>
+    </ion-item> -->
+  </ion-list>
+ 
+  <ion-list lines="none">
+    <ion-list-header>
+      <ion-label>
+        <ion-text color="secondary">Workouts</ion-text>
+        <p *ngIf="workouts.length == 0">No data found</p>
+      </ion-label>
+    </ion-list-header>
+    <ion-card *ngFor="let workout of workouts">
+      <ion-card-header>{{ workout.calories }}</ion-card-header>
+      <ion-card-content>
+        <p>Activity: {{ workout.activityType }}</p>
+        <p>Duration: {{ workout.duration / 100 }} min</p>
+        <p>Date: {{ workout.startDate | date:'short' }}</p>
+        <p>Distance: {{ workout.miles }} miles</p>
+      </ion-card-content>
+    </ion-card>
+  </ion-list>
+
+  <p>{{sleep}}</p>
+</ion-content>

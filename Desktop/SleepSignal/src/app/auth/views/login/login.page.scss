@@ -1,0 +1,12 @@
+*{
+    --ion-background-color:#3dc2ff;
+    color:white
+}
+
+.login-content{
+    display: flex; flex-direction:column; align-items: center; justify-content:center; flex:1;
+}
+
+.login-content-row{
+    width:100%; display: flex; flex-direction: row; justify-content: center;
+}

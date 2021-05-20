@@ -1,0 +1,28 @@
+
+
+<ion-content padding style="display:flex; flex-direction:row">
+  <div class="login-content">
+    <h1 style="color:white">SleepSignal</h1>
+    <div class="login-content-row">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <ion-list style="flex:1">
+              <ion-item>
+                <ion-label position="floating">Email</ion-label>
+                <ion-input></ion-input>
+              </ion-item>
+              <ion-item style="flex:1">
+                <ion-label position="floating">Password</ion-label>
+                <ion-input></ion-input>
+              </ion-item>
+            </ion-list>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+    <div class="login-content-row" style="margin-top: 25px;">
+      <ion-button style="width:75%;" color="light" expand="block" fill="outline" (click)="login()">LOGIN</ion-button>
+    </div>
+  </div>
+</ion-content>
