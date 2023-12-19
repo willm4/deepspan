@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <script src="https://apis.google.com/js/api.js"></script>
+
+    <!-- <script src="https://accounts.google.com/gsi/client" async defer></script> -->
+    <script>
+      function handleCredentialResponse(response){
+        console.log('CALLBACK RESPONSE ', response)
+      }
+    </script>
+    <title><%= htmlWebpackPlugin.options.title %></title>
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+
+
+    <script>
+      /**
+       * Sample JavaScript code for logging.entries.list
+       * See instructions for running APIs Explorer code samples locally:
+       * https://developers.google.com/explorer-help/code-samples#javascript
+       */
+    
+      function authenticate() {
+        return gapi.auth2.getAuthInstance()
+            .signIn({scope: "https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/cloud-platform.read-only https://www.googleapis.com/auth/logging.admin https://www.googleapis.com/auth/logging.read"})
+            .then(function() { console.log("Sign-in successful"); },
+                  function(err) { console.error("Error signing in", err); });
+      }
+      function loadClient() {
+        gapi.client.setApiKey("YOUR_API_KEY");
+        return gapi.client.load("https://logging.googleapis.com/$discovery/rest?version=v2")
+            .then(function() { console.log("GAPI client loaded for API"); },
+                  function(err) { console.error("Error loading GAPI client for API", err); });
+      }
+      // Make sure the client is loaded and sign-in is complete before calling this method.
+      function execute() {
+        return gapi.client.logging.entries.list({
+          "resource": {
+            "resourceNames": [
+              "projects/sleepnet"
+            ],
+            "filter": "timestamp&gt;2023-12-11 AND resource.type = gae_app"
+          }
+        })
+            .then(function(response) {
+                    // Handle the results here (response.result has the parsed body).
+                    console.log("Response", response);
+                  },
+                  function(err) { console.error("Execute error", err); });
+      }
+      gapi.load("client:auth2", function() {
+        gapi.auth2.init({client_id: "YOUR_CLIENT_ID"});
+      });
+    </script>
+
+    
+    <!-- <div id="g_id_onload"
+    data-client_id="481422764072-jfm8pc5b2vbao84ubaj1iij068fh4sgi.apps.googleusercontent.com"
+    data-callback="handleCredentialResponse">
+</div>
+<div class="g_id_signin" data-type="standard"></div> -->
+    <!-- built files will be auto injected -->
+  </body>
+</html>
